@@ -66,7 +66,7 @@ export const LoadVault = () => {
     <>
       <CardWelcome>
         <WelcomeCardHeader
-          title={t`Loading an existing vault`}
+          title={t`Import an existing vault`}
           onBack={() =>
             navigate('welcome', {
               params: { state: NAVIGATION_ROUTES.VAULTS }
@@ -74,9 +74,17 @@ export const LoadVault = () => {
           }
         />
 
+        <p className="text-white-mode1 text-center text-[14px]">
+          <Trans>
+            Using PearPass on your other device, use "Add Device" to generate a
+            QR or connection code to pair your account. This method keeps your
+            account secure.
+          </Trans>
+        </p>
+
         <input
           className="border-grey100-mode1 text-grey100-mode1 w-full rounded-[10px] border-[1px] bg-transparent px-[20px] py-[12px] focus:outline-none"
-          placeholder={t`Insert your code vault...`}
+          placeholder={t`Enter your vault code…`}
           value={inviteCode}
           onChange={handleChange}
         />
@@ -91,7 +99,7 @@ export const LoadVault = () => {
             </ButtonSecondary>
           ) : (
             <ButtonPrimary onClick={handleLoadVault} disabled={isLoading}>
-              <Trans>Confirm</Trans>
+              <Trans>Import vault</Trans>
             </ButtonPrimary>
           )}
         </div>
