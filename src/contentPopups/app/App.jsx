@@ -7,7 +7,7 @@ import { useRouter } from '../../shared/context/RouterContext'
 import { logger } from '../../shared/utils/logger'
 import { PearpassVaultClient } from '../../vaultClient'
 import { closeIframe } from '../iframeApi/closeIframe'
-import { isMessageOriginValid } from '../utils/messageValidation'
+import { doesPayloadUrlMatchOrigin } from '../utils/messageValidation'
 
 // const isProduction =
 //   (typeof Pear !== 'undefined' && !!Pear.config?.key) ||
@@ -29,7 +29,7 @@ export const App = () => {
       const msg = e.data
       logger.log('Message received:', msg?.type, e)
 
-      if (!isMessageOriginValid(msg, e.origin)) {
+      if (!doesPayloadUrlMatchOrigin(msg, e.origin)) {
         return
       }
 

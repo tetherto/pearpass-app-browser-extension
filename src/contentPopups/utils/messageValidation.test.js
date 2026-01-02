@@ -1,71 +1,66 @@
+import { doesPayloadUrlMatchOrigin } from './messageValidation'
+import { logger } from '../../shared/utils/logger'
 
-import { isMessageOriginValid } from './messageValidation'
+describe('doesPayloadUrlMatchOrigin', () => {
+  beforeEach(() => {
+    jest.spyOn(logger, 'warn').mockImplementation(() => {})
+    jest.spyOn(logger, 'error').mockImplementation(() => {})
+  })
 
-describe('isMessageOriginValid', () => {
-    const originalConsoleWarn = console.warn
-    const originalConsoleError = console.error
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
 
-    beforeEach(() => {
-        console.warn = jest.fn()
-        console.error = jest.fn()
-    })
+  it('should return true if no url provided in msg.data', () => {
+    const msg = { data: {} }
+    expect(doesPayloadUrlMatchOrigin(msg, 'https://example.com')).toBe(false)
+  })
 
-    afterEach(() => {
-        console.warn = originalConsoleWarn
-        console.error = originalConsoleError
-        jest.clearAllMocks()
-    })
+  it('should return true if null msg provided', () => {
+    expect(doesPayloadUrlMatchOrigin(null, 'https://example.com')).toBe(false)
+  })
 
-    it('should return true if no url provided in msg.data', () => {
-        const msg = { data: {} }
-        expect(isMessageOriginValid(msg, 'https://example.com')).toBe(true)
-    })
+  it('should return true when message origin matches url origin', () => {
+    const msg = {
+      data: {
+        url: 'https://example.com/login'
+      }
+    }
+    const origin = 'https://example.com'
+    expect(doesPayloadUrlMatchOrigin(msg, origin)).toBe(true)
+  })
 
-    it('should return true if null msg provided', () => {
-        expect(isMessageOriginValid(null, 'https://example.com')).toBe(true)
-    })
+  it('should return false when message origin does not match url origin', () => {
+    const msg = {
+      data: {
+        url: 'https://google.com/login'
+      }
+    }
+    const origin = 'https://malicious-site.com'
+    expect(doesPayloadUrlMatchOrigin(msg, origin)).toBe(false)
+    expect(logger.warn).toHaveBeenCalled()
+  })
 
-    it('should return true when message origin matches url origin', () => {
-        const msg = {
-            data: {
-                url: 'https://example.com/login'
-            }
-        }
-        const origin = 'https://example.com'
-        expect(isMessageOriginValid(msg, origin)).toBe(true)
-    })
+  // TODO: maybe this should be allowed?
 
-    it('should return false when message origin does not match url origin', () => {
-        const msg = {
-            data: {
-                url: 'https://google.com/login'
-            }
-        }
-        const origin = 'https://malicious-site.com'
-        expect(isMessageOriginValid(msg, origin)).toBe(false)
-        expect(console.warn).toHaveBeenCalled()
-    })
+  it('should handle subdomain mismatches correctly', () => {
+    const msg = {
+      data: {
+        url: 'https://sub.example.com/login'
+      }
+    }
+    const origin = 'https://example.com'
+    expect(doesPayloadUrlMatchOrigin(msg, origin)).toBe(false)
+  })
 
-    // TODO: maybe this should be allowed?
-
-    it('should handle subdomain mismatches correctly', () => {
-        const msg = {
-            data: {
-                url: 'https://sub.example.com/login'
-            }
-        }
-        const origin = 'https://example.com'
-        expect(isMessageOriginValid(msg, origin)).toBe(false)
-    })
-
-    it('should return false and log error for invalid URLs', () => {
-        const msg = {
-            data: {
-                url: 'not-a-valid-url'
-            }
-        }
-        const origin = 'https://example.com'
-        expect(isMessageOriginValid(msg, origin)).toBe(false)
-        expect(console.error).toHaveBeenCalled()
-    })
+  it('should return false and log error for invalid URLs', () => {
+    const msg = {
+      data: {
+        url: 'not-a-valid-url'
+      }
+    }
+    const origin = 'https://example.com'
+    expect(doesPayloadUrlMatchOrigin(msg, origin)).toBe(false)
+    expect(logger.error).toHaveBeenCalled()
+  })
 })
