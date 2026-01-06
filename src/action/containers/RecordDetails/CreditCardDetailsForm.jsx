@@ -84,7 +84,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={UserIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('name')}
           />
         )}
@@ -95,7 +95,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CreditCardIcon}
             onClick={() => handleCopy(values.number, true)}
-            readonly={true}
+            readonly
             {...register('number')}
             value={values.number.replace(/(.{4})/g, '$1 ').trim()}
           />
@@ -108,7 +108,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CalendarIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('expireDate')}
           />
         )}
@@ -120,7 +120,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CreditCardIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('securityCode')}
           />
         )}
@@ -131,7 +131,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={NineDotsIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('pinCode')}
           />
         )}
@@ -145,7 +145,7 @@ export const CreditCardDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CommonFileIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('note')}
           />
         )}
