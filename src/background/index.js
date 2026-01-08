@@ -301,10 +301,9 @@ const createRegistrationCredential = async (options, requestOrigin) => {
       transports: ['internal']
     }
 
-    // Save exported private key as a PEM-formatted PKCS#8 string
-    const privateKeyPem = await CredentialGenerator.exportPrivateKeyAsPem(
-      keyPair.privateKey
-    )
+    // Export private key as raw binary PKCS#8 buffer and encode as Base64URL
+    const privateKeyBuffer = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+    const privateKeyBufferB64 = arrayBufferToBase64Url(privateKeyBuffer)
     // Save user ID buffer as Base64URL string
     const userIdBase64 = options.user.id
 
@@ -320,7 +319,7 @@ const createRegistrationCredential = async (options, requestOrigin) => {
           rk: options.authenticatorSelection?.residentKey === 'required'
         }
       },
-      _privateKey: privateKeyPem,
+      _privateKeyBuffer: privateKeyBufferB64,
       _userId: userIdBase64
     }
   } catch (error) {
@@ -430,10 +429,20 @@ const getAssertionCredential = async (
   )
 
   // Sign the assertion over authenticatorData and clientDataJSON
+  // Decode the binary buffer private key and import it
+  const privateKeyBuffer = base64UrlToArrayBuffer(savedCredential._privateKeyBuffer)
+  const privateKeyFromBuffer = await crypto.subtle.importKey(
+    'pkcs8',
+    privateKeyBuffer,
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256'
+    },
+    false, // non-extractable for extra safety
+    ['sign']
+  )
   const signature = await CredentialGenerator.signAssertion(
-    await CredentialGenerator.importPrivateKeyFromPem(
-      savedCredential._privateKey
-    ),
+    privateKeyFromBuffer,
     authData.buffer,
     clientDataJSON
   )

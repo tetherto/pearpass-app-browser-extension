@@ -7,6 +7,7 @@ import { useRouter } from '../../shared/context/RouterContext'
 import { logger } from '../../shared/utils/logger'
 import { PearpassVaultClient } from '../../vaultClient'
 import { closeIframe } from '../iframeApi/closeIframe'
+import { doesPayloadUrlMatchOrigin } from '../utils/messageValidation'
 
 // const isProduction =
 //   (typeof Pear !== 'undefined' && !!Pear.config?.key) ||
@@ -27,6 +28,10 @@ export const App = () => {
     function onMessage(e) {
       const msg = e.data
       logger.log('Message received:', msg?.type, e)
+
+      if (!doesPayloadUrlMatchOrigin(msg, e.origin)) {
+        return
+      }
 
       const combinedData = {
         ...msg.data,

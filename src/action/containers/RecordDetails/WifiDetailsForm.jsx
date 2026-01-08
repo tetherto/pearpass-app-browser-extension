@@ -80,7 +80,7 @@ export const WifiDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={PasswordIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('password')}
           />
         )}
@@ -93,7 +93,7 @@ export const WifiDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CommonFileIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('note')}
           />
         )}

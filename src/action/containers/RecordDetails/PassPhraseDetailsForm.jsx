@@ -85,7 +85,7 @@ export const PassPhraseDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CommonFileIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('note')}
           />
         )}

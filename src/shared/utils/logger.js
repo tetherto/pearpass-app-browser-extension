@@ -12,6 +12,11 @@ export class Logger {
     console.log(...messages)
   }
 
+  warn(...messages) {
+    // eslint-disable-next-line no-console
+    console.warn(...messages)
+  }
+
   error(...messages) {
     // eslint-disable-next-line no-console
     console.error(...messages)

@@ -163,7 +163,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={UserIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('fullName')}
             />
           )}
@@ -175,7 +175,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={EmailIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('email')}
             />
           )}
@@ -187,7 +187,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={PhoneIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('phoneNumber')}
             />
           )}
@@ -202,7 +202,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Address`}
               variant="outline"
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('address')}
             />
           )}
@@ -212,7 +212,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert zip`}
               variant="outline"
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('zip')}
             />
           )}
@@ -222,7 +222,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`City`}
               variant="outline"
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('city')}
             />
           )}
@@ -232,7 +232,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Region`}
               variant="outline"
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('region')}
             />
           )}
@@ -242,7 +242,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Country`}
               variant="outline"
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('country')}
             />
           )}
@@ -258,7 +258,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={UserIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportFullName')}
             />
           )}
@@ -269,7 +269,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={GroupIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportNumber')}
             />
           )}
@@ -280,7 +280,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={NationalityIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportIssuingCountry')}
             />
           )}
@@ -291,7 +291,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportDateOfIssue')}
             />
           )}
@@ -302,7 +302,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportExpiryDate')}
             />
           )}
@@ -313,7 +313,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={NationalityIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportNationality')}
             />
           )}
@@ -324,7 +324,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportDob')}
             />
           )}
@@ -335,7 +335,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={GenderIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('passportGender')}
             />
           )}
@@ -351,7 +351,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={GroupIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('idCardNumber')}
             />
           )}
@@ -362,7 +362,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('idCardDateOfIssue')}
             />
           )}
@@ -373,7 +373,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('idCardExpiryDate')}
             />
           )}
@@ -384,7 +384,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={NationalityIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('idCardIssuingCountry')}
             />
           )}
@@ -400,7 +400,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={GroupIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('drivingLicenseNumber')}
             />
           )}
@@ -411,7 +411,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('drivingLicenseDateOfIssue')}
             />
           )}
@@ -422,7 +422,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={CalendarIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('drivingLicenseExpiryDate')}
             />
           )}
@@ -433,7 +433,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               variant="outline"
               icon={NationalityIcon}
               onClick={handleCopy}
-              readonly={true}
+              readonly
               {...register('drivingLicenseIssuingCountry')}
             />
           )}
@@ -448,7 +448,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CommonFileIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('note')}
           />
         )}
