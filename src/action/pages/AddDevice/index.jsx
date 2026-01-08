@@ -13,17 +13,20 @@ import {
 } from 'pearpass-lib-vault'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
-import { ButtonPrimary } from '../../../shared/components/ButtonPrimary'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
-import { ButtonSecondary } from '../../../shared/components/ButtonSecondary'
 import { CardWarning } from '../../../shared/components/CardWarningText'
-import { useLoadingContext } from '../../../shared/context/LoadingContext'
+import {
+  useGlobalLoading,
+  useLoadingContext
+} from '../../../shared/context/LoadingContext'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useToast } from '../../../shared/context/ToastContext'
 import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { BackIcon } from '../../../shared/icons/BackIcon'
 import { CopyIcon } from '../../../shared/icons/CopyIcon'
+import { ErrorIcon } from '../../../shared/icons/ErrorIcon'
+import { PasteIcon } from '../../../shared/icons/PasteIcon'
 import { TimeIcon } from '../../../shared/icons/TimeIcon'
 import { XIcon } from '../../../shared/icons/XIcon'
 import { logger } from '../../../shared/utils/logger'
@@ -50,6 +53,10 @@ export const AddDevice = () => {
     onFinish: closeModal
   })
 
+  useGlobalLoading({
+    isLoading: isPairing
+  })
+
   const { setToast } = useToast()
 
   const { copyToClipboard, isCopied } = useCopyToClipboard({
@@ -65,7 +72,26 @@ export const AddDevice = () => {
     setInviteCode(e.target.value)
   }
 
-  const handleLoadVault = async () => {
+  const handlePaste = (e) => {
+    const pastedText = e.clipboardData?.getData('text')
+    setInviteCode(pastedText)
+    handleLoadVault(pastedText)
+  }
+
+  const handlePasteClick = async () => {
+    try {
+      const pastedText = await navigator.clipboard.readText()
+      setInviteCode(pastedText)
+      handleLoadVault(pastedText)
+    } catch {
+      setToast({
+        message: t`Failed to paste from clipboard`,
+        icon: ErrorIcon
+      })
+    }
+  }
+
+  const handleLoadVault = async (inviteCode) => {
     setIsLoading(true)
 
     chrome.runtime.sendMessage(
@@ -189,7 +215,7 @@ export const AddDevice = () => {
                 : 'text-primary400-mode1'
             }`}
           >
-            <Trans>Share this device</Trans>
+            <Trans>Share this vault</Trans>
           </button>
           <button
             onClick={() => setActiveTab('load')}
@@ -238,7 +264,7 @@ export const AddDevice = () => {
               </div>
 
               <div className="text-white-mode1 font-inter text-sm font-medium">
-                <Trans>Copy vault key</Trans>
+                <Trans>Copy this vault key to your device</Trans>
               </div>
             </div>
 
@@ -255,26 +281,23 @@ export const AddDevice = () => {
 
       {activeTab === 'load' && (
         <div className="flex w-full flex-1 flex-col items-center gap-4 pt-[30px]">
-          <input
-            className="border-grey100-mode1 text-grey100-mode1 w-full rounded-[10px] border-[1px] bg-transparent px-[20px] py-[12px] focus:outline-none"
-            placeholder={t`Enter your vault code…`}
-            value={inviteCode}
-            onChange={handleInviteCodeChange}
-          />
+          <div className="relative w-full">
+            <input
+              className="border-grey100-mode1 text-grey100-mode1 w-full rounded-[10px] border-[1px] bg-transparent px-[20px] py-[18px] focus:outline-none"
+              placeholder={t`Enter your vault code…`}
+              value={inviteCode}
+              onChange={handleInviteCodeChange}
+              onPaste={handlePaste}
+            />
 
-          <div className="flex gap-[10px]">
-            {isPairing ? (
-              <ButtonSecondary
-                onClick={cancelPairActiveVault}
-                disabled={isLoading}
-              >
-                <Trans>Cancel Pairing</Trans>
-              </ButtonSecondary>
-            ) : (
-              <ButtonPrimary onClick={handleLoadVault} disabled={isLoading}>
-                <Trans>Import vault</Trans>
-              </ButtonPrimary>
-            )}
+            <button
+              className="bg-black-dark text-primary400-mode1 font-inter absolute top-[50%] right-[10px] flex -translate-y-[50%] cursor-pointer items-center justify-center gap-[7px] rounded-[10px] px-[15px] py-[9px] text-[12px]"
+              onClick={isPairing ? cancelPairActiveVault : handlePasteClick}
+              disabled={isLoading}
+            >
+              {!isPairing && <PasteIcon color={colors.primary400.mode1} />}
+              {isPairing ? <Trans>cancel pairing</Trans> : <Trans>Paste</Trans>}
+            </button>
           </div>
         </div>
       )}

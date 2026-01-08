@@ -2,12 +2,15 @@ import './nativeMessaging' // Initialize native messaging handler
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
 import * as CredentialGenerator from './utils/credentialGenerator'
+import { validateSender } from './utils/validateSender'
 import { ERROR_CODES } from '../shared/constants/nativeMessaging'
+import {
+  MESSAGE_TYPES,
+  SECURE_MESSAGE_TYPES
+} from '../shared/services/messageBridge'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
 import { logger } from '../shared/utils/logger'
-import { validateSender } from './utils/validateSender'
-import { MESSAGE_TYPES, SECURE_MESSAGE_TYPES } from '../shared/services/messageBridge'
 
 const { SCHEDULE_CLIPBOARD_CLEAR, CLEAR_CLIPBOARD_NOW } = MESSAGES
 const { CLEAR_CLIPBOARD } = ALARMS
@@ -71,7 +74,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 })
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-
   const sensitiveTypes = [
     ...Object.values(SECURE_MESSAGE_TYPES),
     MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
@@ -80,7 +82,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (sensitiveTypes.includes(msg.type)) {
     if (!validateSender(sender, 'extension-page')) {
-      sendResponse({ success: false, error: 'Unauthorized' });
+      sendResponse({ success: false, error: 'Unauthorized' })
       return
     }
   }
@@ -168,7 +170,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === MESSAGE_TYPES.GET_IDENTITY) {
-    ; (async () => {
+    ;(async () => {
       try {
         const { pairingToken } = msg
         if (!pairingToken) {
@@ -193,7 +195,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === MESSAGE_TYPES.CONFIRM_PAIR) {
-    ; (async () => {
+    ;(async () => {
       try {
         await secureChannel.pinIdentity(msg.identity)
         const handshake = await secureChannel.beginHandshake()
@@ -227,7 +229,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === MESSAGE_TYPES.CHECK_PAIRED) {
-    ; (async () => {
+    ;(async () => {
       try {
         const paired = await secureChannel.isPaired()
         sendResponse({ paired })
@@ -250,7 +252,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === SCHEDULE_CLIPBOARD_CLEAR) {
-    ; (async () => {
+    ;(async () => {
       await chrome.alarms.clear(CLEAR_CLIPBOARD)
       const when = Date.now() + msg.delayMs
       await chrome.alarms.create(CLEAR_CLIPBOARD, { when })
@@ -302,7 +304,10 @@ const createRegistrationCredential = async (options, requestOrigin) => {
     }
 
     // Export private key as raw binary PKCS#8 buffer and encode as Base64URL
-    const privateKeyBuffer = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+    const privateKeyBuffer = await crypto.subtle.exportKey(
+      'pkcs8',
+      keyPair.privateKey
+    )
     const privateKeyBufferB64 = arrayBufferToBase64Url(privateKeyBuffer)
     // Save user ID buffer as Base64URL string
     const userIdBase64 = options.user.id
@@ -430,7 +435,9 @@ const getAssertionCredential = async (
 
   // Sign the assertion over authenticatorData and clientDataJSON
   // Decode the binary buffer private key and import it
-  const privateKeyBuffer = base64UrlToArrayBuffer(savedCredential._privateKeyBuffer)
+  const privateKeyBuffer = base64UrlToArrayBuffer(
+    savedCredential._privateKeyBuffer
+  )
   const privateKeyFromBuffer = await crypto.subtle.importKey(
     'pkcs8',
     privateKeyBuffer,

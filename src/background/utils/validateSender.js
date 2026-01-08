@@ -5,16 +5,16 @@
  * @returns {boolean} - Whether the sender is valid for the required context
  */
 export const validateSender = (sender, requiredContext = 'any') => {
-    const extensionUrl = chrome.runtime.getURL('')
+  const extensionUrl = chrome.runtime.getURL('')
 
-    switch (requiredContext) {
-        case 'extension-page':
-            return sender.url?.startsWith(extensionUrl)
-        case 'content-script':
-            return sender.tab?.id !== undefined
-        case 'any':
-            return true
-        default:
-            return false
-    }
+  switch (requiredContext) {
+    case 'extension-page':
+      return sender.url?.startsWith(extensionUrl)
+    case 'content-script':
+      return sender.tab?.id !== undefined
+    case 'any':
+      return true
+    default:
+      return false
+  }
 }
