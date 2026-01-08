@@ -280,25 +280,31 @@ export const AddDevice = () => {
       )}
 
       {activeTab === 'load' && (
-        <div className="flex w-full flex-1 flex-col items-center gap-4 pt-[30px]">
-          <div className="relative w-full">
+        <div className="flex w-full flex-1 pt-[30px]">
+          <div className="flex w-full items-center self-start border-grey100-mode1 text-grey100-mode1 rounded-[10px] border-[1px] bg-transparent p-[10px]">
+            <div className="flex-1">
+
+            <div className="text-white-mode1 font-inter text-[12px] font-medium">
+              <Trans>Vault key</Trans>
+            </div>
             <input
-              className="border-grey100-mode1 text-grey100-mode1 w-full rounded-[10px] border-[1px] bg-transparent px-[20px] py-[18px] focus:outline-none"
-              placeholder={t`Enter your vault code…`}
+              className="w-full bg-transparent text-base font-normal placeholder:text-grey100-mode1 focus:outline-none"
+              placeholder={t`Insert vault key...`}
               value={inviteCode}
               onChange={handleInviteCodeChange}
               onPaste={handlePaste}
-            />
+              />
+              </div>
 
             <button
-              className="bg-black-dark text-primary400-mode1 font-inter absolute top-[50%] right-[10px] flex -translate-y-[50%] cursor-pointer items-center justify-center gap-[7px] rounded-[10px] px-[15px] py-[9px] text-[12px]"
+              className="bg-black-dark text-primary400-mode1 font-inter cursor-pointer items-center justify-center gap-[7px] rounded-[10px] px-[15px] py-[9px] text-[12px] flex"
               onClick={isPairing ? cancelPairActiveVault : handlePasteClick}
               disabled={isLoading}
-            >
+              >
               {!isPairing && <PasteIcon color={colors.primary400.mode1} />}
               {isPairing ? <Trans>cancel pairing</Trans> : <Trans>Paste</Trans>}
             </button>
-          </div>
+              </div>
         </div>
       )}
     </div>
