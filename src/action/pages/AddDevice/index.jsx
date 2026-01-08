@@ -281,30 +281,29 @@ export const AddDevice = () => {
 
       {activeTab === 'load' && (
         <div className="flex w-full flex-1 pt-[30px]">
-          <div className="flex w-full items-center self-start border-grey100-mode1 text-grey100-mode1 rounded-[10px] border-[1px] bg-transparent p-[10px]">
+          <div className="border-grey100-mode1 text-grey100-mode1 flex w-full items-center self-start rounded-[10px] border-[1px] bg-transparent p-[10px]">
             <div className="flex-1">
-
-            <div className="text-white-mode1 font-inter text-[12px] font-medium">
-              <Trans>Vault key</Trans>
-            </div>
-            <input
-              className="w-full bg-transparent text-base font-normal placeholder:text-grey100-mode1 focus:outline-none"
-              placeholder={t`Insert vault key...`}
-              value={inviteCode}
-              onChange={handleInviteCodeChange}
-              onPaste={handlePaste}
-              />
+              <div className="text-white-mode1 font-inter text-[12px] font-medium">
+                <Trans>Vault key</Trans>
               </div>
+              <input
+                className="placeholder:text-grey100-mode1 w-full bg-transparent text-base font-normal focus:outline-none"
+                placeholder={t`Insert vault key...`}
+                value={inviteCode}
+                onChange={handleInviteCodeChange}
+                onPaste={handlePaste}
+              />
+            </div>
 
             <button
-              className="bg-black-dark text-primary400-mode1 font-inter cursor-pointer items-center justify-center gap-[7px] rounded-[10px] px-[15px] py-[9px] text-[12px] flex"
+              className="bg-black-dark text-primary400-mode1 font-inter flex cursor-pointer items-center justify-center gap-[7px] rounded-[10px] px-[15px] py-[9px] text-[12px]"
               onClick={isPairing ? cancelPairActiveVault : handlePasteClick}
               disabled={isLoading}
-              >
+            >
               {!isPairing && <PasteIcon color={colors.primary400.mode1} />}
               {isPairing ? <Trans>cancel pairing</Trans> : <Trans>Paste</Trans>}
             </button>
-              </div>
+          </div>
         </div>
       )}
     </div>
