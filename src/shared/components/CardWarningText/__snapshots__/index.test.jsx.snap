@@ -3,9 +3,11 @@
 exports[`CardWarning Component renders correctly with empty text 1`] = `
 <div>
   <div
-    class="text-white-mode1 bg-erroryellow-mode1 border-erroryellow-mode1 flex w-full items-start  justify-center gap-2 rounded-[10px] border p-[10px] text-[14px] font-medium"
+    class="text-white-mode1 bg-erroryellow-mode1 border-erroryellow-mode1 flex w-full items-center  justify-center gap-2 rounded-[10px] border p-[10px] text-[14px] font-medium"
   >
-    <div>
+    <div
+      class="shrink-0"
+    >
       <svg
         fill="none"
         height="14"
@@ -34,9 +36,11 @@ exports[`CardWarning Component renders correctly with empty text 1`] = `
 exports[`CardWarning Component renders correctly with given text 1`] = `
 <div>
   <div
-    class="text-white-mode1 bg-erroryellow-mode1 border-erroryellow-mode1 flex w-full items-start  justify-center gap-2 rounded-[10px] border p-[10px] text-[14px] font-medium"
+    class="text-white-mode1 bg-erroryellow-mode1 border-erroryellow-mode1 flex w-full items-center  justify-center gap-2 rounded-[10px] border p-[10px] text-[14px] font-medium"
   >
-    <div>
+    <div
+      class="shrink-0"
+    >
       <svg
         fill="none"
         height="14"
