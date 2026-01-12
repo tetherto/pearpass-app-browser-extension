@@ -77,14 +77,14 @@ export const LoadVault = () => {
         <p className="text-white-mode1 text-center text-[14px]">
           <Trans>
             Using PearPass on your other device, use "Add Device" to generate a
-            QR or connection code to pair your account. This method keeps your
-            account secure.
+            QR or connection code to pair your vault. This method keeps your
+            vault secure.
           </Trans>
         </p>
 
         <input
           className="border-grey100-mode1 text-grey100-mode1 w-full rounded-[10px] border-[1px] bg-transparent px-[20px] py-[12px] focus:outline-none"
-          placeholder={t`Enter your vault code…`}
+          placeholder={t`Insert vault key...`}
           value={inviteCode}
           onChange={handleChange}
         />

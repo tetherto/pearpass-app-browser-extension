@@ -191,13 +191,13 @@ export const AddDevice = () => {
             {activeTab === 'share' ? (
               <Trans>
                 Scan this QR code or paste the vault key into the PearPass app
-                on your other device to connect it to your account. This method
-                keeps your account secure.
+                on your other device to connect it to your vault. This method
+                keeps your vault secure.
               </Trans>
             ) : (
               <Trans>
                 Paste the vault key from the PearPass app on your other device
-                to connect it to your account. This method keeps your account
+                to connect it to your vault. This method keeps your vault
                 secure.
               </Trans>
             )}
@@ -234,7 +234,7 @@ export const AddDevice = () => {
         <>
           <div className="flex flex-col items-center gap-2">
             <div className="text-white-mode1 font-inter text-sm font-medium">
-              <Trans>Scan this QR code</Trans>
+              <Trans>Scan this QR-code while in the PearPass App</Trans>
             </div>
 
             <div
@@ -245,7 +245,7 @@ export const AddDevice = () => {
 
           <div className="bg-grey400-mode1 flex items-center justify-center gap-2 rounded-[10px] p-[7px_10px]">
             <div className="text-white-mode1 font-inter flex items-center gap-0.5 text-sm font-medium">
-              <Trans>This link expires in</Trans>
+              <Trans>Expires in</Trans>
               <span className="text-primary400-mode1">{expireTime}</span>
             </div>
 
@@ -264,7 +264,7 @@ export const AddDevice = () => {
               </div>
 
               <div className="text-white-mode1 font-inter text-sm font-medium">
-                <Trans>Copy this vault key to your device</Trans>
+                <Trans>Copy vault key</Trans>
               </div>
             </div>
 
@@ -274,7 +274,7 @@ export const AddDevice = () => {
           </div>
 
           <CardWarning
-            text={t`Caution: You're generating a secure invitation to sync another device with your vault. Treat this invite with the same confidentiality as your password.`}
+            text={t`Keep this code private. Anyone with it can connect a device to your vault.`}
           />
         </>
       )}
