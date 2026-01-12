@@ -6,9 +6,14 @@ import {
   sendGoogleFormFeedback,
   sendSlackFeedback
 } from 'pear-apps-lib-feedback'
-import { PRIVACY_POLICY, TERMS_OF_USE } from 'pearpass-lib-constants'
+import {
+  AUTO_LOCK_TIMEOUT_OPTIONS,
+  PRIVACY_POLICY,
+  TERMS_OF_USE
+} from 'pearpass-lib-constants'
 
 import { version } from '../../../../public/manifest.json'
+import { useAutoLockPreferences } from '../../../hooks/useAutoLockPreferences'
 import { useLanguageOptions } from '../../../hooks/useLanguageOptions'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
 import { ButtonSecondary } from '../../../shared/components/ButtonSecondary'
@@ -33,11 +38,19 @@ import {
 import { isPasswordChangeReminderDisabled } from '../../../shared/utils/isPasswordChangeReminderDisabled'
 import { logger } from '../../../shared/utils/logger'
 
+export const TIMEOUT_OPTIONS = Object.values(AUTO_LOCK_TIMEOUT_OPTIONS)
+
 export const Settings = () => {
   const { navigate } = useRouter()
   const { setToast } = useToast()
   const { i18n } = useLingui()
+
   const { languageOptions } = useLanguageOptions()
+
+  const translatedOptions = TIMEOUT_OPTIONS.map((option) => ({
+    ...option,
+    label: t(option.label)
+  }))
 
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -45,6 +58,10 @@ export const Settings = () => {
   const [isPasswordReminderDisabled, setIsPasswordReminderDisabled] = useState(
     isPasswordChangeReminderDisabled()
   )
+
+  const { isAutoLockEnabled, timeoutMs, setAutoLockEnabled, setTimeoutMs } =
+    useAutoLockPreferences()
+
   const [isAutofillEnabled, setIsAutoFillEnabled] = useState(true)
   const { isCopyToClipboardEnabled, handleCopyToClipboardSettingChange } =
     useCopyToClipboard()
@@ -125,6 +142,10 @@ export const Settings = () => {
     setIsAutoFillEnabled(isEnabled)
   }
 
+  const selectedTimeoutOption =
+    translatedOptions.find((option) => option.value === timeoutMs) ||
+    translatedOptions[0]
+
   return (
     <div className="bg-grey400-mode1 flex h-full w-full flex-col gap-1.5 px-5 pt-7 pb-2">
       <div className="flex w-full flex-none items-center justify-start gap-2.5 text-[18px] font-bold text-white">
@@ -166,6 +187,23 @@ export const Settings = () => {
               description={t`When clicking a password you copy that into your clipboard`}
               onChange={handleCopyToClipboardSettingChange}
             />
+
+            <div className="flex flex-col gap-0.5">
+              <SwitchWithLabel
+                isOn={isAutoLockEnabled}
+                label={t`Auto Log-out`}
+                description={t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}
+                onChange={setAutoLockEnabled}
+              />
+              {isAutoLockEnabled && (
+                <Select
+                  items={translatedOptions}
+                  selectedItem={selectedTimeoutOption}
+                  onItemSelect={(option) => setTimeoutMs(option.value)}
+                  placeholder={t`Select`}
+                />
+              )}
+            </div>
           </div>
         </CardSingleSetting>
 

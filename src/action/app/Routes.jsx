@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro'
 
 import { useDesktopLogout } from '../../hooks/useDesktopLogout'
+import { useInactivity } from '../../hooks/useInactivity'
 import { FadeInWrapper } from '../../shared/components/FadeInWrapper'
 import { NAVIGATION_ROUTES } from '../../shared/constants/navigation'
 import { useModal } from '../../shared/context/ModalContext'
@@ -38,6 +39,8 @@ export const Routes = () => {
       })
     }
   })
+
+  useInactivity()
 
   switch (currentPage) {
     case 'welcome':

@@ -2,7 +2,7 @@
 
 exports[`Switch Component renders correctly when isOn is false 1`] = `
 <button
-  class="relative h-6 w-12 cursor-pointer rounded-full border border-green-100 transition-all duration-300 ease-in-out bg-grey100-mode1"
+  class="relative h-6 w-12 shrink-0 cursor-pointer rounded-full border border-green-100 transition-all duration-300 ease-in-out bg-grey100-mode1"
 >
   <div
     class="bg-grey400-mode1 absolute top-[1px] left-[1px] h-5 w-5 rounded-full shadow-md transition-transform duration-300 ease-in-out "
@@ -12,7 +12,7 @@ exports[`Switch Component renders correctly when isOn is false 1`] = `
 
 exports[`Switch Component renders correctly when isOn is true 1`] = `
 <button
-  class="relative h-6 w-12 cursor-pointer rounded-full border border-green-100 transition-all duration-300 ease-in-out bg-grey400-mode1"
+  class="relative h-6 w-12 shrink-0 cursor-pointer rounded-full border border-green-100 transition-all duration-300 ease-in-out bg-grey400-mode1"
 >
   <div
     class="bg-primary400-mode1 absolute top-[1px] left-[1px] h-5 w-5 rounded-full shadow-md transition-transform duration-300 ease-in-out translate-x-6"
