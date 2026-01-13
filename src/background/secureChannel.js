@@ -81,7 +81,9 @@ const STORAGE_KEYS = Object.freeze({
   paired: 'nm.paired',
   fingerprint: 'nm.fingerprint',
   ed25519PublicKey: 'nm.ed25519PublicKey',
-  x25519PublicKey: 'nm.x25519PublicKey'
+  x25519PublicKey: 'nm.x25519PublicKey',
+  clientEd25519PublicKey: 'nm.client.ed25519PublicKey',
+  clientEd25519PrivateKey: 'nm.client.ed25519PrivateKey'
 })
 
 /**
@@ -101,6 +103,39 @@ const storageGet = (keys) =>
  */
 const storageSet = (obj) =>
   new Promise((resolve) => chrome.storage.local.set(obj, () => resolve()))
+
+/**
+ * Load or generate a long-term client (extension) Ed25519 identity.
+ * Public key is sent to desktop during pairing; private key stays in extension storage.
+ * @returns {Promise<{ publicKey: Uint8Array, privateKey: Uint8Array }>}
+ */
+const getOrCreateClientIdentity = async () => {
+  const res = await storageGet([
+    STORAGE_KEYS.clientEd25519PublicKey,
+    STORAGE_KEYS.clientEd25519PrivateKey
+  ])
+
+  const pubB64 = res[STORAGE_KEYS.clientEd25519PublicKey]
+  const privB64 = res[STORAGE_KEYS.clientEd25519PrivateKey]
+
+  if (pubB64 && privB64) {
+    return {
+      publicKey: base64Decode(pubB64),
+      privateKey: base64Decode(privB64)
+    }
+  }
+
+  // Generate new Ed25519 keypair
+  const privateKey = ed25519.utils.randomPrivateKey()
+  const publicKey = ed25519.getPublicKey(privateKey)
+
+  await storageSet({
+    [STORAGE_KEYS.clientEd25519PublicKey]: base64Encode(publicKey),
+    [STORAGE_KEYS.clientEd25519PrivateKey]: base64Encode(privateKey)
+  })
+
+  return { publicKey, privateKey }
+}
 
 /**
  * Minimal secure channel client.
@@ -174,7 +209,14 @@ export class SecureChannelClient {
         'PairingTokenRequired: Please enter the pairing token from the desktop app'
       )
     }
-    return nativeMessaging.sendRequest('nmGetAppIdentity', { pairingToken })
+
+    // Ensure we have a client identity and send its public key to desktop
+    const clientIdentity = await getOrCreateClientIdentity()
+
+    return nativeMessaging.sendRequest('nmGetAppIdentity', {
+      pairingToken,
+      clientEd25519PublicKeyB64: base64Encode(clientIdentity.publicKey)
+    })
   }
 
   /**
@@ -330,7 +372,8 @@ export class SecureChannelClient {
       this._session = {
         id: handshakeResponse.sessionId,
         key: sessionSymmetricKey,
-        seq: 0
+        seq: 0,
+        hostEphemeralPubB64: handshakeResponse.hostEphemeralPubB64
       }
 
       return { ok: true, sessionId: handshakeResponse.sessionId }
@@ -361,8 +404,31 @@ export class SecureChannelClient {
   async finishHandshake() {
     try {
       if (!this._session?.id) throw new Error(SESSION_ERROR_PATTERNS.NO_SESSION)
+
+      // Reconstruct transcript used by desktop to derive session key
+      if (!this._session.hostEphemeralPubB64 || !this._ephemeralKeyPair) {
+        throw new Error(SESSION_ERROR_PATTERNS.HANDSHAKE_FAILED)
+      }
+
+      const hostEphemeralPublicKeyBytes = base64Decode(
+        this._session.hostEphemeralPubB64
+      )
+      const transcript = concatUint8Arrays([
+        hostEphemeralPublicKeyBytes,
+        this._ephemeralKeyPair.publicKey
+      ])
+
+      // Load client identity and sign transcript
+      const clientIdentity = await getOrCreateClientIdentity()
+      const clientSignature = ed25519.sign(
+        transcript,
+        clientIdentity.privateKey
+      )
+      const clientSigB64 = base64Encode(clientSignature)
+
       const res = await nativeMessaging.sendRequest('nmFinishHandshake', {
-        sessionId: this._session.id
+        sessionId: this._session.id,
+        clientSigB64
       })
       return res
     } catch (e) {
