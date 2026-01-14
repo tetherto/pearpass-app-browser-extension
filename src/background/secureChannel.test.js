@@ -25,6 +25,18 @@ beforeEach(() => {
   }
 })
 
+// Mock client key store to avoid IndexedDB and master password flow in tests
+jest.mock('./clientKeyStore', () => ({
+  ensureClientKeypairUnlocked: jest.fn(async () => ({
+    publicKey: new Uint8Array([1, 2, 3]),
+    privateKey: new Uint8Array([4, 5, 6])
+  })),
+  ensureClientKeypairGeneratedForPairing: jest.fn(async () => ({
+    publicKey: new Uint8Array([1, 2, 3]),
+    privateKey: new Uint8Array([4, 5, 6])
+  }))
+}))
+
 // Mock nativeMessaging
 jest.mock('./nativeMessaging', () => ({
   nativeMessaging: {

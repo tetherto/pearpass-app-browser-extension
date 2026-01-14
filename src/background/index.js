@@ -1,6 +1,9 @@
 import './nativeMessaging' // Initialize native messaging handler
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
+import { ensureClientKeypairUnlocked } from './clientKeyStore'
+import { SECURITY_ERROR_PATTERNS } from '../shared/constants/nativeMessaging'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import * as CredentialGenerator from './utils/credentialGenerator'
 import { ERROR_CODES } from '../shared/constants/nativeMessaging'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
@@ -166,25 +169,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     ;(async () => {
       try {
         await secureChannel.pinIdentity(msg.identity)
-        const handshake = await secureChannel.beginHandshake()
-        if (!handshake.ok) {
-          sendResponse({
-            ok: false,
-            error: handshake.error || 'HandshakeFailed',
-            code: ERROR_CODES.HANDSHAKE_FAILED
-          })
-          return
-        }
-        const finish = await secureChannel.finishHandshake()
-        if (!finish?.ok) {
-          sendResponse({
-            ok: false,
-            error: finish?.error || 'HandshakeFinishFailed',
-            code: ERROR_CODES.HANDSHAKE_FAILED
-          })
-          return
-        }
-        sendResponse({ ok: true, sessionId: handshake.sessionId })
+        sendResponse({ ok: true })
       } catch (e) {
         sendResponse({
           ok: false,
@@ -206,6 +191,31 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           paired: false,
           error: e?.message,
           code: ERROR_CODES.UNKNOWN
+        })
+      }
+    })()
+    return true
+  }
+
+  if (msg.type === 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE') {
+    ;(async () => {
+      try {
+        const { masterPassword } = msg
+        if (!masterPassword) {
+          sendResponse({
+            success: false,
+            error: AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED,
+            code: ERROR_CODES.AUTHENTICATION_FAILED
+          })
+          return
+        }
+        await ensureClientKeypairUnlocked(masterPassword)
+        sendResponse({ success: true })
+      } catch (e) {
+        sendResponse({
+          success: false,
+          error: e?.message,
+          code: ERROR_CODES.AUTHENTICATION_FAILED
         })
       }
     })()

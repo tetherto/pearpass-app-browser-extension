@@ -185,7 +185,8 @@ export const CONTENT_MESSAGE_TYPES = {
 export const SECURITY_ERROR_PATTERNS = {
   SIGNATURE_INVALID: 'SignatureInvalid',
   DESKTOP_NOT_AUTHENTICATED: 'DesktopNotAuthenticated',
-  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable'
+  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable',
+  CLIENT_SIGNATURE_INVALID: 'ClientSignatureInvalid'
 }
 
 /**

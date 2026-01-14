@@ -7,28 +7,20 @@ import { ed25519, x25519 } from '@noble/curves/ed25519'
 
 import { nativeMessaging } from './nativeMessaging'
 import {
+  ensureClientKeypairUnlocked,
+  ensureClientKeypairGeneratedForPairing
+} from './clientKeyStore'
+import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
   SECURITY_ERROR_PATTERNS
 } from '../shared/constants/nativeMessaging'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { logger } from '../shared/utils/logger'
-
-// Helper functions to replace Buffer usage in service worker
-const base64Encode = (uint8Array) => {
-  // Convert Uint8Array to base64 without using Buffer
-  const binary = String.fromCharCode.apply(null, uint8Array)
-  return btoa(binary)
-}
-
-const base64Decode = (base64String) => {
-  // Convert base64 to Uint8Array without using Buffer
-  const binary = atob(base64String)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
-  }
-  return bytes
-}
+import {
+  base64Encode,
+  base64Decode
+} from '../shared/utils/base64'
 
 const concatUint8Arrays = (arrays) => {
   // Concatenate multiple Uint8Arrays without using Buffer.concat
@@ -82,8 +74,7 @@ const STORAGE_KEYS = Object.freeze({
   fingerprint: 'nm.fingerprint',
   ed25519PublicKey: 'nm.ed25519PublicKey',
   x25519PublicKey: 'nm.x25519PublicKey',
-  clientEd25519PublicKey: 'nm.client.ed25519PublicKey',
-  clientEd25519PrivateKey: 'nm.client.ed25519PrivateKey'
+  clientEd25519PublicKey: 'nm.client.ed25519PublicKey'
 })
 
 /**
@@ -106,36 +97,12 @@ const storageSet = (obj) =>
 
 /**
  * Load or generate a long-term client (extension) Ed25519 identity.
- * Public key is sent to desktop during pairing; private key stays in extension storage.
+ * Public key is sent to desktop during pairing; private key is stored encrypted
+ * in IndexedDB and only loaded into memory when unlocked with the master password.
+ *
  * @returns {Promise<{ publicKey: Uint8Array, privateKey: Uint8Array }>}
  */
-const getOrCreateClientIdentity = async () => {
-  const res = await storageGet([
-    STORAGE_KEYS.clientEd25519PublicKey,
-    STORAGE_KEYS.clientEd25519PrivateKey
-  ])
-
-  const pubB64 = res[STORAGE_KEYS.clientEd25519PublicKey]
-  const privB64 = res[STORAGE_KEYS.clientEd25519PrivateKey]
-
-  if (pubB64 && privB64) {
-    return {
-      publicKey: base64Decode(pubB64),
-      privateKey: base64Decode(privB64)
-    }
-  }
-
-  // Generate new Ed25519 keypair
-  const privateKey = ed25519.utils.randomPrivateKey()
-  const publicKey = ed25519.getPublicKey(privateKey)
-
-  await storageSet({
-    [STORAGE_KEYS.clientEd25519PublicKey]: base64Encode(publicKey),
-    [STORAGE_KEYS.clientEd25519PrivateKey]: base64Encode(privateKey)
-  })
-
-  return { publicKey, privateKey }
-}
+const getOrCreateClientIdentity = async () => ensureClientKeypairUnlocked()
 
 /**
  * Minimal secure channel client.
@@ -168,6 +135,25 @@ export class SecureChannelClient {
     if (this.hasActiveSession()) return
     if (!(await this.isPaired())) return
 
+    // Check if the client keystore is ready for signing. If not, we cannot
+    // complete a handshake that requires client signature. Throw early so
+    // callers know to wait for master password unlock.
+    try {
+      const { privateKey } = await ensureClientKeypairUnlocked()
+      if (!privateKey) {
+        throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+      }
+    } catch (e) {
+      if (
+        e.message &&
+        e.message.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+      ) {
+        throw e
+      }
+      // Other keystore errors: proceed to handshake and let it fail naturally
+      logger.log('Client keystore check failed, proceeding anyway:', e)
+    }
+
     const handshake = await this.beginHandshake()
     if (!handshake.ok) {
       // If identity keys are unavailable on desktop, trigger pairing flow
@@ -187,7 +173,21 @@ export class SecureChannelClient {
     }
     const finish = await this.finishHandshake()
     if (!finish?.ok) {
-      // Clear session to trigger pairing modal on handshake failure
+      // If the desktop reports a master-password requirement or a client
+      // signature problem, do not clear the pairing; just surface the error
+      // so the UI can prompt the user to unlock or reset if needed.
+      if (
+        finish?.error &&
+        (finish.error.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED) ||
+          finish.error.includes(
+            SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID
+          ) ||
+          finish.error.includes(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID))
+      ) {
+        throw new Error(finish.error)
+      }
+      // For all other handshake finish failures, clear the session so that
+      // the extension can re-establish pairing as needed.
       await this.clearSession(
         finish?.error || SESSION_ERROR_PATTERNS.HANDSHAKE_FINISH_FAILED
       )
@@ -210,13 +210,27 @@ export class SecureChannelClient {
       )
     }
 
-    // Ensure we have a client identity and send its public key to desktop
-    const clientIdentity = await getOrCreateClientIdentity()
+    // For pairing, generate or reuse a client identity without requiring the
+    // master password. The private key will be persisted (encrypted) only after
+    // the user unlocks with their master password.
+    let clientPublicKeyB64
+    try {
+      const { publicKey } = await ensureClientKeypairGeneratedForPairing()
+      if (publicKey) {
+        clientPublicKeyB64 = base64Encode(publicKey)
+      }
+    } catch (e) {
+      logger.error('Failed to prepare client identity for pairing:', e)
+      // Proceed without sending client public key; desktop will still pair but
+      // will not yet pin a client identity.
+    }
 
-    return nativeMessaging.sendRequest('nmGetAppIdentity', {
-      pairingToken,
-      clientEd25519PublicKeyB64: base64Encode(clientIdentity.publicKey)
-    })
+    const params = { pairingToken }
+    if (clientPublicKeyB64) {
+      params.clientEd25519PublicKeyB64 = clientPublicKeyB64
+    }
+
+    return nativeMessaging.sendRequest('nmGetAppIdentity', params)
   }
 
   /**
@@ -352,8 +366,9 @@ export class SecureChannelClient {
         desktopEd25519PublicKey
       )
       if (!signatureValid) {
-        // Clear pairing data on signature failure
-        await this.clearSession(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID)
+        // Do NOT clear pairing here – a temporary mismatch or desktop key
+        // rotation should not immediately force re-pairing. Surface the
+        // error and let higher layers decide if/when to reset pairing.
         return { ok: false, error: SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID }
       }
 
