@@ -1,10 +1,9 @@
 import './nativeMessaging' // Initialize native messaging handler
+import { ensureClientKeypairUnlocked } from './clientKeyStore'
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
-import { ensureClientKeypairUnlocked } from './clientKeyStore'
-import { SECURITY_ERROR_PATTERNS } from '../shared/constants/nativeMessaging'
-import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import * as CredentialGenerator from './utils/credentialGenerator'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { ERROR_CODES } from '../shared/constants/nativeMessaging'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'

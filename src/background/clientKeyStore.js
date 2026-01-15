@@ -1,8 +1,8 @@
 import { ed25519 } from '@noble/curves/ed25519'
 
-import { logger } from '../shared/utils/logger'
-import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { base64Encode, base64Decode } from '../shared/utils/base64'
+import { logger } from '../shared/utils/logger'
 
 const DB_NAME = 'pearpassClientKeyStore'
 const DB_VERSION = 1

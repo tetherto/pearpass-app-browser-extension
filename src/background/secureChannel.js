@@ -5,22 +5,19 @@
 import { xsalsa20poly1305 } from '@noble/ciphers/salsa'
 import { ed25519, x25519 } from '@noble/curves/ed25519'
 
-import { nativeMessaging } from './nativeMessaging'
 import {
   ensureClientKeypairUnlocked,
   ensureClientKeypairGeneratedForPairing
 } from './clientKeyStore'
+import { nativeMessaging } from './nativeMessaging'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
   SECURITY_ERROR_PATTERNS
 } from '../shared/constants/nativeMessaging'
-import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
-import {
-  base64Encode,
-  base64Decode
-} from '../shared/utils/base64'
 
 const concatUint8Arrays = (arrays) => {
   // Concatenate multiple Uint8Arrays without using Buffer.concat

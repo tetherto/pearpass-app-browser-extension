@@ -38,7 +38,7 @@ jest.mock('@noble/curves/ed25519', () => {
 })
 
 // Mock nativeMessaging with configurable implementation
-var mockSendRequest
+let mockSendRequest
 
 jest.mock('./nativeMessaging', () => {
   mockSendRequest = jest.fn(async (command) => {
@@ -149,7 +149,10 @@ describe('SecureChannelClient', () => {
     const result = await client.beginHandshake()
 
     // When not paired, beginHandshake should clear the session and report NotPaired
-    expect(result).toEqual({ ok: false, error: SESSION_ERROR_PATTERNS.NOT_PAIRED })
+    expect(result).toEqual({
+      ok: false,
+      error: SESSION_ERROR_PATTERNS.NOT_PAIRED
+    })
     expect(global.chrome.runtime.sendMessage).toHaveBeenCalledWith({
       type: BACKGROUND_MESSAGE_TYPES.PAIRING_REQUIRED,
       reason: SESSION_ERROR_PATTERNS.NOT_PAIRED

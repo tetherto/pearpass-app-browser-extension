@@ -4,6 +4,7 @@ import {
   wrapMessage
 } from './nativeMessagingProtocol'
 import { secureChannel } from './secureChannel'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   NATIVE_MESSAGE_TYPES,
   NATIVE_MESSAGING_CONFIG,
@@ -16,7 +17,6 @@ import {
   DISCONNECTION_ERROR_MESSAGES,
   DESKTOP_APP_STATUS
 } from '../shared/constants/nativeMessaging'
-import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { logger } from '../shared/utils/logger'
 
 const createError = (message) => new Error(message)
@@ -255,14 +255,10 @@ const getErrorCode = (errorMessage) => {
   ) {
     return ERROR_CODES.DESKTOP_NOT_AUTHENTICATED
   }
-  if (
-    errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
-  ) {
+  if (errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)) {
     return ERROR_CODES.AUTHENTICATION_FAILED
   }
-  if (
-    errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)
-  ) {
+  if (errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)) {
     return ERROR_CODES.SIGNATURE_INVALID
   }
 

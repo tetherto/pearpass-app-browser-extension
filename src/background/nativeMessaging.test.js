@@ -174,8 +174,8 @@ describe('NativeMessaging & integration', () => {
     secureChannel.secureChannel.secureRequest = jest.fn()
     secureChannel.secureChannel.clearSession = jest.fn()
 
-    const messageListener = global.chrome.runtime.onMessage.addListener.mock
-      .calls[0][0]
+    const messageListener =
+      global.chrome.runtime.onMessage.addListener.mock.calls[0][0]
 
     await new Promise((resolve) => {
       messageListener(
@@ -204,8 +204,8 @@ describe('NativeMessaging & integration', () => {
     // Message listener should be registered
     expect(global.chrome.runtime.onMessage.addListener).toHaveBeenCalled()
 
-    const messageListener = global.chrome.runtime.onMessage.addListener.mock
-      .calls[0][0]
+    const messageListener =
+      global.chrome.runtime.onMessage.addListener.mock.calls[0][0]
 
     // ClientSignatureInvalid should not clear session
     secureChannel.secureChannel.clearSession = jest.fn()

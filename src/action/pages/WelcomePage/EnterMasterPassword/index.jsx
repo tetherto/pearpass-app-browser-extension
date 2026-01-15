@@ -8,12 +8,12 @@ import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { CardWarning } from '../../../../shared/components/CardWarningText'
 import { CardWelcome } from '../../../../shared/components/CardWelcome'
 import { InputPasswordPearPass } from '../../../../shared/components/InputPasswordPearPass'
+import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
-import { logger } from '../../../../shared/utils/logger'
 import { secureChannelMessages } from '../../../../shared/services/messageBridge'
-import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
+import { logger } from '../../../../shared/utils/logger'
 
 export const EnterMasterPassword = () => {
   const { isLoading, setIsLoading } = useLoadingContext()
