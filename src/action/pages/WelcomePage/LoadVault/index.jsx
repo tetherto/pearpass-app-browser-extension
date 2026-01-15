@@ -78,7 +78,7 @@ export const LoadVault = () => {
           <Trans>
             Using PearPass on your other device, use "Add Device" to generate a
             QR or connection code to pair your vault. This method keeps your
-            vault secure.
+            account secure.
           </Trans>
         </p>
 

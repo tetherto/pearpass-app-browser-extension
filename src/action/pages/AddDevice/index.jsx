@@ -191,13 +191,13 @@ export const AddDevice = () => {
             {activeTab === 'share' ? (
               <Trans>
                 Scan this QR code or paste the vault key into the PearPass app
-                on your other device to connect it to your vault. This method
-                keeps your vault secure.
+                on your other device to connect it to your account. This method
+                keeps your account secure.
               </Trans>
             ) : (
               <Trans>
                 Paste the vault key from the PearPass app on your other device
-                to connect it to your vault. This method keeps your vault
+                to connect it to your account. This method keeps your account
                 secure.
               </Trans>
             )}
