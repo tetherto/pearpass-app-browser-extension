@@ -240,18 +240,3 @@ export const ensureClientKeypairUnlocked = async (masterPassword) => {
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_INVALID)
   }
 }
-
-/**
- * Clear the unlocked client keypair from memory. Does not delete the encrypted
- * record from IndexedDB.
- */
-export const clearUnlockedClientKeypair = () => {
-  if (inMemoryKeypair?.privateKey?.fill) {
-    try {
-      inMemoryKeypair.privateKey.fill(0)
-    } catch (error) {
-      logger.log('[ClientKeyStore]', 'Failed to zero private key:', error)
-    }
-  }
-  inMemoryKeypair = null
-}
