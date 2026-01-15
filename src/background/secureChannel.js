@@ -345,10 +345,16 @@ export class SecureChannelClient {
         handshakeResponse.hostEphemeralPubB64
       )
 
-      // Verify signature over transcript = host_eph_pk || ext_eph_pk
+      // Load client identity to include in transcript
+      const clientIdentity = await getOrCreateClientIdentity()
+
+      // Verify signature over transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
+      // Including the client public key binds the handshake to the specific
+      // extension identity that was registered during pairing.
       const transcript = concatUint8Arrays([
         hostEphemeralPublicKeyBytes,
-        extensionEphemeralKeyPair.publicKey
+        extensionEphemeralKeyPair.publicKey,
+        clientIdentity.publicKey
       ])
 
       const desktopEd25519PublicKey = base64Decode(
@@ -425,13 +431,16 @@ export class SecureChannelClient {
       const hostEphemeralPublicKeyBytes = base64Decode(
         this._session.hostEphemeralPubB64
       )
-      const transcript = concatUint8Arrays([
-        hostEphemeralPublicKeyBytes,
-        this._ephemeralKeyPair.publicKey
-      ])
 
       // Load client identity and sign transcript
       const clientIdentity = await getOrCreateClientIdentity()
+
+      // Transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
+      const transcript = concatUint8Arrays([
+        hostEphemeralPublicKeyBytes,
+        this._ephemeralKeyPair.publicKey,
+        clientIdentity.publicKey
+      ])
       const clientSignature = ed25519.sign(
         transcript,
         clientIdentity.privateKey
