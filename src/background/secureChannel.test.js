@@ -1,4 +1,5 @@
 /* eslint-env jest */
+import { nativeMessaging } from './nativeMessaging'
 import { secureChannel, SecureChannelClient } from './secureChannel'
 import {
   SESSION_ERROR_PATTERNS,
@@ -38,26 +39,13 @@ jest.mock('@noble/curves/ed25519', () => {
 })
 
 // Mock nativeMessaging with configurable implementation
-let mockSendRequest
-
-jest.mock('./nativeMessaging', () => {
-  mockSendRequest = jest.fn(async (command) => {
-    if (command === 'nmGetAppIdentity') {
-      return {
-        ed25519PublicKey: 'edpk',
-        x25519PublicKey: 'xpk',
-        fingerprint: 'ff00aa11'
-      }
-    }
-    throw new Error('NotImplemented')
-  })
-
-  return {
-    nativeMessaging: {
-      sendRequest: mockSendRequest
-    }
+jest.mock('./nativeMessaging', () => ({
+  nativeMessaging: {
+    sendRequest: jest.fn()
   }
-})
+}))
+
+const mockSendRequest = nativeMessaging.sendRequest
 
 beforeEach(() => {
   // Clear in-memory storage between tests

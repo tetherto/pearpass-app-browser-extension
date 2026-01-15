@@ -1,4 +1,4 @@
-import { PASSKEY_SUPPORT_ENABLED } from 'pearpass-lib-constants/src/constants/flags.js'
+import { PASSKEY_SUPPORT_ENABLED } from 'pearpass-lib-constants/src/constants/flags'
 
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
@@ -12,7 +12,7 @@ import { logger } from '../shared/utils/logger'
   const nativeCreate = nativeCreds.create.bind(nativeCreds)
   const nativeGet = nativeCreds.get.bind(nativeCreds)
 
-  const generateRequestId = () => `${Date.now()}-${Math.random()}`
+  const generateRequestId = () => `${Date.now()}-${crypto.randomUUID()}`
 
   const awaitMessage = (filterFn) =>
     new Promise((resolve) => {

@@ -110,7 +110,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={UserIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('username')}
           />
         )}
@@ -123,7 +123,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             icon={KeyIcon}
             onClick={handleCopy}
             hasStrongness
-            readonly={true}
+            readonly
             {...register('password')}
           />
         )}
@@ -134,7 +134,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={KeyIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
           />
         )}
       </FormGroup>
@@ -148,7 +148,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
                 placeholder="https://"
                 icon={WorldIcon}
                 onClick={handleCopy}
-                readonly={true}
+                readonly
                 {...registerItem('website', index)}
               />
             </React.Fragment>
@@ -163,7 +163,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             variant="outline"
             icon={CommonFileIcon}
             onClick={handleCopy}
-            readonly={true}
+            readonly
             {...register('note')}
           />
         )}

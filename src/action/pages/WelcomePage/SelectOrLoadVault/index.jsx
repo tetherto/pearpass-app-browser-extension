@@ -59,7 +59,7 @@ export const SelectOrLoadVault = () => {
   return (
     <CardWelcome>
       <h1 className="text-white-mode1 w-full flex-none text-center text-[20px]">
-        <Trans>Select a vault, create a new one or load another one</Trans>
+        <Trans>Open an existing vault or create a new one.</Trans>
       </h1>
 
       <div className="flex max-h-40 w-full flex-1 flex-col gap-[10px] overflow-auto">
@@ -78,7 +78,7 @@ export const SelectOrLoadVault = () => {
         </ButtonPrimary>
 
         <ButtonSecondary onClick={handleLoadVault} disabled={isLoading}>
-          <Trans>Load a vault</Trans>
+          <Trans>Import existing vault</Trans>
         </ButtonSecondary>
       </div>
     </CardWelcome>

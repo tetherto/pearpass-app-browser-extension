@@ -3,8 +3,13 @@ import { ensureClientKeypairUnlocked } from './clientKeyStore'
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
 import * as CredentialGenerator from './utils/credentialGenerator'
+import { validateSender } from './utils/validateSender'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { ERROR_CODES } from '../shared/constants/nativeMessaging'
+import {
+  MESSAGE_TYPES,
+  SECURE_MESSAGE_TYPES
+} from '../shared/services/messageBridge'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
 import { logger } from '../shared/utils/logger'
@@ -71,17 +76,44 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 })
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === 'login') {
+  const sensitiveTypes = [
+    ...Object.values(SECURE_MESSAGE_TYPES),
+    MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
+    MESSAGE_TYPES.GET_ASSERTION_CREDENTIAL
+  ]
+
+  if (sensitiveTypes.includes(msg.type)) {
+    if (!validateSender(sender, 'extension-page')) {
+      sendResponse({ success: false, error: 'Unauthorized' })
+      return
+    }
+  }
+
+  const contentScriptTypes = [
+    MESSAGE_TYPES.LOGIN,
+    MESSAGE_TYPES.GET_PENDING_LOGIN,
+    MESSAGE_TYPES.CREATE_PASSKEY,
+    MESSAGE_TYPES.GET_PASSKEY
+  ]
+
+  if (contentScriptTypes.includes(msg.type)) {
+    if (!validateSender(sender, 'content-script')) {
+      sendResponse({ success: false, error: 'Unauthorized' })
+      return
+    }
+  }
+
+  if (msg.type === MESSAGE_TYPES.LOGIN) {
     handleLoginMessage({ msg, sender })
     return
   }
 
-  if (msg.type === 'getPendingLogin') {
+  if (msg.type === MESSAGE_TYPES.GET_PENDING_LOGIN) {
     handleGetPendingLogin({ msg, sender, sendResponse })
     return
   }
 
-  if (msg.type === 'createPasskey') {
+  if (msg.type === MESSAGE_TYPES.CREATE_PASSKEY) {
     const queryParams = new URLSearchParams({
       requestId: msg.requestId,
       tabId: sender.tab.id,
@@ -94,7 +126,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'getPasskey') {
+  if (msg.type === MESSAGE_TYPES.GET_PASSKEY) {
     const queryParams = new URLSearchParams({
       requestId: msg.requestId,
       tabId: sender.tab.id,
@@ -107,19 +139,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'selectedPasskey') {
+  if (msg.type === MESSAGE_TYPES.SELECTED_PASSKEY) {
     handlePasskeyCreated({ msg })
     return
   }
 
-  if (msg.type === 'readyForPasskeyPayload') {
+  if (msg.type === MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD) {
     const { requestOrigin, serializedPublicKey } = msg
     void sendPasskeyPayload(requestOrigin, serializedPublicKey, sendResponse)
 
     return true
   }
 
-  if (msg.type === 'getAssertionCredential') {
+  if (msg.type === MESSAGE_TYPES.GET_ASSERTION_CREDENTIAL) {
     const {
       requestOrigin,
       serializedPublicKey,
@@ -139,7 +171,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'SECURE_CHANNEL_GET_IDENTITY') {
+  if (msg.type === MESSAGE_TYPES.GET_IDENTITY) {
     ;(async () => {
       try {
         const { pairingToken } = msg
@@ -164,7 +196,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'SECURE_CHANNEL_CONFIRM_PAIR') {
+  if (msg.type === MESSAGE_TYPES.CONFIRM_PAIR) {
     ;(async () => {
       try {
         await secureChannel.pinIdentity(msg.identity)
@@ -180,7 +212,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'SECURE_CHANNEL_CHECK_PAIRED') {
+  if (msg.type === MESSAGE_TYPES.CHECK_PAIRED) {
     ;(async () => {
       try {
         const paired = await secureChannel.isPaired()
@@ -196,7 +228,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE') {
+  if (msg.type === SECURE_MESSAGE_TYPES.UNLOCK_CLIENT_KEYSTORE) {
     ;(async () => {
       try {
         const { masterPassword } = msg
@@ -221,7 +253,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
-  if (msg.type === 'GET_PLATFORM_INFO') {
+  if (msg.type === MESSAGE_TYPES.GET_PLATFORM_INFO) {
     chrome.runtime.getPlatformInfo((info) => {
       sendResponse(info)
     })
@@ -280,10 +312,12 @@ const createRegistrationCredential = async (options, requestOrigin) => {
       transports: ['internal']
     }
 
-    // Save exported private key as a PEM-formatted PKCS#8 string
-    const privateKeyPem = await CredentialGenerator.exportPrivateKeyAsPem(
+    // Export private key as raw binary PKCS#8 buffer and encode as Base64URL
+    const privateKeyBuffer = await crypto.subtle.exportKey(
+      'pkcs8',
       keyPair.privateKey
     )
+    const privateKeyBufferB64 = arrayBufferToBase64Url(privateKeyBuffer)
     // Save user ID buffer as Base64URL string
     const userIdBase64 = options.user.id
 
@@ -299,7 +333,7 @@ const createRegistrationCredential = async (options, requestOrigin) => {
           rk: options.authenticatorSelection?.residentKey === 'required'
         }
       },
-      _privateKey: privateKeyPem,
+      _privateKeyBuffer: privateKeyBufferB64,
       _userId: userIdBase64
     }
   } catch (error) {
@@ -409,10 +443,22 @@ const getAssertionCredential = async (
   )
 
   // Sign the assertion over authenticatorData and clientDataJSON
+  // Decode the binary buffer private key and import it
+  const privateKeyBuffer = base64UrlToArrayBuffer(
+    savedCredential._privateKeyBuffer
+  )
+  const privateKeyFromBuffer = await crypto.subtle.importKey(
+    'pkcs8',
+    privateKeyBuffer,
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256'
+    },
+    false, // non-extractable for extra safety
+    ['sign']
+  )
   const signature = await CredentialGenerator.signAssertion(
-    await CredentialGenerator.importPrivateKeyFromPem(
-      savedCredential._privateKey
-    ),
+    privateKeyFromBuffer,
     authData.buffer,
     clientDataJSON
   )

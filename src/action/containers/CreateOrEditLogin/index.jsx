@@ -186,7 +186,7 @@ export const CreateOrEditLogin = ({
               placeholder={t`Passkey Stored`}
               variant="outline"
               icon={KeyIcon}
-              disabled
+              readonly
             />
           )}
         </FormGroup>

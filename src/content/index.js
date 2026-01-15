@@ -537,7 +537,7 @@ document.querySelectorAll('input').forEach((input) => {
 // Iframe management
 
 function showIframe(iframeType, { element, data, styles }) {
-  const id = Math.random().toString(36).substring(2, 15)
+  const id = crypto.randomUUID()
 
   const iframe = createIframe({
     styles: styles,
@@ -578,12 +578,14 @@ function getIframeData(type) {
 }
 
 function sendDataToIframe({ iframeType, iframeData }) {
+  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+
   iframeData?.iframe?.contentWindow?.postMessage(
     {
       type: iframeType,
       data: iframeData.data
     },
-    '*'
+    extensionOrigin
   )
 }
 
@@ -631,7 +633,13 @@ const handleIframeEvent = (event) => {
     (iframeData) => iframeData.id === iframeId
   )
 
-  if (!eventType || event.source !== iframeData?.iframe?.contentWindow) {
+  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+
+  if (
+    !eventType ||
+    event.origin !== extensionOrigin ||
+    event.source !== iframeData?.iframe?.contentWindow
+  ) {
     return
   }
 

@@ -18,6 +18,10 @@ export const Autofill = () => {
   const { filteredRecords } = useFilteredRecords()
 
   const handleAutofillLogin = (record) => {
+    const targetOrigin = document.referrer
+      ? new URL(document.referrer).origin
+      : '*'
+
     window.parent.postMessage(
       {
         type: 'autofillLogin',
@@ -28,7 +32,7 @@ export const Autofill = () => {
           password: record?.data?.password
         }
       },
-      '*'
+      targetOrigin
     )
   }
 

@@ -18,12 +18,12 @@
     {
       "resources": [
         "content-popups.html",
-        "window-passkey.html",
         "inject.js"
       ],
       "matches": [
         "<all_urls>"
-      ]
+      ],
+      "use_dynamic_url": true
     }
   ],
   "content_scripts": [

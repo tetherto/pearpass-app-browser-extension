@@ -42,14 +42,18 @@ export const FolderDropdown = ({
           icon: FolderIcon
         })
       } else {
-        mappedFolders.unshift({ name: t`All`, type: ALL, icon: FolderIcon })
+        mappedFolders.unshift({
+          name: t`All Items`,
+          type: ALL,
+          icon: FolderIcon
+        })
       }
     }
 
     return mappedFolders
   }, [folders, selectedFolder])
 
-  const defaultName = type === 'select' ? t`No Folder` : t`All`
+  const defaultName = type === 'select' ? t`No Folder` : t`All Items`
 
   const name = selectedFolder ? selectedFolder : defaultName
   const icon = selectedFolder ? FolderIcon : undefined
