@@ -8,11 +8,12 @@
     "clipboardRead",
     "clipboardWrite",
     "offscreen",
-    "alarms"
+    "alarms",
+    "activeTab"
   ],
   "background": {
     "service_worker": "background.js"
-  }, 
+  },
   "description": "Password manager extension for PearPass",
   "web_accessible_resources": [
     {
@@ -55,4 +56,3 @@
     }
   }
 }
-  

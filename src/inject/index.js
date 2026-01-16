@@ -1,3 +1,4 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { PASSKEY_SUPPORT_ENABLED } from 'pearpass-lib-constants/src/constants/flags'
 
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
@@ -12,7 +13,14 @@ import { logger } from '../shared/utils/logger'
   const nativeCreate = nativeCreds.create.bind(nativeCreds)
   const nativeGet = nativeCreds.get.bind(nativeCreds)
 
-  const generateRequestId = () => `${Date.now()}-${crypto.randomUUID()}`
+  const generateRequestId = () => {
+    try {
+      const uuid = generateUniqueId()
+      return `${Date.now()}-${uuid}`
+    } catch (error) {
+      throw error
+    }
+  }
 
   const awaitMessage = (filterFn) =>
     new Promise((resolve) => {
