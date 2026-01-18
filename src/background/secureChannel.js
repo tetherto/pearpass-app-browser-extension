@@ -546,8 +546,15 @@ export class SecureChannelClient {
           await this.ensureSession()
           return await attempt()
         } catch (retryError) {
-          // If re-establishment fails, trigger pairing modal
-          await this.clearSession(e?.message)
+          // Only clear pairing for identity-level errors; surface session errors.
+          const msg = retryError?.message || e?.message || ''
+          if (
+            msg.includes(SECURITY_ERROR_PATTERNS.IDENTITY_KEYS_UNAVAILABLE) ||
+            msg.includes(SESSION_ERROR_PATTERNS.NOT_PAIRED) ||
+            msg.includes(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID)
+          ) {
+            await this.clearSession(msg)
+          }
           throw retryError
         }
       }

@@ -318,12 +318,11 @@ const getErrorCode = (errorMessage) => {
  * @returns {boolean} Whether to clear the session
  */
 const shouldClearSession = (errorCode, errorMessage = '') => {
+  // Only clear session (and show pairing UI) for identity-level errors.
   const baseShouldClear = [
     ERROR_CODES.SIGNATURE_INVALID,
     ERROR_CODES.IDENTITY_KEYS_UNAVAILABLE,
-    ERROR_CODES.NOT_PAIRED,
-    ERROR_CODES.NO_SESSION,
-    ERROR_CODES.HANDSHAKE_FAILED
+    ERROR_CODES.NOT_PAIRED
   ].includes(errorCode)
 
   if (!baseShouldClear) return false
