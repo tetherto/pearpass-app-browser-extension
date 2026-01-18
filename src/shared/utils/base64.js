@@ -5,7 +5,11 @@
  * @returns {string}
  */
 export const base64Encode = (uint8Array) => {
-  const binary = String.fromCharCode.apply(null, uint8Array)
+  let binary = ''
+  const chunkSize = 0x8000
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    binary += String.fromCharCode(...uint8Array.subarray(i, i + chunkSize))
+  }
   return btoa(binary)
 }
 
@@ -15,7 +19,12 @@ export const base64Encode = (uint8Array) => {
  * @returns {Uint8Array}
  */
 export const base64Decode = (base64String) => {
-  const binary = atob(base64String)
+  let binary
+  try {
+    binary = atob(base64String)
+  } catch (error) {
+    throw new Error('InvalidBase64')
+  }
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i)

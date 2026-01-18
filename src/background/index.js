@@ -200,9 +200,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     ;(async () => {
       try {
         await secureChannel.pinIdentity(msg.identity)
-        sendResponse({ ok: true })
+        return sendResponse({ ok: true })
       } catch (e) {
-        sendResponse({
+        return sendResponse({
           ok: false,
           error: e?.message,
           code: ERROR_CODES.UNKNOWN
@@ -233,17 +233,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       try {
         const { masterPassword } = msg
         if (!masterPassword) {
-          sendResponse({
+          return sendResponse({
             success: false,
             error: AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED,
             code: ERROR_CODES.AUTHENTICATION_FAILED
           })
-          return
         }
         await ensureClientKeypairUnlocked(masterPassword)
-        sendResponse({ success: true })
+        return sendResponse({ success: true })
       } catch (e) {
-        sendResponse({
+        return sendResponse({
           success: false,
           error: e?.message,
           code: ERROR_CODES.AUTHENTICATION_FAILED

@@ -14,7 +14,8 @@ import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
-  SECURITY_ERROR_PATTERNS
+  SECURITY_ERROR_PATTERNS,
+  PROTOCOL_TAGS
 } from '../shared/constants/nativeMessaging'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
@@ -148,7 +149,7 @@ export class SecureChannelClient {
         throw e
       }
       // Other keystore errors: proceed to handshake and let it fail naturally
-      logger.log('Client keystore check failed, proceeding anyway:', e)
+      logger.log('Client keystore check failed, proceeding anyway')
     }
 
     const handshake = await this.beginHandshake()
@@ -217,7 +218,7 @@ export class SecureChannelClient {
         clientPublicKeyB64 = base64Encode(publicKey)
       }
     } catch (e) {
-      logger.error('Failed to prepare client identity for pairing:', e)
+      logger.log('Failed to prepare client identity for pairing')
       // Proceed without sending client public key; desktop will still pair but
       // will not yet pin a client identity.
     }
@@ -431,12 +432,26 @@ export class SecureChannelClient {
       const hostEphemeralPublicKeyBytes = base64Decode(
         this._session.hostEphemeralPubB64
       )
+      if (
+        !(hostEphemeralPublicKeyBytes instanceof Uint8Array) ||
+        hostEphemeralPublicKeyBytes.length !== 32
+      ) {
+        throw new Error(SESSION_ERROR_PATTERNS.HANDSHAKE_FAILED)
+      }
 
       // Load client identity and sign transcript
       const clientIdentity = await getOrCreateClientIdentity()
 
-      // Transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
+      // Protocol tag for domain separation (prevents cross-protocol attacks)
+      const protocolTag = new TextEncoder().encode(PROTOCOL_TAGS.CLIENT_FINISH)
+      // Session ID binding (prevents signature replay across sessions)
+      const sessionIdBytes = new TextEncoder().encode(String(this._session.id))
+
+      // Client transcript includes protocol tag + session ID for additional binding
+      // Transcript = tag || session_id || host_eph_pk || ext_eph_pk || client_ed25519_pk
       const transcript = concatUint8Arrays([
+        protocolTag,
+        sessionIdBytes,
         hostEphemeralPublicKeyBytes,
         this._ephemeralKeyPair.publicKey,
         clientIdentity.publicKey

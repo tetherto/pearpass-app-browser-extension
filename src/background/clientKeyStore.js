@@ -11,6 +11,7 @@ const KEY_ID = 'client-ed25519'
 
 let inMemoryKeypair = null
 let pendingKeypair = null
+let unlocking = false
 
 const textEncoder = new TextEncoder()
 
@@ -186,10 +187,23 @@ export const ensureClientKeypairUnlocked = async (masterPassword) => {
     return inMemoryKeypair
   }
 
+  if (unlocking) {
+    throw new Error('UnlockInProgress')
+  }
+
   if (!masterPassword) {
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
   }
 
+  unlocking = true
+  try {
+    return await unlockKeypair(masterPassword)
+  } finally {
+    unlocking = false
+  }
+}
+
+const unlockKeypair = async (masterPassword) => {
   const db = await openDb()
   const record = await getKeyRecord(db)
 
@@ -236,7 +250,7 @@ export const ensureClientKeypairUnlocked = async (masterPassword) => {
     inMemoryKeypair = { publicKey, privateKey }
     return inMemoryKeypair
   } catch (error) {
-    logger.error('[ClientKeyStore]', 'Failed to decrypt client keypair', error)
+    logger.log('[ClientKeyStore]', 'Failed to decrypt client keypair')
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_INVALID)
   }
 }
