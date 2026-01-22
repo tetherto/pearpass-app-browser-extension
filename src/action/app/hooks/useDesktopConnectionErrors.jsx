@@ -1,21 +1,37 @@
 import { useEffect } from 'react'
 
-import { AVAILABILITY_ERROR_MESSAGES } from '../../../shared/constants/nativeMessaging'
-import { useToast } from '../../../shared/context/ToastContext'
-import { registerModalHandlers } from '../../../vaultClient/globalVaultErrorHandler'
+import { useModal } from '../../../shared/context/ModalContext'
+import {
+  registerModalHandlers,
+  resetSyncFailedModalState
+} from '../../../vaultClient/globalVaultErrorHandler'
+import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent'
 
-// Registers a toast handler for desktop connection errors reported by
+// Registers a full-screen modal for desktop connection errors reported by
 // globalVaultErrorHandler.
 export const useDesktopConnectionErrors = () => {
-  const { setToast } = useToast()
+  const { setModal, closeAllModals } = useModal()
 
   useEffect(() => {
     registerModalHandlers({
-      showSyncFailedModal: () => {
-        setToast({
-          message: AVAILABILITY_ERROR_MESSAGES.INTEGRATION_DISABLED
-        })
+      showSyncFailedModal: (onRetry) => {
+        closeAllModals()
+
+        setModal(
+          <DesktopConnectionModalContent
+            onRetry={onRetry}
+            onClose={() => {
+              resetSyncFailedModalState()
+              closeAllModals()
+            }}
+          />,
+          {
+            fullScreen: true,
+            hasOverlay: false,
+            closeable: false
+          }
+        )
       }
     })
-  }, [setToast])
+  }, [closeAllModals, setModal])
 }
