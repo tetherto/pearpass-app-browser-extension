@@ -11,6 +11,7 @@ import {
 } from './clientKeyStore'
 import { nativeMessaging } from './nativeMessaging'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { CRYPTO_ALGORITHMS } from '../shared/constants/crypto'
 import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
@@ -384,7 +385,10 @@ export class SecureChannelClient {
 
       // Derive session key via SHA-256(shared||transcript)
       const preimage = concatUint8Arrays([sharedSecret, transcript])
-      const digest = await crypto.subtle.digest('SHA-256', preimage)
+      const digest = await crypto.subtle.digest(
+        CRYPTO_ALGORITHMS.SHA_256,
+        preimage
+      )
       const sessionSymmetricKey = new Uint8Array(digest).slice(0, 32) // Use first 32 bytes for AES-256
 
       // Stash session info in-memory (no expiration policy)

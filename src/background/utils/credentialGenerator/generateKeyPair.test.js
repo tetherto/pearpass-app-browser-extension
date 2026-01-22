@@ -7,6 +7,8 @@ Object.defineProperty(global.self, 'crypto', {
 })
 
 import { generateKeyPair } from './generateKeyPair'
+import { CRYPTO_ALGORITHMS } from '../../../shared/constants/crypto'
+import { ELLIPTIC_CURVES } from '../../../shared/constants/crypto'
 
 describe('generateKeyPair', () => {
   const mockKeyPair = {
@@ -28,8 +30,8 @@ describe('generateKeyPair', () => {
     await generateKeyPair()
     expect(crypto.subtle.generateKey).toHaveBeenCalledWith(
       {
-        name: 'ECDSA',
-        namedCurve: 'P-256'
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        namedCurve: ELLIPTIC_CURVES.P_256
       },
       true,
       ['sign', 'verify']

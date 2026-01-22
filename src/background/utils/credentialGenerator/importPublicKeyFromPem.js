@@ -1,3 +1,7 @@
+import {
+  CRYPTO_ALGORITHMS,
+  ELLIPTIC_CURVES
+} from '../../../shared/constants/crypto'
 import { base64UrlToArrayBuffer } from '../../../shared/utils/base64UrlToArrayBuffer'
 
 /**
@@ -12,8 +16,8 @@ export const importPublicKeyFromPem = async (pemPublicKey) => {
     'spki',
     bytesInDerFormat,
     {
-      name: 'ECDSA',
-      namedCurve: 'P-256'
+      name: CRYPTO_ALGORITHMS.ECDSA,
+      namedCurve: ELLIPTIC_CURVES.P_256
     },
     true,
     ['verify']

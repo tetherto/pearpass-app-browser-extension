@@ -1,6 +1,7 @@
 import { ed25519 } from '@noble/curves/ed25519'
 
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { CRYPTO_ALGORITHMS } from '../shared/constants/crypto'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
 
@@ -77,20 +78,26 @@ const putKeyRecord = (db, record) =>
 
 const getKeyMaterial = async (password) => {
   const encoded = textEncoder.encode(password)
-  return crypto.subtle.importKey('raw', encoded, 'PBKDF2', false, ['deriveKey'])
+  return crypto.subtle.importKey(
+    'raw',
+    encoded,
+    CRYPTO_ALGORITHMS.PBKDF2,
+    false,
+    ['deriveKey']
+  )
 }
 
 const deriveKey = async (password, salt) => {
   const keyMaterial = await getKeyMaterial(password)
   return crypto.subtle.deriveKey(
     {
-      name: 'PBKDF2',
+      name: CRYPTO_ALGORITHMS.PBKDF2,
       salt,
       iterations: 100000,
-      hash: 'SHA-256'
+      hash: CRYPTO_ALGORITHMS.SHA_256
     },
     keyMaterial,
-    { name: 'AES-GCM', length: 256 },
+    { name: CRYPTO_ALGORITHMS.AES_GCM, length: 256 },
     false,
     ['encrypt', 'decrypt']
   )
@@ -104,7 +111,7 @@ const encryptPrivateKey = async (privateKeyBytes, password) => {
 
   const key = await deriveKey(password, salt)
   const ciphertextBuffer = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv: nonce },
+    { name: CRYPTO_ALGORITHMS.AES_GCM, iv: nonce },
     key,
     privateKeyBytes
   )
@@ -123,7 +130,7 @@ const decryptPrivateKey = async (record, password) => {
 
   const key = await deriveKey(password, salt)
   const plaintextBuffer = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: nonce },
+    { name: CRYPTO_ALGORITHMS.AES_GCM, iv: nonce },
     key,
     ciphertext
   )

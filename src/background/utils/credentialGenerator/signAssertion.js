@@ -1,3 +1,5 @@
+import { CRYPTO_ALGORITHMS } from '../../../shared/constants/crypto'
+
 /**
  * Sign a WebAuthn assertion with a private key.
  * @param {CryptoKey} privateKey ECDSA P-256 private key
@@ -8,7 +10,10 @@
  */
 export const signAssertion = async (privateKey, authData, clientDataJSON) => {
   // SHA-256 hash of clientDataJSON
-  const clientDataHash = await crypto.subtle.digest('SHA-256', clientDataJSON)
+  const clientDataHash = await crypto.subtle.digest(
+    CRYPTO_ALGORITHMS.SHA_256,
+    clientDataJSON
+  )
 
   // Concatenate authenticatorData || clientDataHash
   const authBuf = new Uint8Array(authData)
@@ -20,8 +25,8 @@ export const signAssertion = async (privateKey, authData, clientDataJSON) => {
   // Sign with ECDSA‑P256 / SHA‑256
   return crypto.subtle.sign(
     {
-      name: 'ECDSA',
-      hash: { name: 'SHA-256' }
+      name: CRYPTO_ALGORITHMS.ECDSA,
+      hash: { name: CRYPTO_ALGORITHMS.SHA_256 }
     },
     privateKey,
     dataToSign.buffer

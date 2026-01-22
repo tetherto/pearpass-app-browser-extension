@@ -5,6 +5,7 @@ import { secureChannel } from './secureChannel'
 import * as CredentialGenerator from './utils/credentialGenerator'
 import { validateSender } from './utils/validateSender'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { CRYPTO_ALGORITHMS, ELLIPTIC_CURVES } from '../shared/constants/crypto'
 import { ERROR_CODES } from '../shared/constants/nativeMessaging'
 import {
   MESSAGE_TYPES,
@@ -450,8 +451,8 @@ const getAssertionCredential = async (
     'pkcs8',
     privateKeyBuffer,
     {
-      name: 'ECDSA',
-      namedCurve: 'P-256'
+      name: CRYPTO_ALGORITHMS.ECDSA,
+      namedCurve: ELLIPTIC_CURVES.P_256
     },
     false, // non-extractable for extra safety
     ['sign']

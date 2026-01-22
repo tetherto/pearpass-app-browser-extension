@@ -1,6 +1,7 @@
 import { encodeBytes } from './encodeBytes'
 import { encodeUInt } from './encodeUInt'
 import { startMap } from './startMap'
+import { CRYPTO_ALGORITHMS } from '../../../shared/constants/crypto'
 
 /**
  * Construct authenticatorData for “none” attestation.
@@ -13,7 +14,10 @@ export const buildAuthenticatorData = async (rpId, credentialId, publicKey) => {
   // 1) rpIdHash = SHA256(rpId)
   const rpIdUtf8 = new TextEncoder().encode(rpId)
 
-  const rpIdHashBuf = await crypto.subtle.digest('SHA-256', rpIdUtf8)
+  const rpIdHashBuf = await crypto.subtle.digest(
+    CRYPTO_ALGORITHMS.SHA_256,
+    rpIdUtf8
+  )
   const rpIdHash = new Uint8Array(rpIdHashBuf) // 32 bytes
 
   // 2) flags:
