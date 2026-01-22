@@ -69,7 +69,10 @@ export const COMMAND_DEFINITIONS = {
     params: ['options'],
     extractParams: (options) => options
   },
-  closeAllInstances: { params: [] }
+  closeAllInstances: { params: [] },
+
+  // Password commands
+  initWithPassword: { params: ['password'] }
 }
 
 // Export just the command names
