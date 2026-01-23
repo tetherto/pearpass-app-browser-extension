@@ -57,7 +57,8 @@ describe('redirectToPasskeySelection', () => {
       serializedPublicKey: 'abc123',
       requestId: 'req1',
       requestOrigin: 'example.com',
-      tabId: '456'
+      tabId: '456',
+      isVerified: true
     }
 
     redirectToPasskeySelection(mockNavigate, passkeyParams)
@@ -67,7 +68,8 @@ describe('redirectToPasskeySelection', () => {
         serializedPublicKey: 'abc123',
         requestId: 'req1',
         requestOrigin: 'example.com',
-        tabId: '456'
+        tabId: '456',
+        isVerified: true
       }
     })
     expect(logger.error).not.toHaveBeenCalled()

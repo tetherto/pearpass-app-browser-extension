@@ -1,33 +1,79 @@
 import { encodeBytes } from './encodeBytes'
 import { encodeUInt } from './encodeUInt'
 import { startMap } from './startMap'
+import { CRYPTO_ALGORITHMS } from '../../../shared/constants/crypto'
 
 /**
- * Construct authenticatorData for “none” attestation.
+ * Construct authenticatorData for "none" attestation or for assertions.
  * @param {string} rpId Relying party ID
- * @param {ArrayBuffer} credentialId Credential identifier
- * @param {CryptoKey} publicKey ECDSA P-256 public key
+ * @param {ArrayBuffer} credentialId Credential identifier (only needed for attestation)
+ * @param {CryptoKey} publicKey ECDSA P-256 public key (only needed for attestation)
+ * @param {boolean} isAssertion Whether this is for assertion (auth) vs attestation (registration)
+ * @param {string} userVerification 'discouraged', 'preferred', or 'required' (only for assertions)
  * @returns {Promise<Uint8Array>} Authenticator data bytes
  */
-export const buildAuthenticatorData = async (rpId, credentialId, publicKey) => {
+export const buildAuthenticatorData = async (
+  rpId,
+  credentialId,
+  publicKey,
+  isAssertion = false,
+  userVerification = 'preferred'
+) => {
   // 1) rpIdHash = SHA256(rpId)
   const rpIdUtf8 = new TextEncoder().encode(rpId)
 
-  const rpIdHashBuf = await crypto.subtle.digest('SHA-256', rpIdUtf8)
+  const rpIdHashBuf = await crypto.subtle.digest(
+    CRYPTO_ALGORITHMS.SHA_256,
+    rpIdUtf8
+  )
   const rpIdHash = new Uint8Array(rpIdHashBuf) // 32 bytes
 
   // 2) flags:
-  //    bit 0: User Present (UP) = 1
-  //    bit 2: User Verified (UV) = 1 (we assume no extra verification)
-  //    bit 3: Backup eligibility = 1
-  //    bit 4: Backup state = 1
-  //    bit 6: AT (attested credential included) = 1
-  //    bit 7: ED (extension data) = 0
-  const flags = new Uint8Array([0x5d]) // 0x01 (UP) + 0x04 (UV) + 0x08 (BE) + 0x10 (BS) + 0x40 (AT) = 0x5d
+  let flags
+  if (isAssertion) {
+    // For assertions:
+    //    bit 0: User Present (UP) = 1 (always)
+    //    bit 2: User Verified (UV) = depends on userVerification
+    //    bit 3: Backup eligibility = 1
+    //    bit 4: Backup state = 1
+    //    bit 6: AT (attested credential included) = 0 (NOT set for assertions!)
+    //    bit 7: ED (extension data) = 0
+
+    let flagByte = 0x01 // UP bit (always set)
+    flagByte |= 0x18 // BE + BS bits (0x08 + 0x10)
+
+    // Set UV bit based on userVerification parameter
+    // For 'required' or 'preferred': set UV=1 (master password counts as verification)
+    // For 'discouraged': leave UV=0
+    if (userVerification === 'required' || userVerification === 'preferred') {
+      flagByte |= 0x04 // Set UV bit
+    }
+
+    flags = new Uint8Array([flagByte])
+  } else {
+    // For attestation:
+    //    bit 0: User Present (UP) = 1
+    //    bit 2: User Verified (UV) = 1
+    //    bit 3: Backup eligibility = 1
+    //    bit 4: Backup state = 1
+    //    bit 6: AT (attested credential included) = 1
+    //    bit 7: ED (extension data) = 0
+    flags = new Uint8Array([0x5d]) // 0x01 (UP) + 0x04 (UV) + 0x08 (BE) + 0x10 (BS) + 0x40 (AT) = 0x5d
+  }
+
   // 3) signCount: 4 bytes, big‐endian
   const signCount = new Uint8Array([0x00, 0x00, 0x00, 0x00])
 
-  // 4) attestedCredentialData:
+  // For assertions, we only need rpIdHash + flags + signCount (37 bytes)
+  if (isAssertion) {
+    const authData = new Uint8Array(37)
+    authData.set(rpIdHash, 0)
+    authData.set(flags, 32)
+    authData.set(signCount, 33)
+    return authData
+  }
+
+  // 4) attestedCredentialData (only for attestation):
   //   a) aaguid: 16 bytes. All zeros for a “software/virtual” AAGUID.
   const aaguid = new Uint8Array(16)
 

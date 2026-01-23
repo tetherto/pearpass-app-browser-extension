@@ -1,3 +1,4 @@
+import { useDesktopConnectionErrors } from './hooks/useDesktopConnectionErrors'
 import { usePairingRequired } from './hooks/usePairingRequired'
 import { useRedirect } from './hooks/useRedirect'
 import { useWindowResize } from './hooks/useWindowResize'
@@ -15,6 +16,7 @@ export const App = () => {
   })
 
   usePairingRequired()
+  useDesktopConnectionErrors()
 
   return (
     <div

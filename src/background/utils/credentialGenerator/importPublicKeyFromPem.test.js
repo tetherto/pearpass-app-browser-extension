@@ -12,6 +12,10 @@ Object.defineProperty(global.self, 'crypto', {
 })
 
 import { importPublicKeyFromPem } from './importPublicKeyFromPem'
+import {
+  CRYPTO_ALGORITHMS,
+  ELLIPTIC_CURVES
+} from '../../../shared/constants/crypto'
 import { base64UrlToArrayBuffer } from '../../../shared/utils/base64UrlToArrayBuffer'
 
 jest.mock('../../../shared/utils/base64UrlToArrayBuffer', () => ({
@@ -37,8 +41,8 @@ describe('importPublicKeyFromPem', () => {
       'spki',
       mockArrayBuffer,
       {
-        name: 'ECDSA',
-        namedCurve: 'P-256'
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        namedCurve: ELLIPTIC_CURVES.P_256
       },
       true,
       ['verify']
@@ -62,8 +66,8 @@ describe('importPublicKeyFromPem', () => {
       'spki',
       mockArrayBuffer,
       {
-        name: 'ECDSA',
-        namedCurve: 'P-256'
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        namedCurve: ELLIPTIC_CURVES.P_256
       },
       true,
       ['verify']

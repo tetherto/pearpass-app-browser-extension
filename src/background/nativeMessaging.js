@@ -4,6 +4,7 @@ import {
   wrapMessage
 } from './nativeMessagingProtocol'
 import { secureChannel } from './secureChannel'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   NATIVE_MESSAGE_TYPES,
   NATIVE_MESSAGING_CONFIG,
@@ -254,6 +255,12 @@ const getErrorCode = (errorMessage) => {
   ) {
     return ERROR_CODES.DESKTOP_NOT_AUTHENTICATED
   }
+  if (errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)) {
+    return ERROR_CODES.AUTHENTICATION_FAILED
+  }
+  if (errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)) {
+    return ERROR_CODES.SIGNATURE_INVALID
+  }
 
   // Check for session errors
   if (errorMessage.includes(SESSION_ERROR_PATTERNS.NOT_PAIRED)) {
@@ -301,18 +308,34 @@ const getErrorCode = (errorMessage) => {
 }
 
 /**
- * Check if an error requires clearing the session (pairing modal)
- * @param {string} errorCode - The error code
+ * Check if an error requires clearing the session (pairing modal).
+ * Master-password and client-signature related errors are explicitly
+ * excluded here: they indicate authentication problems, not pairing
+ * problems, and clearing the session in those cases causes pairing loops.
+ *
+ * @param {string} errorCode - The normalized error code
+ * @param {string} errorMessage - The original error message
  * @returns {boolean} Whether to clear the session
  */
-const shouldClearSession = (errorCode) =>
-  [
+const shouldClearSession = (errorCode, errorMessage = '') => {
+  // Only clear session (and show pairing UI) for identity-level errors.
+  const baseShouldClear = [
     ERROR_CODES.SIGNATURE_INVALID,
     ERROR_CODES.IDENTITY_KEYS_UNAVAILABLE,
-    ERROR_CODES.NOT_PAIRED,
-    ERROR_CODES.NO_SESSION,
-    ERROR_CODES.HANDSHAKE_FAILED
+    ERROR_CODES.NOT_PAIRED
   ].includes(errorCode)
+
+  if (!baseShouldClear) return false
+
+  const isMasterPasswordError =
+    errorMessage &&
+    errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+  const isClientSignatureError =
+    errorMessage &&
+    errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)
+
+  return !isMasterPasswordError && !isClientSignatureError
+}
 
 const handleRequest = async (msg, sendResponse) => {
   const { command, params } = msg
@@ -332,7 +355,7 @@ const handleRequest = async (msg, sendResponse) => {
     const errorCode = getErrorCode(error.message)
 
     // Clear session if needed (triggers pairing modal)
-    if (shouldClearSession(errorCode)) {
+    if (shouldClearSession(errorCode, error.message)) {
       // Use the specific error pattern for better logging
       const errorPattern =
         Object.values({

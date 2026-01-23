@@ -176,7 +176,9 @@ export const CONTENT_MESSAGE_TYPES = {
   CREATE_THIRD_PARTY_KEY: 'createThirdPartyKey',
   GOT_PASSKEY: 'gotPasskey',
   GET_THIRD_PARTY_KEY: 'getThirdPartyKey',
-  AUTOFILL_FROM_ACTION: 'autofillFromAction'
+  AUTOFILL_FROM_ACTION: 'autofillFromAction',
+  CREATE_PASSKEY: 'createPasskey',
+  GET_PASSKEY: 'getPasskey'
 }
 
 /**
@@ -185,7 +187,8 @@ export const CONTENT_MESSAGE_TYPES = {
 export const SECURITY_ERROR_PATTERNS = {
   SIGNATURE_INVALID: 'SignatureInvalid',
   DESKTOP_NOT_AUTHENTICATED: 'DesktopNotAuthenticated',
-  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable'
+  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable',
+  CLIENT_SIGNATURE_INVALID: 'ClientSignatureInvalid'
 }
 
 /**
@@ -213,4 +216,12 @@ export const PAIRING_REASONS = {
   SESSION_NOT_FOUND: 'session-not-found',
   HANDSHAKE_FAILED: 'handshake-failed',
   SECURE_REQUEST_FAILED: 'secure-request-failed'
+}
+
+/**
+ * Protocol domain separation tags for handshake transcript binding
+ * These prevent cross-protocol signature replay attacks
+ */
+export const PROTOCOL_TAGS = {
+  CLIENT_FINISH: 'pearpass/handshake/v1/clientFinish'
 }

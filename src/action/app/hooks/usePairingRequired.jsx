@@ -7,7 +7,6 @@ import {
 } from '../../../shared/constants/nativeMessaging'
 import { useModal } from '../../../shared/context/ModalContext'
 import { logger } from '../../../shared/utils/logger'
-import { registerModalHandlers } from '../../../vaultClient/globalVaultErrorHandler'
 import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequiredModalContent'
 
 export const usePairingRequired = () => {
@@ -34,8 +33,6 @@ export const usePairingRequired = () => {
         handlePairingRequired({ reason: message.reason })
       }
     }
-
-    registerModalHandlers({ showSyncFailedModal: handlePairingRequired })
 
     client.on(VAULT_CLIENT_EVENTS.PAIRING_REQUIRED, handlePairingRequired)
     chrome.runtime.onMessage.addListener(handleMessage)

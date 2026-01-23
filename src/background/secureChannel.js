@@ -5,30 +5,21 @@
 import { xsalsa20poly1305 } from '@noble/ciphers/salsa'
 import { ed25519, x25519 } from '@noble/curves/ed25519'
 
+import {
+  ensureClientKeypairUnlocked,
+  ensureClientKeypairGeneratedForPairing
+} from './clientKeyStore'
 import { nativeMessaging } from './nativeMessaging'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
+import { CRYPTO_ALGORITHMS } from '../shared/constants/crypto'
 import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
-  SECURITY_ERROR_PATTERNS
+  SECURITY_ERROR_PATTERNS,
+  PROTOCOL_TAGS
 } from '../shared/constants/nativeMessaging'
+import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
-
-// Helper functions to replace Buffer usage in service worker
-const base64Encode = (uint8Array) => {
-  // Convert Uint8Array to base64 without using Buffer
-  const binary = String.fromCharCode.apply(null, uint8Array)
-  return btoa(binary)
-}
-
-const base64Decode = (base64String) => {
-  // Convert base64 to Uint8Array without using Buffer
-  const binary = atob(base64String)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
-  }
-  return bytes
-}
 
 const concatUint8Arrays = (arrays) => {
   // Concatenate multiple Uint8Arrays without using Buffer.concat
@@ -81,7 +72,8 @@ const STORAGE_KEYS = Object.freeze({
   paired: 'nm.paired',
   fingerprint: 'nm.fingerprint',
   ed25519PublicKey: 'nm.ed25519PublicKey',
-  x25519PublicKey: 'nm.x25519PublicKey'
+  x25519PublicKey: 'nm.x25519PublicKey',
+  clientEd25519PublicKey: 'nm.client.ed25519PublicKey'
 })
 
 /**
@@ -101,6 +93,15 @@ const storageGet = (keys) =>
  */
 const storageSet = (obj) =>
   new Promise((resolve) => chrome.storage.local.set(obj, () => resolve()))
+
+/**
+ * Load or generate a long-term client (extension) Ed25519 identity.
+ * Public key is sent to desktop during pairing; private key is stored encrypted
+ * in IndexedDB and only loaded into memory when unlocked with the master password.
+ *
+ * @returns {Promise<{ publicKey: Uint8Array, privateKey: Uint8Array }>}
+ */
+const getOrCreateClientIdentity = async () => ensureClientKeypairUnlocked()
 
 /**
  * Minimal secure channel client.
@@ -133,6 +134,25 @@ export class SecureChannelClient {
     if (this.hasActiveSession()) return
     if (!(await this.isPaired())) return
 
+    // Check if the client keystore is ready for signing. If not, we cannot
+    // complete a handshake that requires client signature. Throw early so
+    // callers know to wait for master password unlock.
+    try {
+      const { privateKey } = await ensureClientKeypairUnlocked()
+      if (!privateKey) {
+        throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+      }
+    } catch (e) {
+      if (
+        e.message &&
+        e.message.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+      ) {
+        throw e
+      }
+      // Other keystore errors: proceed to handshake and let it fail naturally
+      logger.log('Client keystore check failed, proceeding anyway')
+    }
+
     const handshake = await this.beginHandshake()
     if (!handshake.ok) {
       // If identity keys are unavailable on desktop, trigger pairing flow
@@ -152,7 +172,21 @@ export class SecureChannelClient {
     }
     const finish = await this.finishHandshake()
     if (!finish?.ok) {
-      // Clear session to trigger pairing modal on handshake failure
+      // If the desktop reports a master-password requirement or a client
+      // signature problem, do not clear the pairing; just surface the error
+      // so the UI can prompt the user to unlock or reset if needed.
+      if (
+        finish?.error &&
+        (finish.error.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED) ||
+          finish.error.includes(
+            SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID
+          ) ||
+          finish.error.includes(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID))
+      ) {
+        throw new Error(finish.error)
+      }
+      // For all other handshake finish failures, clear the session so that
+      // the extension can re-establish pairing as needed.
       await this.clearSession(
         finish?.error || SESSION_ERROR_PATTERNS.HANDSHAKE_FINISH_FAILED
       )
@@ -174,7 +208,28 @@ export class SecureChannelClient {
         'PairingTokenRequired: Please enter the pairing token from the desktop app'
       )
     }
-    return nativeMessaging.sendRequest('nmGetAppIdentity', { pairingToken })
+
+    // For pairing, generate or reuse a client identity without requiring the
+    // master password. The private key will be persisted (encrypted) only after
+    // the user unlocks with their master password.
+    let clientPublicKeyB64
+    try {
+      const { publicKey } = await ensureClientKeypairGeneratedForPairing()
+      if (publicKey) {
+        clientPublicKeyB64 = base64Encode(publicKey)
+      }
+    } catch (e) {
+      logger.log('Failed to prepare client identity for pairing')
+      // Proceed without sending client public key; desktop will still pair but
+      // will not yet pin a client identity.
+    }
+
+    const params = { pairingToken }
+    if (clientPublicKeyB64) {
+      params.clientEd25519PublicKeyB64 = clientPublicKeyB64
+    }
+
+    return nativeMessaging.sendRequest('nmGetAppIdentity', params)
   }
 
   /**
@@ -292,10 +347,16 @@ export class SecureChannelClient {
         handshakeResponse.hostEphemeralPubB64
       )
 
-      // Verify signature over transcript = host_eph_pk || ext_eph_pk
+      // Load client identity to include in transcript
+      const clientIdentity = await getOrCreateClientIdentity()
+
+      // Verify signature over transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
+      // Including the client public key binds the handshake to the specific
+      // extension identity that was registered during pairing.
       const transcript = concatUint8Arrays([
         hostEphemeralPublicKeyBytes,
-        extensionEphemeralKeyPair.publicKey
+        extensionEphemeralKeyPair.publicKey,
+        clientIdentity.publicKey
       ])
 
       const desktopEd25519PublicKey = base64Decode(
@@ -310,8 +371,9 @@ export class SecureChannelClient {
         desktopEd25519PublicKey
       )
       if (!signatureValid) {
-        // Clear pairing data on signature failure
-        await this.clearSession(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID)
+        // Do NOT clear pairing here – a temporary mismatch or desktop key
+        // rotation should not immediately force re-pairing. Surface the
+        // error and let higher layers decide if/when to reset pairing.
         return { ok: false, error: SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID }
       }
 
@@ -323,14 +385,18 @@ export class SecureChannelClient {
 
       // Derive session key via SHA-256(shared||transcript)
       const preimage = concatUint8Arrays([sharedSecret, transcript])
-      const digest = await crypto.subtle.digest('SHA-256', preimage)
+      const digest = await crypto.subtle.digest(
+        CRYPTO_ALGORITHMS.SHA_256,
+        preimage
+      )
       const sessionSymmetricKey = new Uint8Array(digest).slice(0, 32) // Use first 32 bytes for AES-256
 
       // Stash session info in-memory (no expiration policy)
       this._session = {
         id: handshakeResponse.sessionId,
         key: sessionSymmetricKey,
-        seq: 0
+        seq: 0,
+        hostEphemeralPubB64: handshakeResponse.hostEphemeralPubB64
       }
 
       return { ok: true, sessionId: handshakeResponse.sessionId }
@@ -361,8 +427,48 @@ export class SecureChannelClient {
   async finishHandshake() {
     try {
       if (!this._session?.id) throw new Error(SESSION_ERROR_PATTERNS.NO_SESSION)
+
+      // Reconstruct transcript used by desktop to derive session key
+      if (!this._session.hostEphemeralPubB64 || !this._ephemeralKeyPair) {
+        throw new Error(SESSION_ERROR_PATTERNS.HANDSHAKE_FAILED)
+      }
+
+      const hostEphemeralPublicKeyBytes = base64Decode(
+        this._session.hostEphemeralPubB64
+      )
+      if (
+        !(hostEphemeralPublicKeyBytes instanceof Uint8Array) ||
+        hostEphemeralPublicKeyBytes.length !== 32
+      ) {
+        throw new Error(SESSION_ERROR_PATTERNS.HANDSHAKE_FAILED)
+      }
+
+      // Load client identity and sign transcript
+      const clientIdentity = await getOrCreateClientIdentity()
+
+      // Protocol tag for domain separation (prevents cross-protocol attacks)
+      const protocolTag = new TextEncoder().encode(PROTOCOL_TAGS.CLIENT_FINISH)
+      // Session ID binding (prevents signature replay across sessions)
+      const sessionIdBytes = new TextEncoder().encode(String(this._session.id))
+
+      // Client transcript includes protocol tag + session ID for additional binding
+      // Transcript = tag || session_id || host_eph_pk || ext_eph_pk || client_ed25519_pk
+      const transcript = concatUint8Arrays([
+        protocolTag,
+        sessionIdBytes,
+        hostEphemeralPublicKeyBytes,
+        this._ephemeralKeyPair.publicKey,
+        clientIdentity.publicKey
+      ])
+      const clientSignature = ed25519.sign(
+        transcript,
+        clientIdentity.privateKey
+      )
+      const clientSigB64 = base64Encode(clientSignature)
+
       const res = await nativeMessaging.sendRequest('nmFinishHandshake', {
-        sessionId: this._session.id
+        sessionId: this._session.id,
+        clientSigB64
       })
       return res
     } catch (e) {
@@ -444,8 +550,15 @@ export class SecureChannelClient {
           await this.ensureSession()
           return await attempt()
         } catch (retryError) {
-          // If re-establishment fails, trigger pairing modal
-          await this.clearSession(e?.message)
+          // Only clear pairing for identity-level errors; surface session errors.
+          const msg = retryError?.message || e?.message || ''
+          if (
+            msg.includes(SECURITY_ERROR_PATTERNS.IDENTITY_KEYS_UNAVAILABLE) ||
+            msg.includes(SESSION_ERROR_PATTERNS.NOT_PAIRED) ||
+            msg.includes(SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID)
+          ) {
+            await this.clearSession(msg)
+          }
           throw retryError
         }
       }
