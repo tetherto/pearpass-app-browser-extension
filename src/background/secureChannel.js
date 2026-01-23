@@ -132,7 +132,12 @@ export class SecureChannelClient {
   async ensureSession() {
     // If a session is already active, keep using it (no expiration policy)
     if (this.hasActiveSession()) return
-    if (!(await this.isPaired())) return
+
+    // If not paired, trigger pairing flow
+    if (!(await this.isPaired())) {
+      await this.clearSession(SESSION_ERROR_PATTERNS.NOT_PAIRED)
+      throw new Error(SESSION_ERROR_PATTERNS.NOT_PAIRED)
+    }
 
     // Check if the client keystore is ready for signing. If not, we cannot
     // complete a handshake that requires client signature. Throw early so
