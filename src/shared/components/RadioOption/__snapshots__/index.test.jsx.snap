@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RadioOption renders checked state correctly 1`] = `
+<label
+  class="flex cursor-pointer items-center gap-[8px]"
+>
+  <input
+    checked=""
+    class="peer pointer-events-none sr-only fixed opacity-0"
+    name="test-group"
+    type="radio"
+    value="test-value"
+  />
+  <div
+    class="relative mt-0.5 h-5 w-5 flex-shrink-0 rounded-full border-2 transition-all border-primary400-mode1 peer-focus-visible:ring-primary400-mode1 peer-focus-visible:ring-2"
+  >
+    <span
+      class="bg-primary400-mode1 absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform scale-100"
+    />
+  </div>
+  <div
+    class="flex flex-col"
+  >
+    <span
+      class="font-inter text-[14px] leading-normal text-white"
+    >
+      Test Option
+    </span>
+  </div>
+</label>
+`;
+
+exports[`RadioOption renders correctly 1`] = `
+<label
+  class="flex cursor-pointer items-center gap-[8px]"
+>
+  <input
+    class="peer pointer-events-none sr-only fixed opacity-0"
+    name="test-group"
+    type="radio"
+    value="test-value"
+  />
+  <div
+    class="relative mt-0.5 h-5 w-5 flex-shrink-0 rounded-full border-2 transition-all border-white/40 peer-focus-visible:ring-primary400-mode1 peer-focus-visible:ring-2"
+  >
+    <span
+      class="bg-primary400-mode1 absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform scale-0"
+    />
+  </div>
+  <div
+    class="flex flex-col"
+  >
+    <span
+      class="font-inter text-[14px] leading-normal text-white"
+    >
+      Test Option
+    </span>
+  </div>
+</label>
+`;

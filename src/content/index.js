@@ -11,6 +11,7 @@ import { isPasswordField } from './utils/isPasswordField'
 import { isUsernameField } from './utils/isUsernameField'
 import { triggerInputEvents } from './utils/triggerInputEvents'
 import { CONTENT_MESSAGE_TYPES } from '../shared/constants/nativeMessaging'
+import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 import {
   getAutofillEnabled,
   onAutofillEnabledChanged
@@ -604,20 +605,21 @@ function handleWindowEvent(event) {
 
   const type = data.type
 
-  if (type === 'createPasskey') {
+  if (type === CONTENT_MESSAGE_TYPES.CREATE_PASSKEY) {
     chrome.runtime.sendMessage({
-      type: 'createPasskey',
+      type: MESSAGE_TYPES.CREATE_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
       requestOrigin: data.requestOrigin
     })
   }
 
-  if (type === 'getPasskey') {
+  if (type === CONTENT_MESSAGE_TYPES.GET_PASSKEY) {
     chrome.runtime.sendMessage({
-      type: 'getPasskey',
+      type: MESSAGE_TYPES.GET_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
+      mediation: data.mediation,
       requestOrigin: data.requestOrigin
     })
   }

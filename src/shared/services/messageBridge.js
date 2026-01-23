@@ -22,6 +22,8 @@ export const MESSAGE_TYPES = Object.freeze({
   SELECTED_PASSKEY: 'selectedPasskey',
   READY_FOR_PASSKEY_PAYLOAD: 'readyForPasskeyPayload',
   GET_ASSERTION_CREDENTIAL: 'getAssertionCredential',
+  GET_CONDITIONAL_PASSKEY_REQUEST: 'getConditionalPasskeyRequest',
+  AUTHENTICATE_WITH_PASSKEY: 'authenticateWithPasskey',
   GET_PLATFORM_INFO: 'GET_PLATFORM_INFO'
 })
 

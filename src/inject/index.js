@@ -1,13 +1,8 @@
-import { PASSKEY_SUPPORT_ENABLED } from 'pearpass-lib-constants/src/constants/flags'
-
+import { CONTENT_MESSAGE_TYPES } from '../shared/constants/nativeMessaging'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
 import { logger } from '../shared/utils/logger'
 ;(() => {
-  if (!PASSKEY_SUPPORT_ENABLED) {
-    return
-  }
-
   const { credentials: nativeCreds } = navigator
   const nativeCreate = nativeCreds.create.bind(nativeCreds)
   const nativeGet = nativeCreds.get.bind(nativeCreds)
@@ -42,7 +37,7 @@ import { logger } from '../shared/utils/logger'
     window.postMessage(
       {
         source: 'pearpass',
-        type: 'createPasskey',
+        type: CONTENT_MESSAGE_TYPES.CREATE_PASSKEY,
         requestId,
         tabId: options.tabId,
         publicKey,
@@ -53,16 +48,16 @@ import { logger } from '../shared/utils/logger'
 
     const responsePromise = awaitMessage(
       (data) =>
-        (data?.type === 'savedPasskey' ||
-          data?.type === 'createThirdPartyKey') &&
+        (data?.type === CONTENT_MESSAGE_TYPES.SAVED_PASSKEY ||
+          data?.type === CONTENT_MESSAGE_TYPES.CREATE_THIRD_PARTY_KEY) &&
         data?.requestId === requestId
     )
 
-    const { recordId, credential, type } = await responsePromise
+    const { credential, type } = await responsePromise
 
-    if (type === 'createThirdPartyKey') {
+    if (type === CONTENT_MESSAGE_TYPES.CREATE_THIRD_PARTY_KEY) {
       return await nativeCreate(options)
-    } else if (!recordId || !credential) {
+    } else if (!credential) {
       logger.error('Could not create pass key')
       return null
     } else {
@@ -80,10 +75,11 @@ import { logger } from '../shared/utils/logger'
     window.postMessage(
       {
         source: 'pearpass',
-        type: 'getPasskey',
+        type: CONTENT_MESSAGE_TYPES.GET_PASSKEY,
         requestId,
         tabId: options.tabId,
         publicKey,
+        mediation: options.mediation,
         requestOrigin: window.location.origin
       },
       '*'
@@ -91,13 +87,14 @@ import { logger } from '../shared/utils/logger'
 
     const responsePromise = awaitMessage(
       (data) =>
-        (data?.type === 'gotPasskey' || data?.type === 'getThirdPartyKey') &&
+        (data?.type === CONTENT_MESSAGE_TYPES.GOT_PASSKEY ||
+          data?.type === CONTENT_MESSAGE_TYPES.GET_THIRD_PARTY_KEY) &&
         data?.requestId === requestId
     )
 
     const { credential = null, type } = await responsePromise
 
-    if (type === 'getThirdPartyKey') {
+    if (type === CONTENT_MESSAGE_TYPES.GET_THIRD_PARTY_KEY) {
       return await nativeGet(options)
     } else if (!credential) {
       logger.error('Could not get pass key')
@@ -165,9 +162,16 @@ import { logger } from '../shared/utils/logger'
           return credentialJson.response.transports
         }
       },
-      toJSON: () => credentialJson,
+      toJSON: () => ({
+        id: credentialJson.id,
+        rawId: credentialJson.rawId,
+        type: credentialJson.type,
+        response: credentialJson.response,
+        authenticatorAttachment: credentialJson.authenticatorAttachment,
+        clientExtensionResults: credentialJson.clientExtensionResults
+      }),
       getClientExtensionResults: () => ({
-        credProps: credentialJson.clientExtensionResults.credProps
+        credProps: credentialJson.clientExtensionResults?.credProps
       })
     }
 

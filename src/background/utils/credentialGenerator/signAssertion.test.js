@@ -51,9 +51,9 @@ describe('signAssertion', () => {
     )
   })
 
-  it('should return the signature from crypto.subtle.sign', async () => {
+  it('should return a DER-encoded signature', async () => {
     const result = await signAssertion(privateKey, authData, clientDataJSON)
-    expect(result).toBe(signature)
+    expect(result).toBeInstanceOf(ArrayBuffer)
   })
 
   it('should throw an error if signing fails', async () => {

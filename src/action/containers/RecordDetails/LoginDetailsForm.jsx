@@ -17,6 +17,7 @@ import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { KeyIcon } from '../../../shared/icons/KeyIcon'
 import { UserIcon } from '../../../shared/icons/UserIcon'
 import { WorldIcon } from '../../../shared/icons/WorldIcon'
+import { formatPasskeyDate } from '../../../shared/utils/formatPasskeyDate'
 import { isPasswordChangeReminderDisabled } from '../../../shared/utils/isPasswordChangeReminderDisabled'
 import { CustomFields } from '../CustomFields'
 
@@ -49,6 +50,7 @@ export const LoginDetailsForm = ({ initialRecord }) => {
       username: initialRecord?.data?.username ?? '',
       password: initialRecord?.data?.password ?? '',
       credential: initialRecord?.data?.credential ?? undefined,
+      passkeyCreatedAt: initialRecord?.data?.passkeyCreatedAt ?? undefined,
       note: initialRecord?.data?.note ?? '',
       websites: initialRecord?.data?.websites?.length
         ? initialRecord?.data?.websites.map((website) => ({ website }))
@@ -130,7 +132,9 @@ export const LoginDetailsForm = ({ initialRecord }) => {
         {!!values.credential && (
           <InputField
             label={t`Passkey`}
-            placeholder={t`Passkey Stored`}
+            value={
+              formatPasskeyDate(values?.passkeyCreatedAt) || t`Passkey Stored`
+            }
             variant="outline"
             icon={KeyIcon}
             onClick={handleCopy}

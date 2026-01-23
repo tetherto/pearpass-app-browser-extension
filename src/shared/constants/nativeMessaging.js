@@ -176,7 +176,9 @@ export const CONTENT_MESSAGE_TYPES = {
   CREATE_THIRD_PARTY_KEY: 'createThirdPartyKey',
   GOT_PASSKEY: 'gotPasskey',
   GET_THIRD_PARTY_KEY: 'getThirdPartyKey',
-  AUTOFILL_FROM_ACTION: 'autofillFromAction'
+  AUTOFILL_FROM_ACTION: 'autofillFromAction',
+  CREATE_PASSKEY: 'createPasskey',
+  GET_PASSKEY: 'getPasskey'
 }
 
 /**
