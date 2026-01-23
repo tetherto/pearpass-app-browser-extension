@@ -7,7 +7,8 @@ export const LOCAL_STORAGE_KEYS = {
 }
 
 export const CHROME_STORAGE_KEYS = {
-  AUTOFILL_ENABLED: 'autofill-enabled'
+  AUTOFILL_ENABLED: 'autofill-enabled',
+  ALLOW_HTTP_ENABLED: 'allow-http-enabled'
 }
 
 export const PASSKEY_VERIFICATION_OPTIONS = {

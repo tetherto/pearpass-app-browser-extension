@@ -194,7 +194,7 @@ export const CreatePasskey = () => {
           className="bg-primary400-mode1 flex flex-1 items-center justify-center gap-2 rounded-[10px] py-2 font-semibold text-black"
         >
           <PlusIcon size="24" color="#000" />
-          {t`Create new login`}
+          {selectedRecord ? t`Add passkey` : t`Create new login`}
         </button>
         <button
           onClick={handleCancel}

@@ -34,6 +34,7 @@ import {
 } from '../../../shared/constants/storage'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useToast } from '../../../shared/context/ToastContext'
+import { useAllowHttpEnabled } from '../../../shared/hooks/useAllowHttpEnabled'
 import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { BackIcon } from '../../../shared/icons/BackIcon'
 import {
@@ -74,6 +75,8 @@ export const Settings = () => {
   const [isAutofillEnabled, setIsAutoFillEnabled] = useState(true)
   const { isCopyToClipboardEnabled, handleCopyToClipboardSettingChange } =
     useCopyToClipboard()
+
+  const [isAllowHttpEnabled, setIsAllowHttpEnabled] = useAllowHttpEnabled()
 
   useEffect(() => {
     getAutofillEnabled().then((isEnabled) => setIsAutoFillEnabled(isEnabled))
@@ -203,6 +206,12 @@ export const Settings = () => {
               label={t`Copy to clipboard`}
               description={t`When clicking a password you copy that into your clipboard`}
               onChange={handleCopyToClipboardSettingChange}
+            />
+            <SwitchWithLabel
+              isOn={isAllowHttpEnabled}
+              label={t`Allow non-secure websites`}
+              description={t`Allow access to HTTP websites. When off, only HTTPS is allowed.`}
+              onChange={setIsAllowHttpEnabled}
             />
             {AUTO_LOCK_ENABLED && (
               <div className="flex flex-col gap-0.5">

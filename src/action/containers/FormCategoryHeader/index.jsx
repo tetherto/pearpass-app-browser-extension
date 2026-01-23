@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
-import { MenuDropdown } from '../../../shared/components/MenuDropDown'
+import { MenuDropdown } from '../../../shared/components/MenuDropdown'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useIsPasskeyPopup } from '../../../shared/hooks/useIsPasskeyPopup'
 import { useRecordMenuItems } from '../../../shared/hooks/useRecordMenuItems'

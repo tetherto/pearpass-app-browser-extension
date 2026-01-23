@@ -20,7 +20,7 @@ export const App = () => {
 
   return (
     <div
-      className="bg-black-mode1 flex items-center justify-center"
+      className="bg-black-mode1 flex items-center"
       style={{
         height: `${windowSize.height}px`,
         width: `${windowSize.width}px`

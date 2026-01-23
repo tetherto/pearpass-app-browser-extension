@@ -3,7 +3,7 @@
 exports[`ButtonPrimary Component renders correctly when disabled 1`] = `
 <div>
   <button
-    class="bg-primary400-mode1 border-primary400-mode1 cursor-pointer rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold pointer-events-none opacity-50"
+    class="bg-primary400-mode1 border-primary400-mode1 flex cursor-pointer items-center justify-center gap-1 rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold pointer-events-none opacity-50 "
     disabled=""
     type="button"
   >
@@ -15,7 +15,7 @@ exports[`ButtonPrimary Component renders correctly when disabled 1`] = `
 exports[`ButtonPrimary Component renders correctly with a custom type 1`] = `
 <div>
   <button
-    class="bg-primary400-mode1 border-primary400-mode1 cursor-pointer rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold "
+    class="bg-primary400-mode1 border-primary400-mode1 flex cursor-pointer items-center justify-center gap-1 rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold  "
     type="submit"
   >
     Submit Button
@@ -26,7 +26,7 @@ exports[`ButtonPrimary Component renders correctly with a custom type 1`] = `
 exports[`ButtonPrimary Component renders correctly with default props 1`] = `
 <div>
   <button
-    class="bg-primary400-mode1 border-primary400-mode1 cursor-pointer rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold "
+    class="bg-primary400-mode1 border-primary400-mode1 flex cursor-pointer items-center justify-center gap-1 rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold  "
     type="button"
   >
     Primary Button

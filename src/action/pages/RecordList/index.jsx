@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import {
-  closeAllInstances,
-  useFolders,
-  useRecords,
-  useVaults
-} from 'pearpass-lib-vault'
+import { useRecords } from 'pearpass-lib-vault'
 
 import { BadgeCategory } from '../../../shared/components/BadgeCategory'
 import { ButtonFilter } from '../../../shared/components/ButtonFilter'
@@ -15,11 +10,9 @@ import { CreateNewCategoryPopupContent } from '../../../shared/components/Create
 import { InputSearch } from '../../../shared/components/InputSearch'
 import { PopupMenu } from '../../../shared/components/PopupMenu'
 import { RecordSortActionsPopupContent } from '../../../shared/components/RecordSortActionsPopupContent'
-import { VaultActionsPopupContent } from '../../../shared/components/VaultActionsPopupContent'
-import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
 import { ConfirmationModalContent } from '../../../shared/containers/ConfirmationModalContent'
 import { PasswordGeneratorModalContent } from '../../../shared/containers/PasswordGeneratorModalContent'
-import { useLoadingContext } from '../../../shared/context/LoadingContext'
+import { Sidebar } from '../../../shared/containers/Sidebar'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useToast } from '../../../shared/context/ToastContext'
@@ -29,22 +22,14 @@ import { ArrowUpAndDown } from '../../../shared/icons/ArrowUpAndDown'
 import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { DeleteIcon } from '../../../shared/icons/DeleteIcon'
 import { GroupIcon } from '../../../shared/icons/GroupIcon'
-import { LockCircleIcon } from '../../../shared/icons/LockCircleIcon'
-import { LogoutIcon } from '../../../shared/icons/logoutIcon'
 import { MultiSelectionIcon } from '../../../shared/icons/MultiSelectionIcon'
-import { SettingsIcon } from '../../../shared/icons/SettingsIcon'
 import { TimeIcon } from '../../../shared/icons/TimeIcon'
-import { UserSecurityIcon } from '../../../shared/icons/UserSecurityIcon'
 import { XIcon } from '../../../shared/icons/XIcon'
 import { LogoLock } from '../../../shared/svgs/logoLock'
 import { isFavorite } from '../../../shared/utils/isFavorite'
 import { EmptyCollectionView } from '../../containers/EmptyCollectionView'
-import { FolderDropdown } from '../../containers/FolderDropDown'
-import { SwapVaultModalContent } from '../../containers/Modal/SwapVaultModalContent'
 import { RecordListContainer } from '../../containers/RecordListContainer'
 import { SyncData } from '../../containers/SyncData'
-
-const ALL = 'all'
 
 const SORT_BY_TYPE = {
   recent: {
@@ -63,11 +48,10 @@ const SORT_BY_TYPE = {
 
 export const RecordList = () => {
   const { navigate, state: routerState, currentPage } = useRouter()
-  const { setIsLoading } = useLoadingContext()
 
   const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false)
   const [isCreateNewCategoryOpen, setIsCreateNewCategoryOpen] = useState(false)
-  const [isVaultActionsOpen, setIsVaultActionsOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMultiSelect, setIsMultiSelect] = useState(false)
   const [selectedRecords, setSelectedRecords] = useState([])
   const [searchValue, setSearchValue] = useState('')
@@ -88,21 +72,7 @@ export const RecordList = () => {
     }
   })
 
-  const { resetState } = useVaults()
-
   const sort = useMemo(() => SORT_BY_TYPE[sortType], [sortType])
-
-  const { data: folders } = useFolders()
-
-  const isCustomFolders = useMemo(() => {
-    const foldersList = Object.values(folders?.customFolders ?? {})
-
-    if (!foldersList.length) {
-      return false
-    }
-
-    return true
-  }, [folders, routerState?.folder])
 
   const { data: records, deleteRecords } = useRecords({
     shouldSkip: true,
@@ -130,44 +100,6 @@ export const RecordList = () => {
       type: 'newToOld'
     },
     { name: t`Oldest to newest`, icon: ArrowUpAndDown, type: 'oldToNew' }
-  ]
-
-  const vaultActions = [
-    {
-      name: t`Swap Vault`,
-      icon: LockCircleIcon,
-      onClick: () => {
-        setIsVaultActionsOpen(false)
-        setModal(<SwapVaultModalContent />)
-      }
-    },
-    {
-      name: t`Add Device`,
-      icon: UserSecurityIcon,
-      onClick: () => {
-        navigate('addDevice')
-      }
-    },
-    {
-      name: t`Settings`,
-      icon: SettingsIcon,
-      onClick: () => {
-        navigate('settings')
-      }
-    },
-    {
-      name: t`Exit Vault`,
-      icon: LogoutIcon,
-      onClick: async () => {
-        setIsLoading(true)
-        await closeAllInstances()
-        setIsLoading(false)
-        navigate('welcome', {
-          params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
-        })
-        resetState()
-      }
-    }
   ]
 
   const selectedSortAction = sortActions.find(
@@ -256,17 +188,18 @@ export const RecordList = () => {
     <div className="flex h-full w-full flex-col">
       <div className="bg-grey400-mode1 flex w-full flex-1 flex-col gap-3 overflow-auto px-6 pt-7">
         <div className="top-0 flex w-full items-center gap-[10px]">
-          <PopupMenu
-            side="right"
-            align="right"
-            isOpen={isVaultActionsOpen}
-            setIsOpen={setIsVaultActionsOpen}
-            content={<VaultActionsPopupContent actions={vaultActions} />}
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(true)}
+            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(186,222,91,0.2)] px-2 py-1"
           >
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(186,222,91,0.2)] px-2 py-1">
-              <LogoLock width="100%" height="100%" />
-            </div>
-          </PopupMenu>
+            <LogoLock width="100%" height="100%" />
+          </button>
+
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
 
           <InputSearch
             value={searchValue}
@@ -388,23 +321,6 @@ export const RecordList = () => {
             )}
           </div>
         </div>
-
-        {isCustomFolders && (
-          <div>
-            <FolderDropdown
-              type="filter"
-              selectedFolder={routerState?.folder}
-              onFolderSelect={(item) => {
-                navigate(currentPage, {
-                  state: {
-                    folder: item.type === ALL ? undefined : item.name,
-                    recordType: routerState?.recordType
-                  }
-                })
-              }}
-            />
-          </div>
-        )}
 
         <div className="flex-1 overflow-auto">
           {!records?.length ? (

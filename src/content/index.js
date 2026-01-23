@@ -1,3 +1,4 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 import { RECORD_TYPES } from 'pearpass-lib-vault'
 
 import { IFRAME_TYPES } from './constants/iframe'
@@ -6,6 +7,7 @@ import { createIframe } from './utils/createIframe'
 import { findLoginForms } from './utils/findLoginForms'
 import { findSelectOptionValue } from './utils/findSelectOptionValue'
 import { getField } from './utils/getField'
+import { isContentScriptEnabled } from './utils/isContentScriptEnabled'
 import { isIdentityField } from './utils/isIdentityField'
 import { isPasswordField } from './utils/isPasswordField'
 import { isUsernameField } from './utils/isUsernameField'
@@ -30,12 +32,14 @@ onAutofillEnabledChanged((isEnabled) => {
   isAutoFillEnabled = isEnabled
 })
 
-// Listeners
-
 window.addEventListener('scroll', removeIframesOnScrollOrResize)
 window.addEventListener('resize', removeIframesOnScrollOrResize)
 
-window.addEventListener('focusin', (event) => {
+window.addEventListener('focusin', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (isAutoFillEnabled) {
     toggleLogoOnFocus(event)
     handlePasswordSuggestionPopup(event)
@@ -43,7 +47,11 @@ window.addEventListener('focusin', (event) => {
   }
 })
 
-window.addEventListener('click', (event) => {
+window.addEventListener('click', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (isAutoFillEnabled) {
     hideLogoOnOutsideClick(event)
     hideAutofillOnOutsideClick(event)
@@ -52,7 +60,11 @@ window.addEventListener('click', (event) => {
   detectSubmitClick(event)
 })
 
-window.addEventListener('message', (event) => {
+window.addEventListener('message', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (event.source === window) {
     handleWindowEvent(event)
     return
@@ -61,7 +73,11 @@ window.addEventListener('message', (event) => {
   handleIframeEvent(event)
 })
 
-chrome.runtime.onMessage.addListener((msg) => {
+chrome.runtime.onMessage.addListener(async (msg) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (msg.type === CONTENT_MESSAGE_TYPES.SAVED_PASSKEY) {
     window.postMessage(
       {
@@ -383,6 +399,10 @@ function onSubmit({ username, password }) {
 
 function initFormListener(form) {
   form.addEventListener('submit', async () => {
+    if (!(await isContentScriptEnabled())) {
+      return
+    }
+
     const username = form.querySelector(
       'input[type="text"], input[type="email"]'
     )?.value
@@ -421,7 +441,11 @@ function detectSubmitClick(event) {
   }
 }
 
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver(async () => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   findLoginForms().forEach(initFormListener)
 })
 
@@ -431,7 +455,11 @@ chrome.runtime
   .sendMessage({
     type: 'getPendingLogin'
   })
-  .then((msg) => {
+  .then(async (msg) => {
+    if (!(await isContentScriptEnabled())) {
+      return
+    }
+
     if (
       msg.type === 'pendingLogin' &&
       msg.data?.username &&
@@ -529,7 +557,11 @@ function toggleLogoOnFocus(event) {
   }
 }
 
-document.querySelectorAll('input').forEach((input) => {
+document.querySelectorAll('input').forEach(async (input) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (input.autofocus && isAcceptedField(input)) {
     showLogoForField(input)
   }
@@ -538,7 +570,12 @@ document.querySelectorAll('input').forEach((input) => {
 // Iframe management
 
 function showIframe(iframeType, { element, data, styles }) {
-  const id = crypto.randomUUID()
+  let id
+  try {
+    id = generateUniqueId()
+  } catch (error) {
+    throw error
+  }
 
   const iframe = createIframe({
     styles: styles,
