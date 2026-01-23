@@ -38,7 +38,7 @@ const TRANSITION_DURATION = 300
  * }} props
  */
 export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
-  const [shouldRender, setShouldRender] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isVaultDropdownOpen, setIsVaultDropdownOpen] = useState(false)
   const [isFolderDropdownOpen, setIsFolderDropdownOpen] = useState(true)
@@ -63,7 +63,7 @@ export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setShouldRender(true)
+      setIsMounted(true)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsAnimating(true)
@@ -72,7 +72,7 @@ export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
     } else {
       setIsAnimating(false)
       const timer = setTimeout(() => {
-        setShouldRender(false)
+        setIsMounted(false)
       }, TRANSITION_DURATION)
       return () => clearTimeout(timer)
     }
@@ -169,7 +169,7 @@ export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
     }
   ]
 
-  if (!shouldRender) {
+  if (!isMounted) {
     return null
   }
 
