@@ -50,7 +50,9 @@ export const DesktopConnectionModalContent = ({ onRetry, onClose }) => {
     <WelcomePageWrapper>
       <div className="flex h-full w-full flex-col items-center justify-center gap-[20px]">
         <span className="font-inter text-white-mode1 w-[310] py-[9] text-center text-[20px] leading-[24px] font-bold">
-          <Trans>Open the desktop app to use the browser extension</Trans>
+          <Trans>
+            Open the desktop app and activate browser extension to continue
+          </Trans>
         </span>
 
         <div className="w-full">
