@@ -41,5 +41,5 @@ export const usePairingRequired = () => {
       client.off(VAULT_CLIENT_EVENTS.PAIRING_REQUIRED, handlePairingRequired)
       chrome.runtime.onMessage.removeListener(handleMessage)
     }
-  }, [])
+  }, [closeAllModals, closeModal, setModal])
 }
