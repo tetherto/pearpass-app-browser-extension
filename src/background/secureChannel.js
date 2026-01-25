@@ -18,6 +18,7 @@ import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
   SECURITY_ERROR_PATTERNS,
+  PAIRING_ERROR_PATTERNS,
   PROTOCOL_TAGS,
   BLOCKING_STATE
 } from '../shared/constants/nativeMessaging'
@@ -312,7 +313,7 @@ export class SecureChannelClient {
   async getAppIdentity(pairingToken) {
     if (!pairingToken) {
       throw new Error(
-        'PairingTokenRequired: Please enter the pairing token from the desktop app'
+        `${PAIRING_ERROR_PATTERNS.PAIRING_TOKEN_REQUIRED}: Please enter the pairing token from the desktop app`
       )
     }
 

@@ -7,6 +7,7 @@ import { useUserData, useVaults } from 'pearpass-lib-vault'
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { ModalCard } from '../../../../shared/components/ModalCard'
 import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
+import { PAIRING_ERROR_PATTERNS } from '../../../../shared/constants/nativeMessaging'
 import { useToast } from '../../../../shared/context/ToastContext'
 import { secureChannelMessages } from '../../../../shared/services/messageBridge'
 import { logger } from '../../../../shared/utils/logger'
@@ -51,7 +52,9 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
         setToast({
           message: t`Desktop verified! Enter your master password to complete.`
         })
-      } else if (res?.error?.includes('InvalidPairingToken')) {
+      } else if (
+        res?.error?.includes(PAIRING_ERROR_PATTERNS.INVALID_PAIRING_TOKEN)
+      ) {
         throw new Error(t`Invalid pairing token. Please check and try again.`)
       } else {
         throw new Error(t`Failed to get identity`)
