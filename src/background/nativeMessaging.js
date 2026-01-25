@@ -307,36 +307,6 @@ const getErrorCode = (errorMessage) => {
   return ERROR_CODES.UNKNOWN
 }
 
-/**
- * Check if an error requires clearing the session (pairing modal).
- * Master-password and client-signature related errors are explicitly
- * excluded here: they indicate authentication problems, not pairing
- * problems, and clearing the session in those cases causes pairing loops.
- *
- * @param {string} errorCode - The normalized error code
- * @param {string} errorMessage - The original error message
- * @returns {boolean} Whether to clear the session
- */
-const shouldClearSession = (errorCode, errorMessage = '') => {
-  // Only clear session (and show pairing UI) for identity-level errors.
-  const baseShouldClear = [
-    ERROR_CODES.SIGNATURE_INVALID,
-    ERROR_CODES.IDENTITY_KEYS_UNAVAILABLE,
-    ERROR_CODES.NOT_PAIRED
-  ].includes(errorCode)
-
-  if (!baseShouldClear) return false
-
-  const isMasterPasswordError =
-    errorMessage &&
-    errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
-  const isClientSignatureError =
-    errorMessage &&
-    errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)
-
-  return !isMasterPasswordError && !isClientSignatureError
-}
-
 const handleRequest = async (msg, sendResponse) => {
   const { command, params } = msg
 
@@ -352,24 +322,11 @@ const handleRequest = async (msg, sendResponse) => {
 
     sendResponse({ success: true, result })
   } catch (error) {
-    const errorCode = getErrorCode(error.message)
-
-    // Clear session if needed (triggers pairing modal)
-    if (shouldClearSession(errorCode, error.message)) {
-      // Use the specific error pattern for better logging
-      const errorPattern =
-        Object.values({
-          ...SESSION_ERROR_PATTERNS,
-          ...SECURITY_ERROR_PATTERNS
-        }).find((pattern) => error.message.includes(pattern)) || errorCode
-      await secureChannel.clearSession(errorPattern)
-    }
-
-    // Send structured error response
+    // Session clearing is handled by secureChannel - just propagate error
     sendResponse({
       success: false,
       error: error.message,
-      code: errorCode
+      code: getErrorCode(error.message)
     })
   }
 }

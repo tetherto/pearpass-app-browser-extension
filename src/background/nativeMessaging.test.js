@@ -161,7 +161,7 @@ describe('NativeMessaging & integration', () => {
     jest.useRealTimers()
   })
 
-  test('handleRequest does not clear session for MasterPasswordRequired', async () => {
+  test('handleRequest does not clear session (secureChannel handles it)', async () => {
     const secureChannel = require('./secureChannel')
 
     // Message listener should be registered
@@ -187,49 +187,13 @@ describe('NativeMessaging & integration', () => {
         {},
         (response) => {
           expect(response.success).toBe(false)
-          // Surface auth error without clearing session
           expect(response.code).toBeDefined()
           resolve(null)
         }
       )
     })
 
-    // No clearSession on master-password errors
-    expect(secureChannel.secureChannel.clearSession).not.toHaveBeenCalled()
-  })
-
-  test('handleRequest does not clear session for ClientSignatureInvalid', async () => {
-    const secureChannel = require('./secureChannel')
-
-    // Message listener should be registered
-    expect(global.chrome.runtime.onMessage.addListener).toHaveBeenCalled()
-
-    const messageListener =
-      global.chrome.runtime.onMessage.addListener.mock.calls[0][0]
-
-    // ClientSignatureInvalid should not clear session
-    secureChannel.secureChannel.clearSession = jest.fn()
-    secureChannel.secureChannel.ensureSession = jest
-      .fn()
-      .mockRejectedValueOnce(new Error('ClientSignatureInvalid'))
-
-    await new Promise((resolve) => {
-      messageListener(
-        {
-          type: NATIVE_MESSAGE_TYPES.REQUEST,
-          command: 'securedCommand',
-          params: {}
-        },
-        {},
-        (response) => {
-          expect(response.success).toBe(false)
-          // Surface signature error without clearing session
-          expect(response.code).toBeDefined()
-          resolve(null)
-        }
-      )
-    })
-
+    // handleRequest never calls clearSession - secureChannel handles it
     expect(secureChannel.secureChannel.clearSession).not.toHaveBeenCalled()
   })
 })
