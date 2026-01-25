@@ -19,7 +19,9 @@ jest.mock('./clientKeyStore', () => ({
   ensureClientKeypairGeneratedForPairing: jest.fn(async () => ({
     publicKey: new Uint8Array([1, 2, 3]),
     privateKey: new Uint8Array([4, 5, 6])
-  }))
+  })),
+  hasPersistedClientKeypair: jest.fn(async () => true),
+  clearClientKeypair: jest.fn(async () => {})
 }))
 
 // Mock noble ed25519/x25519 so we don't depend on real crypto primitives

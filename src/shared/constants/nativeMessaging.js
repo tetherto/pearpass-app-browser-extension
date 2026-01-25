@@ -169,6 +169,15 @@ export const BACKGROUND_MESSAGE_TYPES = {
 }
 
 /**
+ * Blocking states - require user action before normal operation can proceed
+ */
+export const BLOCKING_STATE = {
+  PAIRING: 'PAIRING',
+  CONNECTION: 'CONNECTION',
+  AUTH: 'AUTH'
+}
+
+/**
  * Content script message types
  */
 export const CONTENT_MESSAGE_TYPES = {

@@ -70,6 +70,7 @@ export const COMMAND_DEFINITIONS = {
     extractParams: (options) => options
   },
   closeAllInstances: { params: [] },
+  checkExtensionPairingStatus: { params: ['clientEd25519PublicKeyB64'] },
 
   // Password commands
   initWithPassword: { params: ['password'] }

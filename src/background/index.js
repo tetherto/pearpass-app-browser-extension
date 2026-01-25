@@ -320,6 +320,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true
   }
 
+  if (msg.type === SECURE_MESSAGE_TYPES.GET_BLOCKING_STATE) {
+    ;(async () => {
+      try {
+        const blockingState = await secureChannel.getBlockingState()
+        sendResponse({ success: true, blockingState })
+      } catch (e) {
+        sendResponse({
+          success: false,
+          error: e?.message,
+          code: ERROR_CODES.UNKNOWN
+        })
+      }
+    })()
+    return true
+  }
+
   if (msg.type === MESSAGE_TYPES.GET_PLATFORM_INFO) {
     chrome.runtime.getPlatformInfo((info) => {
       sendResponse(info)

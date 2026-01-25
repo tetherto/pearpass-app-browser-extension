@@ -7,7 +7,9 @@ import { ed25519, x25519 } from '@noble/curves/ed25519'
 
 import {
   ensureClientKeypairUnlocked,
-  ensureClientKeypairGeneratedForPairing
+  ensureClientKeypairGeneratedForPairing,
+  hasPersistedClientKeypair,
+  clearClientKeypair
 } from './clientKeyStore'
 import { nativeMessaging } from './nativeMessaging'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
@@ -16,7 +18,8 @@ import {
   BACKGROUND_MESSAGE_TYPES,
   SESSION_ERROR_PATTERNS,
   SECURITY_ERROR_PATTERNS,
-  PROTOCOL_TAGS
+  PROTOCOL_TAGS,
+  BLOCKING_STATE
 } from '../shared/constants/nativeMessaging'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
@@ -108,7 +111,89 @@ const getOrCreateClientIdentity = async () => ensureClientKeypairUnlocked()
  */
 export class SecureChannelClient {
   /**
-   * Check if an identity is pinned.
+   * Check if there's a blocking state requiring user action.
+   * Returns null if everything is OK and normal operation should proceed.
+   * @returns {Promise<{state: string, error?: string} | null>}
+   */
+  async getBlockingState() {
+    logger.log('[getBlockingState] Starting blocking state check')
+
+    // 1. Check local pairing state
+    const pinnedIdentity = await this.getPinnedIdentity()
+    const hasIdentity = !!pinnedIdentity
+    const hasKeypair = await hasPersistedClientKeypair()
+
+    logger.log('[getBlockingState] Local state:', { hasIdentity, hasKeypair })
+
+    if (!hasIdentity || !hasKeypair) {
+      logger.log('[getBlockingState] Missing local state, returning PAIRING')
+      return { state: BLOCKING_STATE.PAIRING }
+    }
+
+    // 2. Check desktop connection and pairing status
+    try {
+      // First check if desktop is available
+      const availabilityStatus =
+        await nativeMessaging.sendRequest('checkAvailability')
+
+      logger.log('[getBlockingState] Availability status:', availabilityStatus)
+
+      if (!availabilityStatus.available) {
+        logger.log(
+          '[getBlockingState] Desktop not available, returning CONNECTION'
+        )
+        return {
+          state: BLOCKING_STATE.CONNECTION,
+          error: availabilityStatus.message
+        }
+      }
+
+      // Desktop is available, now check pairing status
+      const keypairResult = await ensureClientKeypairGeneratedForPairing()
+      logger.log('[getBlockingState] Keypair result:', {
+        hasPublicKey: !!keypairResult?.publicKey,
+        publicKeyLength: keypairResult?.publicKey?.length
+      })
+
+      const { publicKey } = keypairResult
+      const clientPubB64 = base64Encode(publicKey)
+
+      logger.log(
+        '[getBlockingState] Client public key (B64):',
+        clientPubB64?.slice(0, 20) + '...',
+        'length:',
+        clientPubB64?.length
+      )
+
+      const pairingStatus = await nativeMessaging.sendRequest(
+        'checkExtensionPairingStatus',
+        {
+          clientEd25519PublicKeyB64: clientPubB64
+        }
+      )
+
+      logger.log('[getBlockingState] Pairing status:', pairingStatus)
+
+      if (pairingStatus.paired) {
+        logger.log('[getBlockingState] Paired, returning null')
+        return null
+      }
+
+      // Desktop enabled but doesn't recognize this extension
+      logger.log(
+        '[getBlockingState] Desktop unpaired, clearing session and returning PAIRING'
+      )
+      await this.clearSession('DesktopNotPaired')
+      return { state: BLOCKING_STATE.PAIRING, error: 'Desktop unpaired' }
+    } catch (e) {
+      // Desktop unreachable or other error
+      logger.log('[getBlockingState] Error:', e?.message)
+      return { state: BLOCKING_STATE.CONNECTION, error: e?.message }
+    }
+  }
+
+  /**
+   * Check if an identity is pinned (local storage only).
    * @returns {Promise<boolean>}
    */
   async isPaired() {
@@ -127,21 +212,38 @@ export class SecureChannelClient {
   /**
    * Ensure a secure session is established when paired.
    * Starts a handshake if needed.
+   * Uses a lock to prevent concurrent handshakes from racing.
    * @returns {Promise<void>}
    */
   async ensureSession() {
-    // If a session is already active, keep using it (no expiration policy)
     if (this.hasActiveSession()) return
 
-    // If not paired, trigger pairing flow
+    // If a handshake is already in progress, wait for it instead of starting another
+    if (this._handshakePromise) {
+      return this._handshakePromise
+    }
+
+    // Start handshake and store the promise so concurrent callers can wait
+    this._handshakePromise = this._performHandshake()
+    try {
+      return await this._handshakePromise
+    } finally {
+      this._handshakePromise = undefined
+    }
+  }
+
+  /**
+   * Internal method that performs the actual handshake.
+   * Should only be called via ensureSession() to ensure proper locking.
+   * @returns {Promise<void>}
+   */
+  async _performHandshake() {
     if (!(await this.isPaired())) {
       await this.clearSession(SESSION_ERROR_PATTERNS.NOT_PAIRED)
       throw new Error(SESSION_ERROR_PATTERNS.NOT_PAIRED)
     }
 
-    // Check if the client keystore is ready for signing. If not, we cannot
-    // complete a handshake that requires client signature. Throw early so
-    // callers know to wait for master password unlock.
+    // Check keypair is ready for signing
     try {
       const { privateKey } = await ensureClientKeypairUnlocked()
       if (!privateKey) {
@@ -262,7 +364,13 @@ export class SecureChannelClient {
     const fingerprint = res[STORAGE_KEYS.fingerprint]
     const ed25519PublicKey = res[STORAGE_KEYS.ed25519PublicKey]
     const x25519PublicKey = res[STORAGE_KEYS.x25519PublicKey]
-    if (!fingerprint) return null
+    if (!fingerprint) {
+      logger.log('[getPinnedIdentity] No fingerprint in storage')
+      return null
+    }
+    logger.log('[getPinnedIdentity] Found identity:', {
+      fingerprint: fingerprint?.slice(0, 8) + '...'
+    })
     return { fingerprint, ed25519PublicKey, x25519PublicKey }
   }
 
@@ -295,26 +403,22 @@ export class SecureChannelClient {
 
   /**
    * Clear session and pairing data on security failures.
-   * @param {string} reason - The reason for clearing ('SignatureInvalid', 'IdentityKeysUnavailable')
+   * @param {string} reason
    * @returns {Promise<void>}
    */
-  async clearSession(reason = 'SignatureInvalid') {
-    // Clear in-memory session
+  async clearSession(reason = SECURITY_ERROR_PATTERNS.SIGNATURE_INVALID) {
     this._session = undefined
     this._ephemeralKeyPair = undefined
 
-    // Clear stored pairing data
     await this.unpair()
+    await clearClientKeypair()
 
-    // Notify extension about pairing requirement
     chrome.runtime
       .sendMessage({
         type: BACKGROUND_MESSAGE_TYPES.PAIRING_REQUIRED,
-        reason: reason
+        reason
       })
-      .catch(() => {
-        // Ignore errors if no listener
-      })
+      .catch(() => {})
   }
 
   /**
@@ -356,8 +460,8 @@ export class SecureChannelClient {
       const clientIdentity = await getOrCreateClientIdentity()
 
       // Verify signature over transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
-      // Including the client public key binds the handshake to the specific
-      // extension identity that was registered during pairing.
+      // Binds the handshake to the specific extension identity that was registered during pairing
+      // by including the client public key
       const transcript = concatUint8Arrays([
         hostEphemeralPublicKeyBytes,
         extensionEphemeralKeyPair.publicKey,

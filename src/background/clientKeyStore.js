@@ -261,3 +261,70 @@ const unlockKeypair = async (masterPassword) => {
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_INVALID)
   }
 }
+
+/**
+ * Check if a keypair has been persisted to IndexedDB.
+ * @returns {Promise<boolean>}
+ */
+export const hasPersistedClientKeypair = async () => {
+  if (inMemoryKeypair) {
+    logger.log('[ClientKeyStore] hasPersistedClientKeypair: true (in memory)')
+    return true
+  }
+  try {
+    const db = await openDb()
+    const record = await getKeyRecord(db)
+    const has = !!record?.publicKeyB64
+    logger.log(
+      '[ClientKeyStore] hasPersistedClientKeypair:',
+      has,
+      record ? 'record exists' : 'no record'
+    )
+    return has
+  } catch (e) {
+    logger.log(
+      '[ClientKeyStore] hasPersistedClientKeypair: false (error)',
+      e?.message
+    )
+    return false
+  }
+}
+
+/**
+ * Clear keypair from memory and storage.
+ * @returns {Promise<void>}
+ */
+export const clearClientKeypair = async () => {
+  // Zero and clear in-memory state
+  if (inMemoryKeypair?.privateKey?.fill) {
+    try {
+      inMemoryKeypair.privateKey.fill(0)
+    } catch {}
+  }
+  inMemoryKeypair = null
+
+  if (pendingKeypair?.privateKey?.fill) {
+    try {
+      pendingKeypair.privateKey.fill(0)
+    } catch {}
+  }
+  pendingKeypair = null
+
+  // Delete from IndexedDB
+  try {
+    const db = await openDb()
+    await deleteKeyRecord(db)
+    logger.log('[ClientKeyStore]', 'Keypair cleared')
+  } catch (e) {
+    logger.log('[ClientKeyStore]', 'Failed to clear keypair:', e?.message)
+  }
+}
+
+const deleteKeyRecord = (db) =>
+  new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    const store = tx.objectStore(STORE_NAME)
+    const request = store.delete(KEY_ID)
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+  })

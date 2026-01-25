@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
 
-import { registerNavigationHandler } from '../../vaultClient/globalVaultErrorHandler'
 import { PASSKEY_PAGES } from '../constants/passkey'
 
 const RouterContext = createContext()
@@ -72,9 +71,6 @@ export const RouterProvider = ({ children }) => {
   ) => {
     setState({ currentPage: page, params, state })
   }
-
-  // Register global navigation handler
-  registerNavigationHandler(navigate)
 
   return (
     <RouterContext.Provider value={{ ...state, navigate }}>
