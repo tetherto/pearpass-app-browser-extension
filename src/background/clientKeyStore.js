@@ -296,18 +296,10 @@ export const hasPersistedClientKeypair = async () => {
  */
 export const clearClientKeypair = async () => {
   // Zero and clear in-memory state
-  if (inMemoryKeypair?.privateKey?.fill) {
-    try {
-      inMemoryKeypair.privateKey.fill(0)
-    } catch {}
-  }
+  inMemoryKeypair?.privateKey?.fill?.(0)
   inMemoryKeypair = null
 
-  if (pendingKeypair?.privateKey?.fill) {
-    try {
-      pendingKeypair.privateKey.fill(0)
-    } catch {}
-  }
+  pendingKeypair?.privateKey?.fill?.(0)
   pendingKeypair = null
 
   // Delete from IndexedDB
