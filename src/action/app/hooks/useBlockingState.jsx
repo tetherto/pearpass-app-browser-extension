@@ -28,7 +28,6 @@ export const useBlockingState = () => {
   const onPairSuccess = () => {
     void closeModal()
     navigate('welcome', { params: { state: NAVIGATION_ROUTES.VAULTS } })
-    // window.location.reload()
   }
 
   const showPairingModal = () => {
@@ -48,7 +47,9 @@ export const useBlockingState = () => {
             const result = await secureChannelMessages.getBlockingState()
             if (result.success && !result.blockingState) {
               closeAllModals()
-              window.location.reload()
+              navigate('welcome', {
+                params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
+              })
             }
             return result.blockingState
               ? { available: false, message: result.blockingState.error }
