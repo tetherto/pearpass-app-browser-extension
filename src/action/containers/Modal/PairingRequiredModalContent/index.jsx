@@ -85,8 +85,8 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
 
     setLoading(true)
     try {
-      const pairRes = await secureChannelMessages.confirmPair(identity)
-      if (!pairRes?.ok) {
+      const pairingResponse = await secureChannelMessages.confirmPair(identity)
+      if (!pairingResponse?.ok) {
         throw new Error(t`Pairing failed`)
       }
 

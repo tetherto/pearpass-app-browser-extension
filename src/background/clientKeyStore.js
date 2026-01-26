@@ -274,13 +274,13 @@ export const hasPersistedClientKeypair = async () => {
   try {
     const db = await openDb()
     const record = await getKeyRecord(db)
-    const has = !!record?.publicKeyB64
+    const hasPublicKeyB64 = !!record?.publicKeyB64
     logger.log(
       '[ClientKeyStore] hasPersistedClientKeypair:',
-      has,
+      hasPublicKeyB64,
       record ? 'record exists' : 'no record'
     )
-    return has
+    return hasPublicKeyB64
   } catch (e) {
     logger.log(
       '[ClientKeyStore] hasPersistedClientKeypair: false (error)',
