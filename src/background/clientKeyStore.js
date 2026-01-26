@@ -65,8 +65,11 @@ const putKeyRecord = (db, record) =>
       const store = tx.objectStore(STORE_NAME)
       const request = store.put(record)
 
-      request.onsuccess = () => {
+      tx.oncomplete = () => {
         resolve()
+      }
+      tx.onerror = () => {
+        reject(tx.error)
       }
       request.onerror = () => {
         reject(request.error)
@@ -267,20 +270,52 @@ const unlockKeypair = async (masterPassword) => {
  * @returns {Promise<boolean>}
  */
 export const hasPersistedClientKeypair = async () => {
-  if (inMemoryKeypair) {
-    logger.log('[ClientKeyStore] hasPersistedClientKeypair: true (in memory)')
-    return true
-  }
   try {
     const db = await openDb()
     const record = await getKeyRecord(db)
-    const hasPublicKeyB64 = !!record?.publicKeyB64
-    logger.log(
-      '[ClientKeyStore] hasPersistedClientKeypair:',
-      hasPublicKeyB64,
-      record ? 'record exists' : 'no record'
-    )
-    return hasPublicKeyB64
+
+    if (
+      !record?.publicKeyB64 ||
+      !record?.saltB64 ||
+      !record?.nonceB64 ||
+      !record?.ciphertextB64
+    ) {
+      logger.log(
+        '[ClientKeyStore] hasPersistedClientKeypair: false (missing fields)'
+      )
+      return false
+    }
+
+    // Validate field lengths by decoding
+    try {
+      const publicKey = base64Decode(record.publicKeyB64)
+      const salt = base64Decode(record.saltB64)
+      const nonce = base64Decode(record.nonceB64)
+      const ciphertext = base64Decode(record.ciphertextB64)
+
+      // Ed25519 public key must be 32 bytes
+      // Salt must be 16 bytes (from encryptPrivateKey)
+      // Nonce must be 12 bytes (from encryptPrivateKey)
+      // Ciphertext must be 48 bytes (32 byte private key + 16 byte GCM auth tag)
+      const isValid =
+        publicKey.length === 32 &&
+        salt.length === 16 &&
+        nonce.length === 12 &&
+        ciphertext.length === 48
+
+      logger.log(
+        '[ClientKeyStore] hasPersistedClientKeypair:',
+        isValid,
+        isValid ? 'valid' : 'invalid field lengths'
+      )
+      return isValid
+    } catch (decodeError) {
+      logger.log(
+        '[ClientKeyStore] hasPersistedClientKeypair: false (invalid base64)',
+        decodeError?.message
+      )
+      return false
+    }
   } catch (e) {
     logger.log(
       '[ClientKeyStore] hasPersistedClientKeypair: false (error)',
@@ -302,6 +337,9 @@ export const clearClientKeypair = async () => {
   pendingKeypair?.privateKey?.fill?.(0)
   pendingKeypair = null
 
+  // Reset unlocking flag to cancel any in-progress unlock
+  unlocking = false
+
   // Delete from IndexedDB
   try {
     const db = await openDb()
@@ -314,9 +352,21 @@ export const clearClientKeypair = async () => {
 
 const deleteKeyRecord = (db) =>
   new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite')
-    const store = tx.objectStore(STORE_NAME)
-    const request = store.delete(KEY_ID)
-    request.onsuccess = () => resolve()
-    request.onerror = () => reject(request.error)
+    try {
+      const tx = db.transaction(STORE_NAME, 'readwrite')
+      const store = tx.objectStore(STORE_NAME)
+      const request = store.delete(KEY_ID)
+
+      tx.oncomplete = () => {
+        resolve()
+      }
+      tx.onerror = () => {
+        reject(tx.error)
+      }
+      request.onerror = () => {
+        reject(request.error)
+      }
+    } catch (error) {
+      reject(error)
+    }
   })

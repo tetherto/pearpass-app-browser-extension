@@ -365,13 +365,14 @@ export class SecureChannelClient {
     const fingerprint = res[STORAGE_KEYS.fingerprint]
     const ed25519PublicKey = res[STORAGE_KEYS.ed25519PublicKey]
     const x25519PublicKey = res[STORAGE_KEYS.x25519PublicKey]
-    if (!fingerprint) {
-      logger.log('[getPinnedIdentity] No fingerprint in storage')
+
+    // All three fields are required for a valid identity
+    if (!fingerprint || !ed25519PublicKey || !x25519PublicKey) {
+      logger.log('[getPinnedIdentity] Incomplete identity in storage')
       return null
     }
-    logger.log('[getPinnedIdentity] Found identity:', {
-      fingerprint: fingerprint?.slice(0, 8) + '...'
-    })
+
+    logger.log('[getPinnedIdentity] Found identity')
     return { fingerprint, ed25519PublicKey, x25519PublicKey }
   }
 
