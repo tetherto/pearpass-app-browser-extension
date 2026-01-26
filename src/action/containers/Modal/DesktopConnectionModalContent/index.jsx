@@ -27,7 +27,7 @@ export const DesktopConnectionModalContent = ({ onRetry, onClose }) => {
     setLoading(true)
     try {
       const result = await onRetry()
-      if (result && result.available === false) {
+      if (result && result.success === false) {
         throw new Error(result.message)
       }
       handleClose()

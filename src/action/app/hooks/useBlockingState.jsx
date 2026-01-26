@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 
 import { client } from '../../../shared/client'
 import {
@@ -6,9 +6,9 @@ import {
   BLOCKING_STATE,
   VAULT_CLIENT_EVENTS
 } from '../../../shared/constants/nativeMessaging'
-import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation.js'
+import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
 import { useModal } from '../../../shared/context/ModalContext'
-import { useRouter } from '../../../shared/context/RouterContext.jsx'
+import { useRouter } from '../../../shared/context/RouterContext'
 import { secureChannelMessages } from '../../../shared/services/messageBridge'
 import { logger } from '../../../shared/utils/logger'
 import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent'
@@ -21,57 +21,65 @@ import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequi
  */
 export const useBlockingState = () => {
   const { navigate } = useRouter()
-  const { setModal, closeModal, closeAllModals } = useModal()
+  const { setModal, closeAllModals } = useModal()
+
   const [isChecking, setIsChecking] = useState(true)
   const [blockingState, setBlockingState] = useState(null)
 
-  const onPairSuccess = () => {
-    void closeModal()
-    navigate('welcome', { params: { state: NAVIGATION_ROUTES.VAULTS } })
-  }
+  const pairingModalOpenRef = useRef(false)
 
-  const showPairingModal = () => {
+  const onPairSuccess = useCallback(() => {
+    pairingModalOpenRef.current = false
+    setBlockingState(null)
+    closeAllModals()
+    navigate('welcome', { params: { state: NAVIGATION_ROUTES.VAULTS } })
+  }, [navigate, closeAllModals])
+
+  const showPairingModal = useCallback(() => {
+    if (pairingModalOpenRef.current) return
+    pairingModalOpenRef.current = true
     closeAllModals()
     setModal(<PairingRequiredModalContent onPairSuccess={onPairSuccess} />, {
       closeable: false
     })
-  }
+  }, [closeAllModals, setModal, onPairSuccess])
 
-  const showConnectionModal = (onRetry) => {
-    closeAllModals()
-    setModal(
-      <DesktopConnectionModalContent
-        onRetry={
-          onRetry ||
-          (async () => {
-            const result = await secureChannelMessages.getBlockingState()
-            if (result.success && !result.blockingState) {
-              closeAllModals()
-              navigate('welcome', {
-                params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
-              })
-            }
-            return result.blockingState
-              ? { available: false, message: result.blockingState.error }
-              : { available: true }
-          })
-        }
-        onClose={() => {
-          closeAllModals()
-        }}
-      />,
-      {
-        fullScreen: true,
-        hasOverlay: false,
-        closeable: false
-      }
-    )
-  }
+  const handleConnectionRetry = useCallback(async () => {
+    const result = await secureChannelMessages.getBlockingState()
 
-  // Proactive check on extension open
-  const checkAndHandleBlockingState = async () => {
+    if (result.success && !result.blockingState) {
+      pairingModalOpenRef.current = false
+      setBlockingState(null)
+      closeAllModals()
+      navigate('welcome', {
+        params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
+      })
+      return { success: true }
+    }
+
+    return {
+      success: false,
+      message: result.blockingState?.error
+    }
+  }, [closeAllModals, navigate])
+
+  const showConnectionModal = useCallback(
+    (onRetry) => {
+      closeAllModals()
+      setModal(
+        <DesktopConnectionModalContent
+          onRetry={onRetry}
+          onClose={closeAllModals}
+        />,
+        { fullScreen: true, hasOverlay: false, closeable: false }
+      )
+    },
+    [closeAllModals, setModal]
+  )
+
+  const checkAndHandleBlockingState = useCallback(async () => {
+    setIsChecking(true)
     try {
-      setIsChecking(true)
       const result = await secureChannelMessages.getBlockingState()
 
       if (!result.success) {
@@ -79,17 +87,13 @@ export const useBlockingState = () => {
           '[useBlockingState] Failed to get blocking state:',
           result.error
         )
-        setIsChecking(false)
         return
       }
 
       const state = result.blockingState
       setBlockingState(state)
 
-      if (!state) {
-        setIsChecking(false)
-        return
-      }
+      if (!state) return
 
       logger.log('[useBlockingState] Blocking state:', state.state)
 
@@ -98,28 +102,30 @@ export const useBlockingState = () => {
           showPairingModal()
           break
         case BLOCKING_STATE.CONNECTION:
-          showConnectionModal()
-          break
-        case BLOCKING_STATE.AUTH:
-          // AUTH means keypair needs unlocking - normal flow handles this
+          showConnectionModal(handleConnectionRetry)
           break
       }
-
-      setIsChecking(false)
-    } catch (e) {
-      logger.error('[useBlockingState] Error:', e)
+    } catch (error) {
+      logger.error('[useBlockingState] Unexpected error:', error)
+    } finally {
       setIsChecking(false)
     }
-  }
+  }, [handleConnectionRetry, showConnectionModal, showPairingModal])
 
+  // Run once on mount
   useEffect(() => {
-    checkAndHandleBlockingState()
+    void checkAndHandleBlockingState()
   }, [])
 
-  // Reactive: Listen for pairing events from background and vault client
+  // Listen for pairing events from background and vault client
   useEffect(() => {
-    const handlePairingRequired = (event) => {
-      logger.log('[useBlockingState] Pairing required event:', event)
+    const handlePairingRequired = ({ reason }) => {
+      logger.log('[useBlockingState] Pairing required:', reason)
+
+      setBlockingState({
+        state: BLOCKING_STATE.PAIRING,
+        error: reason
+      })
       showPairingModal()
     }
 
@@ -136,7 +142,7 @@ export const useBlockingState = () => {
       client.off(VAULT_CLIENT_EVENTS.PAIRING_REQUIRED, handlePairingRequired)
       chrome.runtime.onMessage.removeListener(handleMessage)
     }
-  }, [closeAllModals, closeModal, setModal])
+  }, [showPairingModal])
 
   return { isChecking, blockingState }
 }
