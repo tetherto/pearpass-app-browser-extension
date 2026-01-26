@@ -21,6 +21,14 @@ const PAIRING_STEP = {
 }
 
 /**
+ * Error messages
+ */
+const PAIRING_ERROR_MESSAGES = {
+  FAILED_TO_GET_IDENTITY:
+    'Failed to get identity. Please ensure the desktop app is running.'
+}
+
+/**
  *
  * @param {Object} props
  * @param {Function} props.onPairSuccess
@@ -57,7 +65,7 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
       ) {
         throw new Error(t`Invalid pairing token. Please check and try again.`)
       } else {
-        throw new Error(t`Failed to get identity`)
+        throw new Error(t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
       }
     } catch (error) {
       logger.error('Failed to fetch identity:', error)
@@ -66,7 +74,7 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
           error.message ||
           (error.code === 'TIMEOUT'
             ? t`Request timed out. Please try again.`
-            : t`Failed to get identity. Please ensure the desktop app is running.`)
+            : t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
       })
     } finally {
       setLoading(false)
@@ -85,7 +93,36 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
 
     setLoading(true)
     try {
-      const pairingResponse = await secureChannelMessages.confirmPair(identity)
+      let validatedIdentity
+      try {
+        validatedIdentity = await secureChannelMessages.getIdentity(
+          pairingToken.trim()
+        )
+      } catch (validationError) {
+        logger.error('Token validation failed:', validationError)
+        setToast({
+          message: t`Token validation failed. Please enter the new token from desktop.`
+        })
+        setStep(PAIRING_STEP.TOKEN)
+        setIdentity(null)
+        setLoading(false)
+        return
+      }
+
+      if (!validatedIdentity?.success || !validatedIdentity?.identity) {
+        setToast({
+          message: t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY)
+        })
+        setStep(PAIRING_STEP.TOKEN)
+        setIdentity(null)
+        setLoading(false)
+        return
+      }
+
+      // Proceed with pairing using latest identity from desktop
+      const pairingResponse = await secureChannelMessages.confirmPair(
+        validatedIdentity.identity
+      )
       if (!pairingResponse?.ok) {
         throw new Error(t`Pairing failed`)
       }
