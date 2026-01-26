@@ -5,6 +5,9 @@ import { getAllowHttpFromStorage } from '../../shared/utils/allowHttpStorage'
  * The content script is enabled if the page uses a secure protocol (HTTPS)
  * or if the "Allow non-secure websites" setting is enabled in storage.
  *
+ * Note: Content scripts cannot run on `chrome://`, `about:`, `file://`, etc. (per browser policy restrictions),
+ * so no special protocol checks needed—these pages never execute this function.
+ *
  * @returns {Promise<boolean>} A promise that resolves to true if the content script is enabled, false otherwise.
  */
 export const isContentScriptEnabled = async () => {

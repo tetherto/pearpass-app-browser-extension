@@ -3,11 +3,17 @@ import { useMemo } from 'react'
 import { useActiveTabUrl } from './useActiveTabUrl'
 
 /**
- * Hook that determines if the currently active browser tab is using a secure protocol (HTTPS).
+ * Hook that determines if the currently active browser tab is using a secure protocol.
  * It listens for URL changes in the active tab and parses the protocol.
  *
+ * Protocol security rules:
+ * - `https:` → Secure (true)
+ * - `http:` → Insecure (false)
+ * - All other protocols (`chrome:`, `about:`, `file:`, etc.) → Treated as secure (true),
+ *   since they represent non-web contexts (e.g., browser internals, local files).
+ *
  * @returns {Object} An object containing:
- * @returns {boolean} .isSecure - True if the protocol is HTTPS or if the URL is still loading.
+ * @returns {boolean} .isSecure - True if protocol is HTTPS or non-HTTP/S; false only for HTTP.
  * @returns {string|null} .currentUrl - The full URL of the active tab.
  */
 export const useActiveTabSecureProtocol = () => {
@@ -18,9 +24,13 @@ export const useActiveTabSecureProtocol = () => {
 
     try {
       const url = new URL(currentUrl)
-      const secure = url.protocol === 'https:'
+      const protocol = url.protocol
 
-      return secure
+      if (protocol === 'https:') return true
+      if (protocol === 'http:') return false
+
+      // All others (chrome:, about:, file:, etc.): treat as secure
+      return true
     } catch (e) {
       return false
     }

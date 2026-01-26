@@ -51,4 +51,28 @@ describe('useActiveTabSecureProtocol', () => {
 
     expect(result.current.isSecure).toBe(false)
   })
+
+  it('should return isSecure true when URL protocol is chrome:', () => {
+    useActiveTabUrl.mockReturnValue({ url: 'chrome://example.com' })
+    const { result } = renderHook(() => useActiveTabSecureProtocol())
+
+    expect(result.current.isSecure).toBe(true)
+    expect(result.current.currentUrl).toBe('chrome://example.com')
+  })
+
+  it('should return isSecure true when URL protocol is about:', () => {
+    useActiveTabUrl.mockReturnValue({ url: 'about:example' })
+    const { result } = renderHook(() => useActiveTabSecureProtocol())
+
+    expect(result.current.isSecure).toBe(true)
+    expect(result.current.currentUrl).toBe('about:example')
+  })
+
+  it('should return isSecure true when URL protocol is file:', () => {
+    useActiveTabUrl.mockReturnValue({ url: 'file://example.com' })
+    const { result } = renderHook(() => useActiveTabSecureProtocol())
+
+    expect(result.current.isSecure).toBe(true)
+    expect(result.current.currentUrl).toBe('file://example.com')
+  })
 })
