@@ -115,7 +115,7 @@ export const useBlockingState = () => {
   // Run once on mount
   useEffect(() => {
     void checkAndHandleBlockingState()
-  }, [])
+  }, [checkAndHandleBlockingState])
 
   // Listen for pairing events from background and vault client
   useEffect(() => {

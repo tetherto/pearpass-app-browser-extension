@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 
 import { PASSKEY_PAGES } from '../constants/passkey'
 
@@ -59,18 +59,21 @@ const getInitialRouteFromUrl = () => {
 export const RouterProvider = ({ children }) => {
   const [state, setState] = useState(() => getInitialRouteFromUrl())
 
-  const navigate = (
-    page,
-    {
-      params = {},
-      state = {
-        recordType: 'all',
-        folder: undefined
-      }
-    } = {}
-  ) => {
-    setState({ currentPage: page, params, state })
-  }
+  const navigate = useCallback(
+    (
+      page,
+      {
+        params = {},
+        state = {
+          recordType: 'all',
+          folder: undefined
+        }
+      } = {}
+    ) => {
+      setState({ currentPage: page, params, state })
+    },
+    []
+  )
 
   return (
     <RouterContext.Provider value={{ ...state, navigate }}>
