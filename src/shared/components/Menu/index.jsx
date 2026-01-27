@@ -13,6 +13,26 @@ const MenuContext = createContext(null)
 
 const GAP = 8
 
+const ANCHOR = {
+  TOP: 'top',
+  BOTTOM: 'bottom',
+  LEFT: 'left',
+  RIGHT: 'right'
+}
+
+const ALIGN = {
+  START: 'start',
+  CENTER: 'center',
+  END: 'end'
+}
+
+/**
+ * @param {DOMRect} triggerRect
+ * @param {{width: number, height: number}} menuRect
+ * @param {typeof ANCHOR[keyof typeof ANCHOR]} anchor
+ * @param {typeof ALIGN[keyof typeof ALIGN]} align
+ * @returns {{top: number, left: number}}
+ */
 const calculatePosition = (triggerRect, menuRect, anchor, align) => {
   const { innerWidth: viewportWidth, innerHeight: viewportHeight } = window
 
@@ -20,38 +40,38 @@ const calculatePosition = (triggerRect, menuRect, anchor, align) => {
   let left = 0
 
   // Vertical positioning based on anchor
-  if (anchor === 'top') {
+  if (anchor === ANCHOR.TOP) {
     top = triggerRect.top - menuRect.height - GAP
-  } else if (anchor === 'bottom') {
+  } else if (anchor === ANCHOR.BOTTOM) {
     top = triggerRect.bottom + GAP
-  } else if (anchor === 'left' || anchor === 'right') {
+  } else if (anchor === ANCHOR.LEFT || anchor === ANCHOR.RIGHT) {
     top = triggerRect.top + (triggerRect.height - menuRect.height) / 2
   }
 
   // Horizontal positioning based on anchor and align
-  if (anchor === 'left') {
+  if (anchor === ANCHOR.LEFT) {
     left = triggerRect.left - menuRect.width - GAP
-  } else if (anchor === 'right') {
+  } else if (anchor === ANCHOR.RIGHT) {
     left = triggerRect.right + GAP
-  } else if (align === 'start') {
+  } else if (align === ALIGN.START) {
     left = triggerRect.left
-  } else if (align === 'end') {
+  } else if (align === ALIGN.END) {
     left = triggerRect.right - menuRect.width
-  } else if (align === 'center') {
+  } else if (align === ALIGN.CENTER) {
     left = triggerRect.left + (triggerRect.width - menuRect.width) / 2
   }
 
   // Adjust if going off-screen vertically
   if (top < GAP) {
     // Flip to bottom if was top
-    if (anchor === 'top') {
+    if (anchor === ANCHOR.TOP) {
       top = triggerRect.bottom + GAP
     } else {
       top = GAP
     }
   } else if (top + menuRect.height > viewportHeight - GAP) {
     // Flip to top if was bottom
-    if (anchor === 'bottom') {
+    if (anchor === ANCHOR.BOTTOM) {
       const flippedTop = triggerRect.top - menuRect.height - GAP
       if (flippedTop >= GAP) {
         top = flippedTop
@@ -66,14 +86,14 @@ const calculatePosition = (triggerRect, menuRect, anchor, align) => {
   // Adjust if going off-screen horizontally
   if (left < GAP) {
     // Flip to right if was left
-    if (anchor === 'left') {
+    if (anchor === ANCHOR.LEFT) {
       left = triggerRect.right + GAP
     } else {
       left = GAP
     }
   } else if (left + menuRect.width > viewportWidth - GAP) {
     // Flip to left if was right
-    if (anchor === 'right') {
+    if (anchor === ANCHOR.RIGHT) {
       const flippedLeft = triggerRect.left - menuRect.width - GAP
       if (flippedLeft >= GAP) {
         left = flippedLeft
@@ -93,8 +113,8 @@ const calculatePosition = (triggerRect, menuRect, anchor, align) => {
  * @property {React.ReactNode} children
  * @property {boolean} [open]
  * @property {(open: boolean) => void} [onOpenChange]
- * @property {'top' | 'bottom' | 'left' | 'right'} [anchor='bottom']
- * @property {'start' | 'center' | 'end'} [align='start']
+ * @property {typeof ANCHOR[keyof typeof ANCHOR]} [anchor='bottom']
+ * @property {typeof ALIGN[keyof typeof ALIGN]} [align='start']
  */
 
 /**
@@ -104,8 +124,8 @@ export const Menu = ({
   children,
   open: controlledOpen,
   onOpenChange,
-  anchor = 'bottom',
-  align = 'start'
+  anchor = ANCHOR.BOTTOM,
+  align = ALIGN.START
 }) => {
   const [internalOpen, setInternalOpen] = useState(false)
   const triggerRef = useRef(null)
@@ -271,8 +291,13 @@ export const MenuContent = ({ children, className }) => {
         height: menuRef.current.offsetHeight
       }
 
-      const pos = calculatePosition(triggerRect, menuRect, anchor, align)
-      setPosition(pos)
+      const calculatedPosition = calculatePosition(
+        triggerRect,
+        menuRect,
+        anchor,
+        align
+      )
+      setPosition(calculatedPosition)
     }
 
     // Double RAF to ensure DOM is painted
