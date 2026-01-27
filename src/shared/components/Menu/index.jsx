@@ -91,10 +91,10 @@ const calculatePosition = (triggerRect, menuRect, anchor, align) => {
 /**
  * @typedef {Object} MenuProps
  * @property {React.ReactNode} children
- * @property {boolean} [open] - Controlled open state
- * @property {(open: boolean) => void} [onOpenChange] - Callback when open state changes
- * @property {'top' | 'bottom' | 'left' | 'right'} [anchor='bottom'] - Where to anchor the menu
- * @property {'start' | 'center' | 'end'} [align='start'] - Alignment along the anchor axis
+ * @property {boolean} [open]
+ * @property {(open: boolean) => void} [onOpenChange]
+ * @property {'top' | 'bottom' | 'left' | 'right'} [anchor='bottom']
+ * @property {'start' | 'center' | 'end'} [align='start']
  */
 
 /**
@@ -197,7 +197,7 @@ export const Menu = ({
  * @typedef {Object} MenuTriggerProps
  * @property {React.ReactNode} children
  * @property {string} [className]
- * @property {boolean} [stopPropagation=false] - Whether to stop event propagation on click
+ * @property {boolean} [stopPropagation=false]
  */
 
 /**
