@@ -8,9 +8,11 @@ import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { CardWarning } from '../../../../shared/components/CardWarningText'
 import { CardWelcome } from '../../../../shared/components/CardWelcome'
 import { InputPasswordPearPass } from '../../../../shared/components/InputPasswordPearPass'
+import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
+import { secureChannelMessages } from '../../../../shared/services/messageBridge'
 import { logger } from '../../../../shared/utils/logger'
 
 export const EnterMasterPassword = () => {
@@ -58,6 +60,31 @@ export const EnterMasterPassword = () => {
 
     try {
       setIsLoading(true)
+
+      // First, unlock/initialize the secure-channel client keystore using the
+      // password the user provided. This ensures that subsequent secure
+      // handshakes (performed as part of vault initialization) can obtain the
+      // client private key without triggering MasterPasswordRequired.
+      try {
+        await secureChannelMessages.unlockClientKeystore(values.password)
+      } catch (e) {
+        // If the keystore explicitly reports a master password problem, treat
+        // it as an authentication failure for the user.
+        if (
+          e?.message &&
+          e.message.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
+        ) {
+          setIsLoading(false)
+          setErrors({
+            password: t`Incorrect password. Please try again.`
+          })
+          logger.error('Error unlocking secure channel keystore:', e)
+          return
+        }
+        // For any other keystore error, log and continue; vault login will
+        // still validate the password and may surface more specific errors.
+        logger.error('Error initializing secure channel keystore:', e)
+      }
 
       await logIn({ password: values.password })
 

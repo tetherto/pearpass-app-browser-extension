@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react'
 
 import { useUserData, useVault, useVaults } from 'pearpass-lib-vault'
 
-import { client } from '../../../shared/client'
 import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
+import { useBlockingStateContext } from '../../../shared/context/BlockingStateContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { logger } from '../../../shared/utils/logger'
 
 export const useRedirect = () => {
   const { navigate, currentPage } = useRouter()
+  const { isChecking: isBlockingStateChecking, blockingState } =
+    useBlockingStateContext()
 
   const [isRedirecting, setIsRedirecting] = useState(true)
 
@@ -24,11 +26,19 @@ export const useRedirect = () => {
 
   const handleRedirect = async () => {
     try {
-      setIsRedirecting(true)
+      // Wait for blocking state check to complete
+      if (isBlockingStateChecking) {
+        return
+      }
 
-      // Check desktop app availability first - this will automatically
-      // show the pairing modal if the desktop is unavailable or not paired
-      await client.checkAndHandleAvailability()
+      // If there's a blocking state, don't proceed
+      // useBlockingState handles showing the appropriate modal
+      if (blockingState) {
+        setIsRedirecting(false)
+        return
+      }
+
+      setIsRedirecting(true)
 
       // If we're already on a passkey page (parsed from URL), don't redirect
       if (currentPage === 'getPasskey' || currentPage === 'createPasskey') {
@@ -85,7 +95,7 @@ export const useRedirect = () => {
 
   useEffect(() => {
     void handleRedirect()
-  }, [])
+  }, [isBlockingStateChecking, blockingState])
 
   return {
     isLoading: isRedirecting

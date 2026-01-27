@@ -6,7 +6,9 @@ import { logger } from '../utils/logger'
 export const SECURE_MESSAGE_TYPES = Object.freeze({
   GET_IDENTITY: 'SECURE_CHANNEL_GET_IDENTITY',
   CONFIRM_PAIR: 'SECURE_CHANNEL_CONFIRM_PAIR',
-  CHECK_PAIRED: 'SECURE_CHANNEL_CHECK_PAIRED'
+  CHECK_PAIRED: 'SECURE_CHANNEL_CHECK_PAIRED',
+  UNLOCK_CLIENT_KEYSTORE: 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE',
+  GET_BLOCKING_STATE: 'SECURE_CHANNEL_GET_BLOCKING_STATE'
 })
 
 /**
@@ -21,6 +23,8 @@ export const MESSAGE_TYPES = Object.freeze({
   SELECTED_PASSKEY: 'selectedPasskey',
   READY_FOR_PASSKEY_PAYLOAD: 'readyForPasskeyPayload',
   GET_ASSERTION_CREDENTIAL: 'getAssertionCredential',
+  GET_CONDITIONAL_PASSKEY_REQUEST: 'getConditionalPasskeyRequest',
+  AUTHENTICATE_WITH_PASSKEY: 'authenticateWithPasskey',
   GET_PLATFORM_INFO: 'GET_PLATFORM_INFO'
 })
 
@@ -219,6 +223,19 @@ export const secureChannelMessages = {
 
   async checkPaired() {
     return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CHECK_PAIRED)
+  },
+
+  async unlockClientKeystore(masterPassword) {
+    return messageBridge.sendMessage(
+      SECURE_MESSAGE_TYPES.UNLOCK_CLIENT_KEYSTORE,
+      {
+        masterPassword
+      }
+    )
+  },
+
+  async getBlockingState() {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.GET_BLOCKING_STATE)
   }
 }
 

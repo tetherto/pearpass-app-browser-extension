@@ -1,233 +1,208 @@
-import { useEffect } from 'react'
+import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import {
-  RECORD_TYPES,
-  useCreateRecord,
-  useRecords,
-  useUserData,
-  useVault
-} from 'pearpass-lib-vault'
+import { RECORD_TYPES, useRecords } from 'pearpass-lib-vault'
 
-import { ButtonCreate } from '../../../shared/components/ButtonCreate'
-import { RECORD_ICON_BY_TYPE } from '../../../shared/constants/recordIconByType'
-import { useGlobalLoading } from '../../../shared/context/LoadingContext'
+import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
+import { ReplacePasskeyModalContent } from '../../../shared/containers/ReplacePasskeyModalContent'
+import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
+import { PlusIcon } from '../../../shared/icons/PlusIcon'
+import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
 import { logger } from '../../../shared/utils/logger'
 import { normalizeUrl } from '../../../shared/utils/normalizeUrl'
+import { PasskeyContainer } from '../../containers/PasskeyContainer'
 
 export const CreatePasskey = () => {
   const { state: routerState, navigate } = useRouter()
   const { requestId, tabId, serializedPublicKey, requestOrigin } = routerState
+  const { setModal } = useModal()
+  const { data: records } = useRecords()
 
-  const { refetch: refetchVault } = useVault()
-  const { updateRecords, data: records, refetch: refetchRecords } = useRecords()
-  const { data: userData, refetch: refetchUserData } = useUserData()
-  const { createRecord, isLoading: isCreateLoading } = useCreateRecord({
-    onCompleted: (createdRecord) => {
-      onSavePasskeyRecordCompleted(
-        createdRecord.id,
-        createdRecord.data.credential
+  const [selectedRecord, setSelectedRecord] = useState(null)
+
+  const saveToExistingRecord = async (record) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
+        requestOrigin,
+        serializedPublicKey
+      })
+
+      const { credential, publicKey } = response
+
+      navigate('createOrEditCategory', {
+        params: { recordId: record.id },
+        state: {
+          inPasskeyFlow: true,
+          passkeyCredential: credential,
+          passkeyCreatedAt: Date.now(),
+          initialData: {
+            username: record.data?.username || publicKey.user.name
+          },
+          serializedPublicKey,
+          requestId,
+          requestOrigin,
+          tabId
+        }
+      })
+    } catch (error) {
+      logger.error(
+        'Failed to save passkey to existing record:',
+        error?.message || error
       )
     }
-  })
-
-  useGlobalLoading({ isCreateLoading })
-
-  // Refetch all data when component mounts to ensure fresh state
-  useEffect(() => {
-    const refreshData = async () => {
-      // First check user data to get current auth state
-      const currentUserData = await refetchUserData()
-
-      // If user is logged in and vault is open, refetch vault and records
-      if (currentUserData?.isLoggedIn && currentUserData?.isVaultOpen) {
-        await Promise.all([refetchVault(), refetchRecords()])
-      }
-    }
-
-    refreshData()
-  }, []) // Run once on mount
-
-  // If no passkey context, redirect back to main app
-  useEffect(() => {
-    if (!serializedPublicKey || !requestId) {
-      navigate('vault', { state: { recordType: 'all' } })
-    }
-  }, [serializedPublicKey, requestId, navigate])
-
-  const getNewRecordData = (credential, publicKey) => {
-    if (!credential || !publicKey) return null
-
-    return {
-      type: RECORD_TYPES.LOGIN,
-      folder: undefined,
-      isFavorite: false,
-      data: {
-        title: publicKey.rp.name,
-        username: publicKey.user.name,
-        note: '',
-        websites: [normalizeUrl(publicKey.rp.id, true)],
-        customFields: [],
-        credential
-      }
-    }
   }
 
-  const getExistingRecord = (website, username) => {
-    for (const existingRecord of records) {
-      const { username: existingUsername, websites: existingWebsites } =
-        existingRecord.data
-      if (
-        existingWebsites &&
-        existingWebsites.includes(website) &&
-        username === existingUsername
-      ) {
-        return existingRecord
-      }
-    }
-
-    return null
-  }
-
-  const onSavePasskeyRecordCompleted = (recordId, credential) => {
-    chrome.tabs.sendMessage(parseInt(tabId), {
-      type: 'savedPasskey',
-      requestId,
-      recordId,
-      credential
-    })
-    navigate('createOrEditCategory', {
-      params: { recordId: recordId },
-      state: {
-        inPasskeyFlow: true
-      }
-    })
-  }
-
-  const saveRecord = async (newRecord) => {
-    if (!newRecord) return
-
-    const {
-      username,
-      websites,
-      title: newTitle,
-      credential: newCredential
-    } = newRecord.data
-    const website = websites[0]
-    const existingRecordToUpdate = getExistingRecord(website, username)
-
-    if (existingRecordToUpdate) {
-      const updatedRecords = [
-        {
-          ...existingRecordToUpdate,
-          data: {
-            ...existingRecordToUpdate.data,
-            title: newTitle,
-            credential: newCredential
-          }
-        }
-      ]
-      await updateRecords(updatedRecords)
-      onSavePasskeyRecordCompleted(existingRecordToUpdate.id, newCredential)
-    } else {
-      void createRecord(newRecord)
-    }
-  }
-
-  const handleCreateHardwarePasskey = () => {
-    chrome.tabs
-      .sendMessage(parseInt(tabId), {
-        type: 'createThirdPartyKey',
-        requestId: requestId
-      })
-      .finally(window.close)
-  }
-
-  const handleCreateOwnPasskey = () => {
+  const handleCreateNewLogin = () => {
     chrome.runtime
       .sendMessage({
-        type: 'readyForPasskeyPayload',
+        type: MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
         requestOrigin,
         serializedPublicKey
       })
       .then((response) => {
         const { credential, publicKey } = response
-        void saveRecord(getNewRecordData(credential, publicKey))
+
+        navigate('createOrEditCategory', {
+          params: { recordType: RECORD_TYPES.LOGIN },
+          state: {
+            inPasskeyFlow: true,
+            passkeyCredential: credential,
+            passkeyCreatedAt: Date.now(),
+            initialData: {
+              title: publicKey.rp.name,
+              username: publicKey.user.name,
+              websites: [normalizeUrl(publicKey.rp.id, true)]
+            },
+            serializedPublicKey,
+            requestId,
+            requestOrigin,
+            tabId
+          }
+        })
       })
       .catch((error) => {
         logger.error('Failed to create passkey:', error?.message || error)
-        chrome.tabs.sendMessage(parseInt(tabId), {
-          type: 'savedPasskey',
-          requestId: requestId,
-          recordId: null
-        })
       })
   }
 
-  const handleLoginToCreatePasskey = () => {
-    const passkeyParams = {
-      page: 'createPasskey',
-      serializedPublicKey,
-      requestId,
-      requestOrigin,
-      tabId,
-      inPasskeyFlow: true
+  const handleRecordSelect = (record) => {
+    setSelectedRecord(selectedRecord?.id === record.id ? null : record)
+  }
+
+  const handleCancel = () => {
+    chrome.tabs
+      .sendMessage(parseInt(tabId), {
+        type: CONTENT_MESSAGE_TYPES.SAVED_PASSKEY,
+        requestId: requestId,
+        recordId: null
+      })
+      .finally(() => {
+        window.close()
+      })
+  }
+
+  const handleGetHardwarePasskey = () => {
+    chrome.tabs
+      .sendMessage(parseInt(tabId), {
+        type: CONTENT_MESSAGE_TYPES.CREATE_THIRD_PARTY_KEY,
+        requestId
+      })
+      .finally(() => {
+        window.close()
+      })
+  }
+
+  const handleSaveToSelected = async () => {
+    if (!selectedRecord) return
+
+    if (selectedRecord.data?.credential) {
+      setModal(
+        <ReplacePasskeyModalContent
+          onConfirm={async () => {
+            try {
+              await saveToExistingRecord(selectedRecord)
+            } catch (error) {
+              logger.error(
+                'Failed to save passkey to existing record:',
+                error?.message || error
+              )
+            }
+          }}
+        />
+      )
+      return
     }
 
-    const targetState = !userData?.isLoggedIn ? 'masterPassword' : 'vaults'
-
-    navigate('welcome', {
-      params: { state: targetState },
-      state: passkeyParams
-    })
+    try {
+      await saveToExistingRecord(selectedRecord)
+    } catch (error) {
+      logger.error(
+        'Failed to save passkey to existing record:',
+        error?.message || error
+      )
+    }
   }
 
-  if (!userData?.isLoggedIn || !userData?.isVaultOpen) {
-    return (
-      <div className="bg-grey400-mode1 flex h-full w-full justify-center px-6 pt-7">
-        <div className="flex w-[300px] flex-col gap-2.5">
-          <div className="text-white-mode1 font-inter mb-2.5 flex flex-col gap-1.5 text-center text-xs font-semibold">
-            <span className="font-semibold">{t`Website created a new passkey.`}</span>
-            <p className="font-normal">
-              {!userData?.isLoggedIn
-                ? t`Please log in and select a vault to save the passkey`
-                : t`Please select or unlock your vault to save the passkey`}
-            </p>
-          </div>
-          <ButtonCreate onClick={handleLoginToCreatePasskey}>
-            {!userData?.isLoggedIn
-              ? t`Log in and select vault`
-              : t`Select vault`}
-          </ButtonCreate>
-          <ButtonCreate onClick={handleCreateHardwarePasskey}>
-            {t`Use your device or hardware key`}
-          </ButtonCreate>
-        </div>
-      </div>
+  const recordsFiltered = useMemo(() => {
+    const loginRecords = records.filter(
+      (record) => record.type === RECORD_TYPES.LOGIN
     )
-  }
+
+    let publicKeyData = null
+    if (serializedPublicKey) {
+      try {
+        publicKeyData = JSON.parse(serializedPublicKey)
+      } catch {
+        return loginRecords
+      }
+    }
+
+    if (!publicKeyData) {
+      return loginRecords
+    }
+
+    const passkeyUsername = publicKeyData.user?.name || ''
+
+    return loginRecords.filter((record) => {
+      const recordUsername = record.data?.username || ''
+      const usernameMatches =
+        passkeyUsername && recordUsername
+          ? passkeyUsername === recordUsername
+          : false
+      const hasNoUsername = !recordUsername || recordUsername.trim() === ''
+
+      return usernameMatches || hasNoUsername
+    })
+  }, [records, serializedPublicKey])
 
   return (
-    <div className="bg-grey400-mode1 flex h-full w-full justify-center px-6 pt-7">
-      <div className="flex w-[300px] flex-col gap-2.5">
-        <div className="text-white-mode1 font-inter mb-2.5 flex flex-col gap-1.5 text-center text-xs font-semibold">
-          <span className="font-semibold">{t`Website created a new passkey.`}</span>
-          <p className="font-normal">
-            {t`Choose an option for handling the passkey`}
-          </p>
-        </div>
-        <ButtonCreate
-          key="login"
-          startIcon={RECORD_ICON_BY_TYPE.login}
-          onClick={handleCreateOwnPasskey}
+    <PasskeyContainer
+      title={t`Save Passkey?`}
+      description={t`Choose where to store this Passkey, or create a new item.`}
+      emptyMessage={t`No matching login found, search it or create a new login to store this passkey.`}
+      selectedRecord={selectedRecord}
+      records={recordsFiltered}
+      onRecordSelect={handleRecordSelect}
+      onHardwareKeyClick={handleGetHardwarePasskey}
+      onVaultChange={() => setSelectedRecord(null)}
+    >
+      <div className="flex gap-[40px] pt-[20px] pb-[20px]">
+        <button
+          onClick={selectedRecord ? handleSaveToSelected : handleCreateNewLogin}
+          className="bg-primary400-mode1 flex flex-1 items-center justify-center gap-2 rounded-[10px] py-2 font-semibold text-black"
         >
-          {t`Save passkey as a new login`}
-        </ButtonCreate>
-        <ButtonCreate onClick={handleCreateHardwarePasskey}>
-          {t`Use your device or hardware key`}
-        </ButtonCreate>
+          <PlusIcon size="24" color="#000" />
+          {selectedRecord ? t`Add passkey` : t`Create new login`}
+        </button>
+        <button
+          onClick={handleCancel}
+          className="text-primary400-mode1 flex-1 rounded-[10px] bg-black py-2 font-semibold"
+        >
+          {t`Cancel`}
+        </button>
       </div>
-    </div>
+    </PasskeyContainer>
   )
 }

@@ -10,7 +10,7 @@ exports[`WelcomePageWrapper renders correctly with children 1`] = `
       src="/assets/images/logoLock.png"
     />
     <div
-      class="z-10 flex w-full flex-col gap-[20px]"
+      class="z-10 flex h-full w-full flex-1 flex-col gap-[20px]"
     >
       <div>
         Test Child

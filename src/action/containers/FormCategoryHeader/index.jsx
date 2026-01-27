@@ -2,8 +2,9 @@ import { Trans } from '@lingui/react/macro'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
-import { MenuDropdown } from '../../../shared/components/MenuDropDown'
+import { MenuDropdown } from '../../../shared/components/MenuDropdown'
 import { useRouter } from '../../../shared/context/RouterContext'
+import { useIsPasskeyPopup } from '../../../shared/hooks/useIsPasskeyPopup'
 import { useRecordMenuItems } from '../../../shared/hooks/useRecordMenuItems'
 import { SaveIcon } from '../../../shared/icons/SaveIcon'
 import { XIcon } from '../../../shared/icons/XIcon'
@@ -30,10 +31,13 @@ export const FormCategoryHeader = ({
 }) => {
   const { currentPage, navigate } = useRouter()
   const { defaultItems } = useRecordMenuItems()
+  const isPasskeyPopup = useIsPasskeyPopup()
 
   const selectedType = defaultItems.filter(
     (item) => item.type === selectedCategoryType
   )?.[0]
+
+  const canSwitchType = !isPasskeyPopup && !initialRecord
 
   return (
     <div className="relative z-50 flex w-full items-center justify-between">
@@ -42,7 +46,7 @@ export const FormCategoryHeader = ({
           selectedFolder={selectedFolder}
           onFolderSelect={onFolderChange}
         />
-        {!initialRecord && (
+        {canSwitchType && (
           <MenuDropdown
             selectedItem={selectedType}
             items={defaultItems}

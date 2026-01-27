@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
 import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
 
@@ -28,28 +34,31 @@ export const ModalProvider = ({ children }) => {
 
   const isOpen = !!modalStack.length
 
-  const setModal = (content, params) => {
+  const setModal = useCallback((content, params) => {
     setModalStack((prev) => [...prev, createModalConfig(content, params)])
-  }
+  }, [])
 
-  const closeModal = () =>
-    new Promise((resolve) => {
-      setModalStack((prev) => {
-        const newStack = [...prev]
-        const topModal = getTopModal(newStack)
-        if (topModal?.isOpen) {
-          topModal.isOpen = false
-        }
-        return newStack
-      })
+  const closeModal = useCallback(
+    () =>
+      new Promise((resolve) => {
+        setModalStack((prev) => {
+          const newStack = [...prev]
+          const topModal = getTopModal(newStack)
+          if (topModal?.isOpen) {
+            topModal.isOpen = false
+          }
+          return newStack
+        })
 
-      setTimeout(() => {
-        setModalStack((prev) => prev.slice(0, -1))
-        resolve()
-      }, BASE_TRANSITION_DURATION)
-    })
+        setTimeout(() => {
+          setModalStack((prev) => prev.slice(0, -1))
+          resolve()
+        }, BASE_TRANSITION_DURATION)
+      }),
+    []
+  )
 
-  const closeAllModals = () => setModalStack([])
+  const closeAllModals = useCallback(() => setModalStack([]), [])
 
   useEffect(() => {
     const handleKeydown = (event) => {

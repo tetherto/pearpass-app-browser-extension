@@ -4,6 +4,7 @@ import {
   wrapMessage
 } from './nativeMessagingProtocol'
 import { secureChannel } from './secureChannel'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   NATIVE_MESSAGE_TYPES,
   NATIVE_MESSAGING_CONFIG,
@@ -254,6 +255,12 @@ const getErrorCode = (errorMessage) => {
   ) {
     return ERROR_CODES.DESKTOP_NOT_AUTHENTICATED
   }
+  if (errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)) {
+    return ERROR_CODES.AUTHENTICATION_FAILED
+  }
+  if (errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)) {
+    return ERROR_CODES.SIGNATURE_INVALID
+  }
 
   // Check for session errors
   if (errorMessage.includes(SESSION_ERROR_PATTERNS.NOT_PAIRED)) {
@@ -300,20 +307,6 @@ const getErrorCode = (errorMessage) => {
   return ERROR_CODES.UNKNOWN
 }
 
-/**
- * Check if an error requires clearing the session (pairing modal)
- * @param {string} errorCode - The error code
- * @returns {boolean} Whether to clear the session
- */
-const shouldClearSession = (errorCode) =>
-  [
-    ERROR_CODES.SIGNATURE_INVALID,
-    ERROR_CODES.IDENTITY_KEYS_UNAVAILABLE,
-    ERROR_CODES.NOT_PAIRED,
-    ERROR_CODES.NO_SESSION,
-    ERROR_CODES.HANDSHAKE_FAILED
-  ].includes(errorCode)
-
 const handleRequest = async (msg, sendResponse) => {
   const { command, params } = msg
 
@@ -329,24 +322,11 @@ const handleRequest = async (msg, sendResponse) => {
 
     sendResponse({ success: true, result })
   } catch (error) {
-    const errorCode = getErrorCode(error.message)
-
-    // Clear session if needed (triggers pairing modal)
-    if (shouldClearSession(errorCode)) {
-      // Use the specific error pattern for better logging
-      const errorPattern =
-        Object.values({
-          ...SESSION_ERROR_PATTERNS,
-          ...SECURITY_ERROR_PATTERNS
-        }).find((pattern) => error.message.includes(pattern)) || errorCode
-      await secureChannel.clearSession(errorPattern)
-    }
-
-    // Send structured error response
+    // Session clearing is handled by secureChannel - just propagate error
     sendResponse({
       success: false,
       error: error.message,
-      code: errorCode
+      code: getErrorCode(error.message)
     })
   }
 }

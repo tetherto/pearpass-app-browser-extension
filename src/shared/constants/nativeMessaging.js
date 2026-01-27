@@ -169,6 +169,14 @@ export const BACKGROUND_MESSAGE_TYPES = {
 }
 
 /**
+ * Blocking states - require user action before normal operation can proceed
+ */
+export const BLOCKING_STATE = {
+  PAIRING: 'PAIRING',
+  CONNECTION: 'CONNECTION'
+}
+
+/**
  * Content script message types
  */
 export const CONTENT_MESSAGE_TYPES = {
@@ -176,29 +184,42 @@ export const CONTENT_MESSAGE_TYPES = {
   CREATE_THIRD_PARTY_KEY: 'createThirdPartyKey',
   GOT_PASSKEY: 'gotPasskey',
   GET_THIRD_PARTY_KEY: 'getThirdPartyKey',
-  AUTOFILL_FROM_ACTION: 'autofillFromAction'
+  AUTOFILL_FROM_ACTION: 'autofillFromAction',
+  CREATE_PASSKEY: 'createPasskey',
+  GET_PASSKEY: 'getPasskey'
 }
 
 /**
  * Security error patterns to match against error messages
  */
 export const SECURITY_ERROR_PATTERNS = {
-  SIGNATURE_INVALID: 'SignatureInvalid',
-  DESKTOP_NOT_AUTHENTICATED: 'DesktopNotAuthenticated',
-  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable'
+  SIGNATURE_INVALID: 'SIGNATURE_INVALID',
+  DESKTOP_NOT_AUTHENTICATED: 'DESKTOP_NOT_AUTHENTICATED',
+  IDENTITY_KEYS_UNAVAILABLE: 'IDENTITY_KEYS_UNAVAILABLE',
+  CLIENT_SIGNATURE_INVALID: 'CLIENT_SIGNATURE_INVALID'
+}
+
+/**
+ * Pairing error patterns to match against error messages
+ */
+export const PAIRING_ERROR_PATTERNS = {
+  PAIRING_TOKEN_REQUIRED: 'PAIRING_TOKEN_REQUIRED',
+  INVALID_PAIRING_TOKEN: 'INVALID_PAIRING_TOKEN',
+  CLIENT_PUBLIC_KEY_REQUIRED: 'CLIENT_PUBLIC_KEY_REQUIRED',
+  CLIENT_ALREADY_PAIRED: 'CLIENT_ALREADY_PAIRED'
 }
 
 /**
  * Session error patterns to match against error messages
  */
 export const SESSION_ERROR_PATTERNS = {
-  NOT_PAIRED: 'NotPaired',
-  DECRYPT_FAILED: 'DecryptFailed',
-  SESSION_NOT_FOUND: 'SessionNotFound',
-  HANDSHAKE_FAILED: 'HandshakeFailed',
-  HANDSHAKE_FINISH_FAILED: 'HandshakeFinishFailed',
-  SECURE_REQUEST_FAILED: 'SecureRequestFailed',
-  NO_SESSION: 'NoSession'
+  NOT_PAIRED: 'NOT_PAIRED',
+  DECRYPT_FAILED: 'DECRYPT_FAILED',
+  SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
+  HANDSHAKE_FAILED: 'HANDSHAKE_FAILED',
+  HANDSHAKE_FINISH_FAILED: 'HANDSHAKE_FINISH_FAILED',
+  SECURE_REQUEST_FAILED: 'SECURE_REQUEST_FAILED',
+  NO_SESSION: 'NO_SESSION'
 }
 
 /**
@@ -213,4 +234,12 @@ export const PAIRING_REASONS = {
   SESSION_NOT_FOUND: 'session-not-found',
   HANDSHAKE_FAILED: 'handshake-failed',
   SECURE_REQUEST_FAILED: 'secure-request-failed'
+}
+
+/**
+ * Protocol domain separation tags for handshake transcript binding
+ * These prevent cross-protocol signature replay attacks
+ */
+export const PROTOCOL_TAGS = {
+  CLIENT_FINISH: 'pearpass/handshake/v1/clientFinish'
 }
