@@ -1,4 +1,5 @@
 import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+import { SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED } from 'pearpass-lib-constants'
 import { RECORD_TYPES } from 'pearpass-lib-vault'
 
 import { IFRAME_TYPES } from './constants/iframe'
@@ -375,6 +376,10 @@ function hideAutofillOnOutsideClick(event) {
 // Login detection
 
 function onSubmit({ username, password }) {
+  if (!SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED) {
+    return
+  }
+
   if (!username && !password) {
     return
   }
