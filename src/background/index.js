@@ -19,6 +19,7 @@ import {
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 const { SCHEDULE_CLIPBOARD_CLEAR, CLEAR_CLIPBOARD_NOW } = MESSAGES
 const { CLEAR_CLIPBOARD } = ALARMS
@@ -27,7 +28,7 @@ const pending = new Map()
 const conditionalPasskeyRequests = new Map()
 
 // Initialize secure session on startup if already paired
-chrome.runtime.onStartup?.addListener(async () => {
+runtime.onStartup?.addListener(async () => {
   try {
     if (await secureChannel.isPaired()) {
       await secureChannel.ensureSession()
@@ -38,7 +39,7 @@ chrome.runtime.onStartup?.addListener(async () => {
 })
 
 // Gracefully close session when service worker is suspended
-chrome.runtime.onSuspend?.addListener(() => {
+runtime.onSuspend?.addListener(() => {
   if (secureChannel.hasActiveSession()) {
     void secureChannel.closeSession(secureChannel._session.id)
   }
@@ -49,7 +50,7 @@ const ensureClipboardOffscreenDocument = async () => {
     const hasDocument = await chrome.offscreen.hasDocument()
     if (!hasDocument) {
       await chrome.offscreen.createDocument({
-        url: chrome.runtime.getURL('offscreen.html'),
+        url: runtime.getURL('offscreen.html'),
         reasons: ['CLIPBOARD'],
         justification: 'Clear clipboard contents after timeout.'
       })
@@ -73,7 +74,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         )
         return
       }
-      chrome.runtime.sendMessage({
+      runtime.sendMessage({
         type: CLEAR_CLIPBOARD_NOW
       })
     } catch (error) {
@@ -82,7 +83,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 })
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const sensitiveTypes = [
     ...Object.values(SECURE_MESSAGE_TYPES),
     MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
@@ -338,7 +339,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === MESSAGE_TYPES.GET_PLATFORM_INFO) {
-    chrome.runtime.getPlatformInfo((info) => {
+    runtime.getPlatformInfo((info) => {
       sendResponse(info)
     })
     return true
@@ -492,7 +493,7 @@ const openPasskeyWindow = (queryParams = new URLSearchParams()) => {
     focused: true,
     height: passkeyWindowSize.height,
     width: passkeyWindowSize.width,
-    url: chrome.runtime.getURL(`index.html#/${page}?${queryParams.toString()}`),
+    url: runtime.getURL(`index.html#/${page}?${queryParams.toString()}`),
     type: 'popup'
   })
 }
