@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useUserData, useVault, useVaults } from 'pearpass-lib-vault'
 
 import { useRedirect } from './useRedirect'
@@ -19,13 +19,11 @@ jest.mock('../../../shared/context/ModalContext', () => ({
   }))
 }))
 
-// Mock the native messaging client used by the hook
-jest.mock('../../../shared/client', () => ({
-  client: {
-    checkAndHandleAvailability: jest.fn(() =>
-      Promise.resolve({ available: true })
-    )
-  }
+jest.mock('../../../shared/context/BlockingStateContext', () => ({
+  useBlockingStateContext: jest.fn(() => ({
+    isChecking: false,
+    blockingState: null
+  }))
 }))
 
 describe('useRedirect', () => {
@@ -33,7 +31,10 @@ describe('useRedirect', () => {
 
   beforeEach(() => {
     mockNavigate = jest.fn()
-    useRouter.mockReturnValue({ navigate: mockNavigate })
+    useRouter.mockReturnValue({
+      navigate: mockNavigate,
+      currentPage: null
+    })
     useUserData.mockReturnValue({
       isLoading: false,
       data: {},
@@ -41,6 +42,14 @@ describe('useRedirect', () => {
     })
     useVault.mockReturnValue({ isLoading: false, refetch: jest.fn() })
     useVaults.mockReturnValue({ isLoading: false, refetch: jest.fn() })
+
+    const {
+      useBlockingStateContext
+    } = require('../../../shared/context/BlockingStateContext')
+    useBlockingStateContext.mockReturnValue({
+      isChecking: false,
+      blockingState: null
+    })
   })
 
   afterEach(() => {
@@ -57,7 +66,15 @@ describe('useRedirect', () => {
     expect(result.current.isLoading).toBe(true)
   })
 
-  it('should navigate to "welcome" with state "masterPassword" when availability check fails', async () => {
+  it('should not redirect when blocking state is present', async () => {
+    const {
+      useBlockingStateContext
+    } = require('../../../shared/context/BlockingStateContext')
+    useBlockingStateContext.mockReturnValue({
+      isChecking: false,
+      blockingState: { type: 'PAIRING_REQUIRED' }
+    })
+
     const refetchUser = jest.fn()
     useUserData.mockReturnValue({
       isLoading: false,
@@ -67,33 +84,26 @@ describe('useRedirect', () => {
     useVault.mockReturnValue({ isLoading: false, refetch: jest.fn() })
     useVaults.mockReturnValue({ isLoading: false, refetch: jest.fn() })
 
-    const { client } = require('../../../shared/client')
-    client.checkAndHandleAvailability.mockRejectedValueOnce(
-      new Error('not available')
-    )
-
     await act(async () => {
       renderHook(() => useRedirect())
     })
 
-    expect(mockNavigate).toHaveBeenCalledWith('welcome', {
-      params: { state: 'masterPassword' }
-    })
+    // Should not navigate when blocking state is present
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 
   it('should navigate to "vault" when userData conditions are met', async () => {
-    const refetchVault = jest.fn()
-    const refetchMasterVault = jest.fn()
+    const refetchVault = jest.fn().mockResolvedValue({})
+    const refetchMasterVault = jest.fn().mockResolvedValue({})
 
     useUserData.mockReturnValue({
       isLoading: false,
       data: { hasPasswordSet: true, isLoggedIn: true, isVaultOpen: true },
-      refetch: () =>
-        Promise.resolve({
-          hasPasswordSet: true,
-          isLoggedIn: true,
-          isVaultOpen: true
-        })
+      refetch: jest.fn().mockResolvedValue({
+        hasPasswordSet: true,
+        isLoggedIn: true,
+        isVaultOpen: true
+      })
     })
     useVault.mockReturnValue({ isLoading: false, refetch: refetchVault })
     useVaults.mockReturnValue({ isLoading: false, refetch: refetchMasterVault })
@@ -102,24 +112,25 @@ describe('useRedirect', () => {
       renderHook(() => useRedirect())
     })
 
-    expect(refetchVault).toHaveBeenCalled()
-    expect(mockNavigate).toHaveBeenCalledWith('vault', {
-      state: { recordType: 'all' }
+    await waitFor(() => {
+      expect(refetchVault).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith('vault', {
+        state: { recordType: 'all' }
+      })
     })
   })
 
   it('should navigate to "welcome" with state "vaults" when user is logged in but vault is not open', async () => {
-    const refetchMasterVault = jest.fn()
+    const refetchMasterVault = jest.fn().mockResolvedValue({})
 
     useUserData.mockReturnValue({
       isLoading: false,
       data: { hasPasswordSet: true, isLoggedIn: true, isVaultOpen: false },
-      refetch: () =>
-        Promise.resolve({
-          hasPasswordSet: true,
-          isLoggedIn: true,
-          isVaultOpen: false
-        })
+      refetch: jest.fn().mockResolvedValue({
+        hasPasswordSet: true,
+        isLoggedIn: true,
+        isVaultOpen: false
+      })
     })
     useVault.mockReturnValue({ isLoading: false, refetch: jest.fn() })
     useVaults.mockReturnValue({ isLoading: false, refetch: refetchMasterVault })
@@ -128,9 +139,11 @@ describe('useRedirect', () => {
       renderHook(() => useRedirect())
     })
 
-    expect(refetchMasterVault).toHaveBeenCalled()
-    expect(mockNavigate).toHaveBeenCalledWith('welcome', {
-      params: { state: 'vaults' }
+    await waitFor(() => {
+      expect(refetchMasterVault).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith('welcome', {
+        params: { state: 'vaults' }
+      })
     })
   })
 
@@ -138,12 +151,11 @@ describe('useRedirect', () => {
     useUserData.mockReturnValue({
       isLoading: false,
       data: { hasPasswordSet: false, isLoggedIn: false, isVaultOpen: false },
-      refetch: () =>
-        Promise.resolve({
-          hasPasswordSet: false,
-          isLoggedIn: false,
-          isVaultOpen: false
-        })
+      refetch: jest.fn().mockResolvedValue({
+        hasPasswordSet: false,
+        isLoggedIn: false,
+        isVaultOpen: false
+      })
     })
     useVault.mockReturnValue({ isLoading: false, refetch: jest.fn() })
     useVaults.mockReturnValue({ isLoading: false, refetch: jest.fn() })
@@ -152,8 +164,10 @@ describe('useRedirect', () => {
       renderHook(() => useRedirect())
     })
 
-    expect(mockNavigate).toHaveBeenCalledWith('welcome', {
-      params: { state: 'masterPassword' }
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('welcome', {
+        params: { state: 'masterPassword' }
+      })
     })
   })
 })

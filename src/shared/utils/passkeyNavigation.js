@@ -28,7 +28,8 @@ export const redirectToPasskeySelection = (navigate, passkeyParams) => {
       serializedPublicKey: passkeyParams.serializedPublicKey,
       requestId: passkeyParams.requestId,
       requestOrigin: passkeyParams.requestOrigin,
-      tabId: passkeyParams.tabId
+      tabId: passkeyParams.tabId,
+      isVerified: passkeyParams.isVerified
     }
   })
 }

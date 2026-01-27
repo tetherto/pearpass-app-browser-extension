@@ -10,6 +10,7 @@ import { colors } from 'pearpass-lib-ui-theme-provider'
  *  type?: 'button' | 'submit'
  *  onClick: () => void
  *  disabled?: boolean
+ *  className?: string
  * }} props
  */
 export const ButtonLittle = ({
@@ -18,6 +19,7 @@ export const ButtonLittle = ({
   variant = 'primary',
   type = 'button',
   disabled = false,
+  className = '',
   onClick
 }) => {
   const buttonClass =
@@ -31,7 +33,7 @@ export const ButtonLittle = ({
       onClick={onClick}
       className={`peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none ${buttonClass} ${
         disabled ? 'pointer-events-none opacity-50' : ''
-      }`}
+      } ${className}`}
       disabled={disabled}
     >
       {startIcon &&

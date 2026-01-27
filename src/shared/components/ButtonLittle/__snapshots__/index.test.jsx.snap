@@ -2,7 +2,7 @@
 
 exports[`ButtonLittle Component renders correctly when disabled 1`] = `
 <button
-  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1 pointer-events-none opacity-50"
+  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1 pointer-events-none opacity-50 "
   disabled=""
   type="button"
 >
@@ -12,7 +12,7 @@ exports[`ButtonLittle Component renders correctly when disabled 1`] = `
 
 exports[`ButtonLittle Component renders correctly with a start icon 1`] = `
 <button
-  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1 "
+  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1  "
   type="button"
 >
   <svg
@@ -32,7 +32,7 @@ exports[`ButtonLittle Component renders correctly with a start icon 1`] = `
 
 exports[`ButtonLittle Component renders correctly with primary variant 1`] = `
 <button
-  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1 "
+  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1  "
   type="button"
 >
   Primary Button
@@ -41,7 +41,7 @@ exports[`ButtonLittle Component renders correctly with primary variant 1`] = `
 
 exports[`ButtonLittle Component renders correctly with secondary variant 1`] = `
 <button
-  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-black-mode1 text-primary300-mode1 rounded-[10px] p-1 border border-black-mode1  hover:border-primary400-mode1 hover:text-primary400-mode1 [&_svg_path]:stroke-primary300-mode1 hover:[&_svg_path]:stroke-primary400-mode1 "
+  class="peer flex h-fit cursor-pointer items-center gap-2 text-sm font-medium focus:outline-none bg-black-mode1 text-primary300-mode1 rounded-[10px] p-1 border border-black-mode1  hover:border-primary400-mode1 hover:text-primary400-mode1 [&_svg_path]:stroke-primary300-mode1 hover:[&_svg_path]:stroke-primary400-mode1  "
   type="button"
 >
   Secondary Button

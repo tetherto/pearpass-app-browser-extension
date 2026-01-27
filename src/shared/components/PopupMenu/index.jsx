@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 
+import { createPortal } from 'react-dom'
+
 import { getHorizontal } from './utils/getHorizontal'
 import { getVertical } from './utils/getVertical'
 import { useOutsideClick } from '../../../shared/hooks/useOutsideClick'
@@ -190,19 +192,23 @@ export const PopupMenu = ({
         {children}
       </div>
 
-      <div
-        ref={boxRef}
-        className={`fixed z-[1000] transition-opacity duration-[${TRANSITION_DURATION}ms] ${isOpen ? 'opacity-100' : 'opacity-0'} ${shouldRender ? 'visible' : 'invisible'} `}
-        style={{
-          top: `${contentOrigin.top}px`,
-          left: `${contentOrigin.left}px`,
-          height: `${newPositions.height}px`,
-          width: `${newPositions.width}px`,
-          transform: TRANSFORM_BY_DIRECTION[newDirection]
-        }}
-      >
-        {content}
-      </div>
+      {shouldRender &&
+        createPortal(
+          <div
+            ref={boxRef}
+            className={`fixed z-[1000] transition-opacity duration-[${TRANSITION_DURATION}ms] ${isOpen ? 'opacity-100' : 'opacity-0'} ${shouldRender ? 'visible' : 'invisible'} `}
+            style={{
+              top: `${contentOrigin.top}px`,
+              left: `${contentOrigin.left}px`,
+              height: `${newPositions.height}px`,
+              width: `${newPositions.width}px`,
+              transform: TRANSFORM_BY_DIRECTION[newDirection]
+            }}
+          >
+            {content}
+          </div>,
+          document.body
+        )}
     </div>
   )
 }
