@@ -1,7 +1,7 @@
 import { PearpassVaultClient } from './index'
+import { runtime } from '../shared/utils/runtime'
 
-// Mock chrome extension API
-global.chrome = {
+jest.mock('../shared/utils/runtime', () => ({
   runtime: {
     onMessage: {
       addListener: jest.fn()
@@ -9,7 +9,7 @@ global.chrome = {
     sendMessage: jest.fn(),
     lastError: null
   }
-}
+}))
 
 // Mock command definitions
 jest.mock('../shared/commandDefinitions', () => ({
@@ -62,7 +62,7 @@ describe('PearpassVaultClient', () => {
   describe('connect', () => {
     it('should connect to native host', async () => {
       const client = createMockClient()
-      chrome.runtime.sendMessage.mockImplementation((message, callback) => {
+      runtime.sendMessage.mockImplementation((message, callback) => {
         callback({ success: true })
       })
 
@@ -75,7 +75,7 @@ describe('PearpassVaultClient', () => {
       client.connected = true
 
       await client.connect()
-      expect(chrome.runtime.sendMessage).not.toHaveBeenCalled()
+      expect(runtime.sendMessage).not.toHaveBeenCalled()
     })
   })
 
