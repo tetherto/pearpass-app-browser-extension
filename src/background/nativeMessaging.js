@@ -35,11 +35,16 @@ const log = (...args) => {
 
 const logError = (...args) =>
   logger.error(NATIVE_MESSAGING_CONFIG.LOG_PREFIX, ...args)
-
-const getTimeoutForCommand = (command) =>
-  command === SPECIAL_COMMANDS.CHECK_AVAILABILITY
-    ? REQUEST_TIMEOUT.AVAILABILITY_CHECK_MS
-    : REQUEST_TIMEOUT.DEFAULT_MS
+const getTimeoutForCommand = (command) => {
+  switch (command) {
+    case SPECIAL_COMMANDS.CHECK_AVAILABILITY:
+      return REQUEST_TIMEOUT.AVAILABILITY_CHECK_MS
+    case SPECIAL_COMMANDS.PAIR_ACTIVE_VAULT:
+      return REQUEST_TIMEOUT.PAIRING_MS
+    default:
+      return REQUEST_TIMEOUT.DEFAULT_MS
+  }
+}
 
 class NativeMessagingHandler {
   constructor() {
@@ -84,15 +89,23 @@ class NativeMessagingHandler {
     this._clearPendingRequests()
   }
 
-  sendRequest(command, params = {}) {
+  /**
+   * Send a request to the native host
+   * @param {string} command - The command to send
+   * @param {Object} params - The parameters to send
+   * @param {number} timeout - The timeout in milliseconds
+   * @returns {Promise<any>} The result of the request
+   */
+  sendRequest(command, params = {}, timeout = REQUEST_TIMEOUT.DEFAULT_MS) {
     if (!this.connected) {
-      return this.connect().then(() => this.sendRequest(command, params))
+      return this.connect().then(() =>
+        this.sendRequest(command, params, timeout)
+      )
     }
 
     return new Promise((resolve, reject) => {
       const id = ++this.requestId
       const request = { id, command, params }
-      const timeout = getTimeoutForCommand(command)
 
       const timeoutId = setTimeout(() => {
         this._handleRequestTimeout(id, command)
@@ -308,16 +321,22 @@ const getErrorCode = (errorMessage) => {
 }
 
 const handleRequest = async (msg, sendResponse) => {
-  const { command, params } = msg
+  const { command, params: msgParams } = msg
+  const timeout = getTimeoutForCommand(command)
+  const params = { ...msgParams, timeout }
 
   try {
     let result
     // Only secure if paired and command is not exempt
     if (shouldSecure(command)) {
       await secureChannel.ensureSession()
-      result = await secureChannel.secureRequest({ method: command, params })
+      result = await secureChannel.secureRequest({
+        method: command,
+        params,
+        timeout
+      })
     } else {
-      result = await nativeMessaging.sendRequest(command, params)
+      result = await nativeMessaging.sendRequest(command, params, timeout)
     }
 
     sendResponse({ success: true, result })

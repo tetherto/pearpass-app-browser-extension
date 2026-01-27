@@ -1,4 +1,4 @@
-import { MANIFEST_NAME } from 'pearpass-lib-constants'
+import { MANIFEST_NAME, MS_PER_SECOND } from 'pearpass-lib-constants'
 
 /**
  * Error codes used throughout the application
@@ -48,7 +48,8 @@ export const NATIVE_MESSAGE_TYPES = {
  * Special commands that have specific handling
  */
 export const SPECIAL_COMMANDS = {
-  CHECK_AVAILABILITY: 'checkAvailability'
+  CHECK_AVAILABILITY: 'checkAvailability',
+  PAIR_ACTIVE_VAULT: 'pairActiveVault'
 }
 
 /**
@@ -63,9 +64,10 @@ export const AVAILABILITY_CHECK = {
  * Request timeout configuration
  */
 export const REQUEST_TIMEOUT = {
-  DEFAULT_MS: 10000, // 10 seconds default timeout
-  AVAILABILITY_CHECK_MS: 3000, // 3 seconds for availability check
-  CONNECT_MS: 5000 // 5 seconds for connection
+  DEFAULT_MS: MS_PER_SECOND * 10, // 10 seconds default timeout
+  AVAILABILITY_CHECK_MS: MS_PER_SECOND * 3, // 3 seconds for availability check
+  CONNECT_MS: MS_PER_SECOND * 5, // 5 seconds for connection
+  PAIRING_MS: MS_PER_SECOND * 30 // 30 seconds for pairing
 }
 
 /**

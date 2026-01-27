@@ -605,10 +605,10 @@ export class SecureChannelClient {
 
   /**
    * Secure request using an established session.
-   * @param {{ method: string, params: any }} payload
+   * @param {{ method: string, params: any, timeout: number }} payload
    * @returns {Promise<any>}
    */
-  async secureRequest({ method, params }) {
+  async secureRequest({ method, params, timeout }) {
     if (!this._session) throw new Error(SESSION_ERROR_PATTERNS.NO_SESSION)
 
     const attempt = async () => {
@@ -619,12 +619,16 @@ export class SecureChannelClient {
       const nonce = generateNonce() // 24-byte nonce for XSalsa20
       const ciphertext = secretbox(plaintext, nonce, this._session.key)
 
-      const res = await nativeMessaging.sendRequest('nmSecureRequest', {
-        sessionId: this._session.id,
-        nonceB64: base64Encode(nonce),
-        ciphertextB64: base64Encode(ciphertext),
-        seq
-      })
+      const res = await nativeMessaging.sendRequest(
+        'nmSecureRequest',
+        {
+          sessionId: this._session.id,
+          nonceB64: base64Encode(nonce),
+          ciphertextB64: base64Encode(ciphertext),
+          seq
+        },
+        timeout
+      )
 
       // Decrypt response
       const responseNonce = base64Decode(res.nonceB64)
