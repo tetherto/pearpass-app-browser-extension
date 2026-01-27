@@ -3,45 +3,58 @@
 exports[`RecordSortActionsPopupContent renders correctly and matches snapshot 1`] = `
 <div>
   <div
-    class="border-grey100-mode1 bg-grey400-mode1 font-inter absolute flex flex-col items-start gap-[3px] overflow-hidden rounded-[10px] border p-[5px] text-[10px]"
+    style="position: fixed; z-index: 1000; top: -9999px; left: -9999px; opacity: 0; visibility: hidden; pointer-events: none;"
   >
     <div
-      class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
+      class="border-grey100-mode1 bg-grey400-mode1 font-inter absolute flex flex-col items-start gap-[3px] overflow-hidden rounded-[10px] border p-[5px] text-[10px]"
     >
       <div
-        class="flex items-center gap-[5px]"
+        aria-disabled="false"
+        class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
+        role="menuitem"
+        style="cursor: pointer; opacity: 1;"
       >
         <div
-          data-testid="icon-recent"
+          class="flex items-center gap-[5px]"
+        >
+          <div
+            data-testid="icon-recent"
+          />
+          Recent
+        </div>
+        <div
+          data-testid="check-icon"
         />
-        Recent
       </div>
       <div
-        data-testid="check-icon"
-      />
-    </div>
-    <div
-      class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
-    >
-      <div
-        class="flex items-center gap-[5px]"
+        aria-disabled="false"
+        class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
+        role="menuitem"
+        style="cursor: pointer; opacity: 1;"
       >
         <div
-          data-testid="icon-newToOld"
-        />
-        New to Old
+          class="flex items-center gap-[5px]"
+        >
+          <div
+            data-testid="icon-newToOld"
+          />
+          New to Old
+        </div>
       </div>
-    </div>
-    <div
-      class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
-    >
       <div
-        class="flex items-center gap-[5px]"
+        aria-disabled="false"
+        class="text-white-mode1 flex w-full cursor-pointer items-center justify-between gap-[5px] py-1 break-keep whitespace-nowrap"
+        role="menuitem"
+        style="cursor: pointer; opacity: 1;"
       >
         <div
-          data-testid="icon-oldToNew"
-        />
-        Old to New
+          class="flex items-center gap-[5px]"
+        >
+          <div
+            data-testid="icon-oldToNew"
+          />
+          Old to New
+        </div>
       </div>
     </div>
   </div>

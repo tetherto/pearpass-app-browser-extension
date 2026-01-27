@@ -3,17 +3,27 @@
 exports[`CreateNewCategoryPopupContent renders correctly and matches snapshot 1`] = `
 <DocumentFragment>
   <div
-    class="font-inter absolute flex w-[200px] flex-col items-start overflow-hidden"
+    style="position: fixed; z-index: 1000; top: -9999px; left: -9999px; opacity: 0; visibility: hidden; pointer-events: none;"
   >
     <div
-      class="text-white-mode1 bg-grey400-mode1 border-grey100-mode1 relative flex w-full cursor-pointer items-center gap-[7px] border border-b-0 px-2.5 py-1 rounded-t-xl false"
+      class="font-inter flex w-[200px] flex-col items-start overflow-hidden rounded-xl"
     >
-      Item 1
-    </div>
-    <div
-      class="text-white-mode1 bg-grey400-mode1 border-grey100-mode1 relative flex w-full cursor-pointer items-center gap-[7px] border border-b-0 px-2.5 py-1 false rounded-b-xl !border-b"
-    >
-      Item 2
+      <div
+        aria-disabled="false"
+        class="text-white-mode1 bg-grey400-mode1 border-grey100-mode1 relative flex w-full cursor-pointer items-center gap-[7px] border border-b-0 px-2.5 py-1 rounded-t-xl false"
+        role="menuitem"
+        style="cursor: pointer; opacity: 1;"
+      >
+        Item 1
+      </div>
+      <div
+        aria-disabled="false"
+        class="text-white-mode1 bg-grey400-mode1 border-grey100-mode1 relative flex w-full cursor-pointer items-center gap-[7px] border border-b-0 px-2.5 py-1 false rounded-b-xl !border-b"
+        role="menuitem"
+        style="cursor: pointer; opacity: 1;"
+      >
+        Item 2
+      </div>
     </div>
   </div>
 </DocumentFragment>

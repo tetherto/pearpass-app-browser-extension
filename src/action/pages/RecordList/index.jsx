@@ -8,7 +8,7 @@ import { ButtonFilter } from '../../../shared/components/ButtonFilter'
 import { ButtonPlusCreateNew } from '../../../shared/components/ButtonPlusCreateNew'
 import { CreateNewCategoryPopupContent } from '../../../shared/components/CreateNewCategoryPopupContent'
 import { InputSearch } from '../../../shared/components/InputSearch'
-import { PopupMenu } from '../../../shared/components/PopupMenu'
+import { Menu, MenuTrigger } from '../../../shared/components/Menu'
 import { RecordSortActionsPopupContent } from '../../../shared/components/RecordSortActionsPopupContent'
 import { ConfirmationModalContent } from '../../../shared/containers/ConfirmationModalContent'
 import { PasswordGeneratorModalContent } from '../../../shared/containers/PasswordGeneratorModalContent'
@@ -49,14 +49,12 @@ const SORT_BY_TYPE = {
 export const RecordList = () => {
   const { navigate, state: routerState, currentPage } = useRouter()
 
-  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false)
   const [isCreateNewCategoryOpen, setIsCreateNewCategoryOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMultiSelect, setIsMultiSelect] = useState(false)
   const [selectedRecords, setSelectedRecords] = useState([])
   const [searchValue, setSearchValue] = useState('')
   const [sortType, setSortType] = useState('recent')
-  const [isSortPopupOpen, setIsSortPopupOpen] = useState(false)
   const pendingDeleteIds = useRef([])
 
   const { popupItems, menuItems } = useRecordMenuItems()
@@ -208,39 +206,36 @@ export const RecordList = () => {
             placeholder="Search..."
           />
 
-          <PopupMenu
-            side="right"
-            align="right"
-            isOpen={isCreateNewCategoryOpen}
-            setIsOpen={setIsCreateNewCategoryOpen}
-            content={
-              <CreateNewCategoryPopupContent
-                menuItems={popupItems}
-                onClick={(item) => {
-                  if (item.type === 'password') {
-                    setIsCreateNewCategoryOpen(false)
-                    setModal(
-                      <PasswordGeneratorModalContent
-                        actionLabel={t`Copy and close`}
-                        onActionClick={handleCopy}
-                        onClose={closeModal}
-                      />,
-                      {
-                        fullScreen: true
-                      }
-                    )
-                    return
-                  }
-
-                  navigate('createOrEditCategory', {
-                    params: { recordType: item.type }
-                  })
-                }}
-              />
-            }
+          <Menu
+            open={isCreateNewCategoryOpen}
+            onOpenChange={setIsCreateNewCategoryOpen}
           >
-            <ButtonPlusCreateNew isOpen={isCreateNewCategoryOpen} />
-          </PopupMenu>
+            <MenuTrigger>
+              <ButtonPlusCreateNew isOpen={isCreateNewCategoryOpen} />
+            </MenuTrigger>
+            <CreateNewCategoryPopupContent
+              menuItems={popupItems}
+              onClick={(item) => {
+                if (item.type === 'password') {
+                  setModal(
+                    <PasswordGeneratorModalContent
+                      actionLabel={t`Copy and close`}
+                      onActionClick={handleCopy}
+                      onClose={closeModal}
+                    />,
+                    {
+                      fullScreen: true
+                    }
+                  )
+                  return
+                }
+
+                navigate('createOrEditCategory', {
+                  params: { recordType: item.type }
+                })
+              }}
+            />
+          </Menu>
         </div>
 
         <div className="flex w-full items-center justify-between">
@@ -257,51 +252,38 @@ export const RecordList = () => {
               </>
             ) : (
               <>
-                <PopupMenu
-                  side="right"
-                  align="right"
-                  isOpen={isCategoryFilterOpen}
-                  setIsOpen={setIsCategoryFilterOpen}
-                  content={
-                    <CreateNewCategoryPopupContent
-                      menuItems={menuItems}
-                      onClick={(item) => {
-                        setIsCategoryFilterOpen(false)
-
-                        navigate(currentPage, {
-                          state: { recordType: item.type }
-                        })
-                      }}
+                <Menu>
+                  <MenuTrigger>
+                    <BadgeCategory
+                      label={
+                        menuItems.find(
+                          (item) => item.type === routerState?.recordType
+                        )?.name
+                      }
+                      type={routerState?.recordType}
                     />
-                  }
-                >
-                  <BadgeCategory
-                    label={
-                      menuItems.find(
-                        (item) => item.type === routerState?.recordType
-                      )?.name
-                    }
-                    type={routerState?.recordType}
+                  </MenuTrigger>
+                  <CreateNewCategoryPopupContent
+                    menuItems={menuItems}
+                    onClick={(item) => {
+                      navigate(currentPage, {
+                        state: { recordType: item.type }
+                      })
+                    }}
                   />
-                </PopupMenu>
-                <PopupMenu
-                  side="left"
-                  align="left"
-                  isOpen={isSortPopupOpen}
-                  setIsOpen={setIsSortPopupOpen}
-                  content={
-                    <RecordSortActionsPopupContent
-                      onClick={handleSortTypeChange}
-                      onClose={() => setIsSortPopupOpen(false)}
-                      selectedType={sortType}
-                      menuItems={sortActions}
-                    />
-                  }
-                >
-                  <ButtonFilter startIcon={GroupIcon}>
-                    {selectedSortAction.name}
-                  </ButtonFilter>
-                </PopupMenu>
+                </Menu>
+                <Menu>
+                  <MenuTrigger>
+                    <ButtonFilter startIcon={GroupIcon}>
+                      {selectedSortAction.name}
+                    </ButtonFilter>
+                  </MenuTrigger>
+                  <RecordSortActionsPopupContent
+                    onClick={handleSortTypeChange}
+                    selectedType={sortType}
+                    menuItems={sortActions}
+                  />
+                </Menu>
               </>
             )}
           </div>

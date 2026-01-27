@@ -6,7 +6,10 @@ exports[`VaultActionsPopupContent renders correctly and matches snapshot 1`] = `
     class="border-grey100-mode1 bg-grey400-mode1 font-inter absolute flex flex-col items-start gap-1 overflow-hidden rounded-xl border p-2 text-xs"
   >
     <div
+      aria-disabled="false"
       class="text-white-mode1 flex w-full cursor-pointer items-center justify-between break-keep whitespace-nowrap"
+      role="menuitem"
+      style="cursor: pointer; opacity: 1;"
     >
       <div
         class="flex items-center gap-1"
@@ -18,7 +21,10 @@ exports[`VaultActionsPopupContent renders correctly and matches snapshot 1`] = `
       </div>
     </div>
     <div
+      aria-disabled="false"
       class="text-white-mode1 flex w-full cursor-pointer items-center justify-between break-keep whitespace-nowrap"
+      role="menuitem"
+      style="cursor: pointer; opacity: 1;"
     >
       <div
         class="flex items-center gap-1"

@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { PopupMenu } from '../../components/PopupMenu'
+import { Menu, MenuContent, MenuTrigger } from '../../components/Menu'
 import { KebabMenuIcon } from '../../icons/KebabMenuIcon'
 
 /**
@@ -19,8 +19,6 @@ export const SidebarDropdownItem = ({
   showMenu = true,
   menuPopupContent
 }) => {
-  const [isActionsOpen, setIsActionsOpen] = useState(false)
-
   return (
     <button
       type="button"
@@ -35,17 +33,12 @@ export const SidebarDropdownItem = ({
         </span>
       </div>
       {showMenu && (
-        <div onClick={(e) => e.stopPropagation()}>
-          <PopupMenu
-            side="right"
-            align="right"
-            isOpen={isActionsOpen}
-            setIsOpen={setIsActionsOpen}
-            content={menuPopupContent}
-          >
+        <Menu>
+          <MenuTrigger stopPropagation>
             <KebabMenuIcon size="24" color="white" />
-          </PopupMenu>
-        </div>
+          </MenuTrigger>
+          <MenuContent>{menuPopupContent}</MenuContent>
+        </Menu>
       )}
     </button>
   )
