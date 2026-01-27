@@ -10,7 +10,7 @@ import {
   AUTO_LOCK_TIMEOUT_OPTIONS,
   PRIVACY_POLICY,
   TERMS_OF_USE,
-  AUTO_LOCK_ENABLED
+  BE_AUTO_LOCK_ENABLED
 } from 'pearpass-lib-constants'
 
 import { version } from '../../../../public/manifest.json'
@@ -213,7 +213,7 @@ export const Settings = () => {
               description={t`Allow access to HTTP websites. When off, only HTTPS is allowed.`}
               onChange={setIsAllowHttpEnabled}
             />
-            {AUTO_LOCK_ENABLED && (
+            {BE_AUTO_LOCK_ENABLED && (
               <div className="flex flex-col gap-0.5">
                 <SwitchWithLabel
                   isOn={isAutoLockEnabled}
