@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { MenuItem } from '../Menu'
+
 /**
  *
  * @param {Object} props
@@ -22,7 +24,7 @@ export const VaultActionsPopupContent = ({ actions }) => {
       {actions.map((action) => {
         const Icon = action.icon
         return (
-          <div
+          <MenuItem
             key={action.name}
             className="text-white-mode1 flex w-full cursor-pointer items-center justify-between break-keep whitespace-nowrap"
             onClick={(e) => handleMenuItemClick(e, action.onClick)}
@@ -31,7 +33,7 @@ export const VaultActionsPopupContent = ({ actions }) => {
               <Icon size="24" />
               {action.name}
             </div>
-          </div>
+          </MenuItem>
         )
       })}
     </div>

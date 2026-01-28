@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { PopupMenu } from '../../components/PopupMenu'
+import { Menu, MenuContent, MenuTrigger } from '../../components/Menu'
 import { KebabMenuIcon } from '../../icons/KebabMenuIcon'
 
 /**
@@ -18,35 +18,26 @@ export const SidebarDropdownItem = ({
   onItemClick,
   showMenu = true,
   menuPopupContent
-}) => {
-  const [isActionsOpen, setIsActionsOpen] = useState(false)
-
-  return (
-    <button
-      type="button"
-      onClick={onItemClick}
-      className="bg-grey350-mode1 relative flex w-full cursor-pointer items-center justify-between rounded-[10px] border-none px-2 py-1.5 transition-colors hover:opacity-90"
-      style={{ minHeight: '40px' }}
-    >
-      <div className="flex items-center gap-3">
-        {Icon && <Icon size="24" color="white" />}
-        <span className="font-inter text-white-mode1 text-base font-bold">
-          {label}
-        </span>
-      </div>
-      {showMenu && (
-        <div onClick={(e) => e.stopPropagation()}>
-          <PopupMenu
-            side="right"
-            align="right"
-            isOpen={isActionsOpen}
-            setIsOpen={setIsActionsOpen}
-            content={menuPopupContent}
-          >
-            <KebabMenuIcon size="24" color="white" />
-          </PopupMenu>
-        </div>
-      )}
-    </button>
-  )
-}
+}) => (
+  <button
+    type="button"
+    onClick={onItemClick}
+    className="bg-grey350-mode1 relative flex w-full cursor-pointer items-center justify-between rounded-[10px] border-none px-2 py-1.5 transition-colors hover:opacity-90"
+    style={{ minHeight: '40px' }}
+  >
+    <div className="flex items-center gap-3">
+      {Icon && <Icon size="24" color="white" />}
+      <span className="font-inter text-white-mode1 text-base font-bold">
+        {label}
+      </span>
+    </div>
+    {showMenu && (
+      <Menu>
+        <MenuTrigger stopPropagation>
+          <KebabMenuIcon size="24" color="white" />
+        </MenuTrigger>
+        <MenuContent>{menuPopupContent}</MenuContent>
+      </Menu>
+    )}
+  </button>
+)

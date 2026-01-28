@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
-import { PopupMenu } from '../../../shared/components/PopupMenu'
+import { Menu, MenuContent, MenuTrigger } from '../../../shared/components/Menu'
 import { RecordActionsPopupContent } from '../../../shared/components/RecordActionsPopupContent'
 import { RecordItem } from '../../../shared/components/RecordItem'
 import { useRecordActionItems } from '../../../shared/hooks/useRecordActionItems'
@@ -35,11 +35,6 @@ export const Record = ({ record, isSelected = false, onClick, onSelect }) => {
     onClose: () => setIsOpen(false)
   })
 
-  const handleActionMenuToggle = (e) => {
-    e.stopPropagation()
-    setIsOpen(!isOpen)
-  }
-
   const baseBg = isSelected
     ? 'bg-[rgba(134,170,172,0.4)]'
     : isOpen
@@ -64,19 +59,14 @@ export const Record = ({ record, isSelected = false, onClick, onSelect }) => {
       />
 
       {!isSelected && (
-        <div className="flex items-center">
-          <PopupMenu
-            side="right"
-            align="right"
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            content={<RecordActionsPopupContent menuItems={actions} />}
-          >
-            <div className="p-2" onClick={handleActionMenuToggle}>
-              <KebabMenuIcon />
-            </div>
-          </PopupMenu>
-        </div>
+        <Menu open={isOpen} onOpenChange={setIsOpen}>
+          <MenuTrigger stopPropagation>
+            <KebabMenuIcon />
+          </MenuTrigger>
+          <MenuContent>
+            <RecordActionsPopupContent menuItems={actions} />
+          </MenuContent>
+        </Menu>
       )}
     </div>
   )

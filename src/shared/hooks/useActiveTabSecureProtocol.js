@@ -31,7 +31,7 @@ export const useActiveTabSecureProtocol = () => {
 
       // All others (chrome:, about:, file:, etc.): treat as secure
       return true
-    } catch (e) {
+    } catch {
       return false
     }
   }, [currentUrl])

@@ -22,7 +22,7 @@ export const base64Decode = (base64String) => {
   let binary
   try {
     binary = atob(base64String)
-  } catch (error) {
+  } catch {
     throw new Error('InvalidBase64')
   }
   const bytes = new Uint8Array(binary.length)

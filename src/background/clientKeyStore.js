@@ -259,7 +259,7 @@ const unlockKeypair = async (masterPassword) => {
 
     inMemoryKeypair = { publicKey, privateKey }
     return inMemoryKeypair
-  } catch (error) {
+  } catch {
     logger.log('[ClientKeyStore]', 'Failed to decrypt client keypair')
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_INVALID)
   }

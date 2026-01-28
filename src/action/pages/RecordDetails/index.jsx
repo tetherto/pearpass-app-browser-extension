@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { generateAvatarInitials } from 'pear-apps-utils-avatar-initials'
@@ -7,7 +7,7 @@ import { useRecordById, useRecords } from 'pearpass-lib-vault'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
-import { PopupMenu } from '../../../shared/components/PopupMenu'
+import { Menu, MenuContent, MenuTrigger } from '../../../shared/components/Menu'
 import { RecordActionsPopupContent } from '../../../shared/components/RecordActionsPopupContent'
 import { RecordAvatar } from '../../../shared/components/RecordAvatar'
 import { RECORD_COLOR_BY_TYPE } from '../../../shared/constants/recordColorByType'
@@ -103,15 +103,17 @@ export const RecordDetails = () => {
           </ButtonLittle>
 
           <div className="flex">
-            <PopupMenu
-              side="right"
-              align="right"
-              isOpen={isOpen}
-              setIsOpen={setIsOpen}
-              content={<RecordActionsPopupContent menuItems={actions} />}
-            >
-              <ButtonRoundIcon variant="secondary" startIcon={KebabMenuIcon} />
-            </PopupMenu>
+            <Menu open={isOpen} onOpenChange={setIsOpen}>
+              <MenuTrigger>
+                <ButtonRoundIcon
+                  variant="secondary"
+                  startIcon={KebabMenuIcon}
+                />
+                <MenuContent>
+                  <RecordActionsPopupContent menuItems={actions} />
+                </MenuContent>
+              </MenuTrigger>
+            </Menu>
           </div>
 
           <ButtonRoundIcon
