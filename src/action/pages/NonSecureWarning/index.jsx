@@ -17,14 +17,14 @@ export const NonSecureWarning = () => {
       <div className="z-10 flex w-full flex-col items-center gap-[20px]">
         <div className="text-white-mode1 flex flex-col items-center gap-3 text-center">
           <h1 className="text-[20px] font-bold">
-            <Trans>Extension disabled on this site</Trans>
+            <Trans>Extension disabled on HTTP websites</Trans>
           </h1>
 
           <p className="text-[16px] font-light">
             <Trans>
               For your security, the extension is disabled on non-secure HTTP
-              websites by default. If you trust this site, you can enable the
-              extension for this website only.
+              websites by default. If you'd like to move forward, turn on HTTP
+              access for PearPass
             </Trans>
           </p>
         </div>
