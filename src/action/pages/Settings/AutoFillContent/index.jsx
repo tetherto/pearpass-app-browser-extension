@@ -1,0 +1,39 @@
+import { useState, useEffect } from 'react'
+
+import { t } from '@lingui/core/macro'
+
+import { CardSingleSetting } from '../../../../shared/components/CardSingleSetting'
+import { SwitchWithLabel } from '../../../../shared/components/SwitchWithLabel'
+import {
+  getAutofillEnabled,
+  setAutofillEnabled
+} from '../../../../shared/utils/autofillSetting'
+
+export const AutoFillContent = () => {
+  const [isAutofillEnabled, setIsAutoFillEnabled] = useState(true)
+
+  useEffect(() => {
+    getAutofillEnabled().then((isEnabled) => setIsAutoFillEnabled(isEnabled))
+  }, [])
+
+  const handleAutofillChange = (isEnabled) => {
+    setAutofillEnabled(isEnabled)
+    setIsAutoFillEnabled(isEnabled)
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CardSingleSetting title={t`AutoFill`}>
+        <p className="font-inter text-grey100-mode1 mb-2 text-[14px] leading-normal">
+          {t`Manage how PearPass fills in your credentials.`}
+        </p>
+        <SwitchWithLabel
+          isOn={isAutofillEnabled}
+          label={t`Autofill`}
+          description={t`Enable the autofill in the browser extension`}
+          onChange={handleAutofillChange}
+        />
+      </CardSingleSetting>
+    </div>
+  )
+}
