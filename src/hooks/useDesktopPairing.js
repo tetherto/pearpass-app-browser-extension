@@ -21,7 +21,21 @@ const PAIRING_ERROR_MESSAGES = {
   INVALID_PASSWORD: 'Invalid master password. Please try again.'
 }
 
-export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
+/**
+ * Custom hook for managing desktop app pairing flow
+ * @param {Object} params - Hook parameters
+ * @param {Function} params.onPairSuccess - Callback invoked when pairing succeeds
+ * @param {Function} params.handleBack - Callback to navigate back to previous step
+ * @param {Function} params.setStep - Function to update the current pairing step
+ * @returns {Object} Pairing state and methods
+ * @returns {string} returns.pairingToken - Current pairing token value
+ * @returns {Function} returns.setPairingToken - Function to update the pairing token
+ * @returns {Object|null} returns.identity - Desktop identity information
+ * @returns {boolean} returns.loading - Loading state indicator
+ * @returns {Function} returns.fetchIdentity - Fetches and verifies desktop identity using the pairing token
+ * @returns {Function} returns.completePairing - Completes the pairing process with the provided password
+ */
+export const useDesktopPairing = ({ onPairSuccess, handleBack, setStep }) => {
   const { setToast } = useToast()
   const { logIn } = useUserData()
   const { initVaults } = useVaults()
@@ -29,6 +43,11 @@ export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
   const [identity, setIdentity] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  /**
+   * Fetches and validates the desktop identity using the pairing token
+   * @async
+   * @returns {Promise<void>}
+   */
   const fetchIdentity = async () => {
     if (!pairingToken || pairingToken.trim().length < 10) {
       setToast({
@@ -67,6 +86,11 @@ export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
     }
   }
 
+  /**
+   * Revalidates the desktop identity to ensure it hasn't changed
+   * @async
+   * @returns {Promise<Object|null>} The validated identity or null if validation fails
+   */
   const revalidateIdentity = async () => {
     try {
       const validatedIdentity = await secureChannelMessages.getIdentity(
@@ -108,6 +132,12 @@ export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
     }
   }
 
+  /**
+   * Attempts to unlock the client keystore with the provided password
+   * @async
+   * @param {string} password - Master password
+   * @returns {Promise<boolean>} True if unlock succeeds or can continue, false if password is incorrect
+   */
   const unlockKeystore = async (password) => {
     try {
       await secureChannelMessages.unlockClientKeystore(password)
@@ -124,6 +154,14 @@ export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
     }
   }
 
+  /**
+   * Finalizes the pairing process by confirming and pinning the identity
+   * @async
+   * @param {Object} validatedIdentity - The validated desktop identity
+   * @param {string} password - Master password for vault initialization
+   * @returns {Promise<void>}
+   * @throws {Error} If pairing confirmation or identity pinning fails
+   */
   const finalizePairing = async (validatedIdentity, password) => {
     // Confirm pairing with latest identity from desktop
     const { confirmed: pairingConfirmed } =
@@ -146,6 +184,12 @@ export const usePairing = ({ onPairSuccess, handleBack, setStep }) => {
     onPairSuccess()
   }
 
+  /**
+   * Completes the pairing process by validating identity, unlocking keystore, and confirming pairing with desktop
+   * @async
+   * @param {string} password - Master password
+   * @returns {Promise<void>}
+   */
   const completePairing = async (password) => {
     if (!identity) {
       setToast({ message: t`Please verify desktop identity first` })

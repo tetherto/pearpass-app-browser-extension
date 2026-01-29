@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { useUserData, useVaults } from 'pearpass-lib-vault'
 
-import { usePairing, PAIRING_STEP } from './usePairing'
+import { useDesktopPairing, PAIRING_STEP } from './useDesktopPairing.js'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { useToast } from '../shared/context/ToastContext'
 import { secureChannelMessages } from '../shared/services/messageBridge'
@@ -43,7 +43,7 @@ describe('usePairing', () => {
   })
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => usePairing(props))
+    const { result } = renderHook(() => useDesktopPairing(props))
 
     expect(result.current.pairingToken).toBe('')
     expect(result.current.identity).toBeNull()
@@ -52,7 +52,7 @@ describe('usePairing', () => {
 
   describe('fetchIdentity', () => {
     it('should validate token length', async () => {
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       await act(async () => {
         result.current.setPairingToken('short')
@@ -74,7 +74,7 @@ describe('usePairing', () => {
         identity: mockIdentity
       })
 
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       await act(async () => {
         result.current.setPairingToken('valid-token-12345')
@@ -100,7 +100,7 @@ describe('usePairing', () => {
         error: 'Some error'
       })
 
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       await act(async () => {
         result.current.setPairingToken('valid-token-12345')
@@ -120,7 +120,7 @@ describe('usePairing', () => {
 
   describe('completePairing', () => {
     it('should require identity and master password', async () => {
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       await act(async () => {
         await result.current.completePairing()
@@ -148,7 +148,7 @@ describe('usePairing', () => {
       })
       secureChannelMessages.pinIdentity.mockResolvedValue({ success: true })
 
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       // Setup state
       await act(async () => {
@@ -199,7 +199,7 @@ describe('usePairing', () => {
           identity: mockIdentity
         })
 
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       // Setup state
       await act(async () => {
@@ -238,7 +238,7 @@ describe('usePairing', () => {
         new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
       )
 
-      const { result } = renderHook(() => usePairing(props))
+      const { result } = renderHook(() => useDesktopPairing(props))
 
       await act(async () => {
         result.current.setPairingToken('token-long-enough')

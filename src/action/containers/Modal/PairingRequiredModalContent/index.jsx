@@ -3,7 +3,10 @@ import { useState } from 'react'
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 
-import { usePairing, PAIRING_STEP } from '../../../../hooks/usePairing'
+import {
+  useDesktopPairing,
+  PAIRING_STEP
+} from '../../../../hooks/useDesktopPairing.js'
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { ModalCard } from '../../../../shared/components/ModalCard'
 
@@ -28,7 +31,7 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
     loading,
     fetchIdentity,
     completePairing
-  } = usePairing({ onPairSuccess, handleBack, setStep })
+  } = useDesktopPairing({ onPairSuccess, handleBack, setStep })
 
   return (
     <ModalCard>
