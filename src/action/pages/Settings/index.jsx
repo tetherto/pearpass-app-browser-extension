@@ -57,7 +57,7 @@ export const Settings = () => {
   }
 
   return (
-    <div className="bg-grey400-mode1 flex h-full w-full flex-col gap-1.5 px-5 pt-7 pb-2">
+    <div className="bg-grey500-mode1 flex h-full w-full flex-col gap-1.5 px-5 pt-7 pb-2">
       <div className="flex w-full flex-none items-center justify-start gap-2.5 text-[18px] font-bold text-white">
         <ButtonRoundIcon
           onClick={handleGoBack}
