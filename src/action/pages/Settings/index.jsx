@@ -73,7 +73,7 @@ export const Settings = () => {
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.key}
-                className="bg-grey300-mode1 hover:bg-grey200-mode1 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-left transition-colors"
+                className="bg-grey400-mode1 hover:bg-grey300-mode1 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-left transition-colors"
                 onClick={() => setActiveTab(item.key)}
               >
                 <item.icon size="20" color={colors.white.mode1} />
