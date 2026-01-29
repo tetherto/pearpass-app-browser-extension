@@ -13,12 +13,23 @@ export const AutoFillContent = () => {
   const [isAutofillEnabled, setIsAutoFillEnabled] = useState(true)
 
   useEffect(() => {
-    getAutofillEnabled().then((isEnabled) => setIsAutoFillEnabled(isEnabled))
+    let alive = true
+    getAutofillEnabled().then((isEnabled) => {
+      if (alive) setIsAutoFillEnabled(isEnabled)
+    })
+    return () => {
+      alive = false
+    }
   }, [])
 
-  const handleAutofillChange = (isEnabled) => {
-    setAutofillEnabled(isEnabled)
+  const handleAutofillChange = async (isEnabled) => {
+    const prev = isAutofillEnabled
     setIsAutoFillEnabled(isEnabled)
+    try {
+      await setAutofillEnabled(isEnabled)
+    } catch (e) {
+      setIsAutoFillEnabled(prev)
+    }
   }
 
   return (

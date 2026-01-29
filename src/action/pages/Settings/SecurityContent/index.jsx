@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
+import { useLingui } from '@lingui/react'
 import {
   AUTO_LOCK_TIMEOUT_OPTIONS,
   BE_AUTO_LOCK_ENABLED
@@ -23,13 +24,14 @@ import { getPasskeyVerificationPreference } from '../../../../shared/utils/passk
 const TIMEOUT_OPTIONS = Object.values(AUTO_LOCK_TIMEOUT_OPTIONS)
 
 export const SecurityContent = () => {
-  const translatedOptions = TIMEOUT_OPTIONS.map((option) => ({
-    ...option,
-    label: t(option.label)
-  }))
+  const { i18n } = useLingui()
+  const translatedOptions = useMemo(
+    () => TIMEOUT_OPTIONS.map((o) => ({ ...o, label: i18n._(o.label) })),
+    [i18n]
+  )
 
-  const [isPasswordReminderDisabled, setIsPasswordReminderDisabled] = useState(
-    isPasswordChangeReminderDisabled()
+  const [isPasswordReminderEnabled, setIsPasswordReminderEnabled] = useState(
+    !isPasswordChangeReminderDisabled()
   )
   const [passkeyVerification, setPasskeyVerification] = useState(
     getPasskeyVerificationPreference()
@@ -44,31 +46,35 @@ export const SecurityContent = () => {
   const [isAllowHttpEnabled, setIsAllowHttpEnabled] = useAllowHttpEnabled()
 
   const handlePasswordChangeReminder = (isEnabled) => {
-    if (!isEnabled) {
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.PASSWORD_CHANGE_REMINDER_ENABLED,
-        'false'
-      )
-    } else {
-      localStorage.removeItem(
-        LOCAL_STORAGE_KEYS.PASSWORD_CHANGE_REMINDER_ENABLED
-      )
-    }
-
-    setIsPasswordReminderDisabled(!isEnabled)
+    try {
+      if (!isEnabled) {
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.PASSWORD_CHANGE_REMINDER_ENABLED,
+          'false'
+        )
+      } else {
+        localStorage.removeItem(
+          LOCAL_STORAGE_KEYS.PASSWORD_CHANGE_REMINDER_ENABLED
+        )
+      }
+      setIsPasswordReminderEnabled(isEnabled)
+    } catch (e) {}
   }
 
   const handlePasskeyVerificationChange = (value) => {
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.PASSKEY_VERIFICATION_PREFERENCE,
-      value
-    )
-    setPasskeyVerification(value)
+    try {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.PASSKEY_VERIFICATION_PREFERENCE,
+        value
+      )
+      setPasskeyVerification(value)
+    } catch (e) {}
   }
 
   const selectedTimeoutOption =
-    translatedOptions.find((option) => option.value === timeoutMs) ||
-    translatedOptions[0]
+    translatedOptions.find((option) => option.value === timeoutMs) ??
+    translatedOptions[0] ??
+    null
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -78,7 +84,7 @@ export const SecurityContent = () => {
         </p>
         <div className="flex flex-col gap-[10px]">
           <SwitchWithLabel
-            isOn={!isPasswordReminderDisabled}
+            isOn={isPasswordReminderEnabled}
             label={t`Reminders`}
             description={t`Get alerts when it's time to update your passwords.`}
             onChange={handlePasswordChangeReminder}
