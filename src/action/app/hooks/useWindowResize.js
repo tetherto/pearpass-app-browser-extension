@@ -14,13 +14,14 @@ import { useRouter } from '../../../shared/context/RouterContext'
  * @returns {{width: number, height: number}} The current window size
  */
 export const useWindowResize = () => {
-  const { currentPage } = useRouter()
+  const { currentPage, state } = useRouter()
 
   // Determine the target size based on current page
   const targetSize = useMemo(() => {
-    const isPasskeyFlow = PASSKEY_PAGES.includes(currentPage)
+    const isPasskeyFlow =
+      PASSKEY_PAGES.includes(currentPage) || state?.inPasskeyFlow === true
     return isPasskeyFlow ? passkeyWindowSize : mainExtensionWindowSize
-  }, [currentPage])
+  }, [currentPage, state])
 
   useEffect(() => {
     // Resize the current popup window

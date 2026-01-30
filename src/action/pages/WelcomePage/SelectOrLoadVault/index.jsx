@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { Trans } from '@lingui/react/macro'
 import { useVault, useVaults } from 'pearpass-lib-vault'
@@ -10,6 +10,7 @@ import { Vault } from '../../../../shared/components/Vault'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
 import { logger } from '../../../../shared/utils/logger'
+import { sortByName } from '../../../../shared/utils/sortByName'
 import { useVaultOpenedRedirect } from '../../../app/hooks/useVaultOpenedRedirect'
 
 export const SelectOrLoadVault = () => {
@@ -56,6 +57,8 @@ export const SelectOrLoadVault = () => {
     navigate(currentPage, { params: { state: 'newVaultCredentials' } })
   }
 
+  const sortedVaults = useMemo(() => sortByName(data), [data])
+
   return (
     <CardWelcome>
       <h1 className="text-white-mode1 w-full flex-none text-center text-[20px]">
@@ -63,7 +66,7 @@ export const SelectOrLoadVault = () => {
       </h1>
 
       <div className="flex max-h-40 w-full flex-1 flex-col gap-[10px] overflow-auto">
-        {data?.map((vault) => (
+        {sortedVaults.map((vault) => (
           <Vault
             key={vault.id}
             onClick={() => handleSelectVault(vault.id)}

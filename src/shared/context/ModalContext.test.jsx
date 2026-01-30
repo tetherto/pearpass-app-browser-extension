@@ -21,10 +21,6 @@ jest.mock('./LoadingContext', () => ({
     setIsLoading: jest.fn()
   }))
 }))
-jest.mock('../../vaultClient/globalVaultErrorHandler', () => ({
-  registerModalHandlers: jest.fn(),
-  resetSyncFailedModalState: jest.fn()
-}))
 
 jest.useFakeTimers()
 

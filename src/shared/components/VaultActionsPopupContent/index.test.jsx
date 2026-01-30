@@ -2,6 +2,7 @@ import React from 'react'
 
 import { render, fireEvent } from '@testing-library/react'
 
+import { Menu } from '../Menu'
 import { VaultActionsPopupContent } from './index'
 import '@testing-library/jest-dom'
 
@@ -34,14 +35,18 @@ describe('VaultActionsPopupContent', () => {
 
   it('renders correctly and matches snapshot', () => {
     const { container } = render(
-      <VaultActionsPopupContent actions={mockActions} />
+      <Menu open={true}>
+        <VaultActionsPopupContent actions={mockActions} />
+      </Menu>
     )
     expect(container).toMatchSnapshot()
   })
 
   it('renders all actions', () => {
     const { getByText, getByTestId } = render(
-      <VaultActionsPopupContent actions={mockActions} />
+      <Menu open={true}>
+        <VaultActionsPopupContent actions={mockActions} />
+      </Menu>
     )
 
     mockActions.forEach((action) => {
@@ -54,7 +59,9 @@ describe('VaultActionsPopupContent', () => {
 
   it('calls the correct action on click', () => {
     const { getByText } = render(
-      <VaultActionsPopupContent actions={mockActions} />
+      <Menu open={true}>
+        <VaultActionsPopupContent actions={mockActions} />
+      </Menu>
     )
 
     mockActions.forEach((action) => {

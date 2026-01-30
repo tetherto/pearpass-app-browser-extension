@@ -2,6 +2,7 @@ import React from 'react'
 
 import { render, fireEvent } from '@testing-library/react'
 
+import { Menu } from '../Menu'
 import { RecordActionsPopupContent } from './index'
 import '@testing-library/jest-dom'
 
@@ -25,31 +26,37 @@ describe('RecordActionsPopupContent', () => {
 
   it('renders correctly with default variant', () => {
     const { container } = render(
-      <RecordActionsPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <Menu open={true}>
+        <RecordActionsPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </Menu>
     )
     expect(container).toMatchSnapshot()
   })
 
   it('renders correctly with compact variant', () => {
     const { container } = render(
-      <RecordActionsPopupContent
-        menuItems={mockMenuItems}
-        variant="compact"
-        onClick={mockOnClick}
-      />
+      <Menu open={true}>
+        <RecordActionsPopupContent
+          menuItems={mockMenuItems}
+          variant="compact"
+          onClick={mockOnClick}
+        />
+      </Menu>
     )
     expect(container).toMatchSnapshot()
   })
 
   it('calls the item-specific click handler when an item is clicked', () => {
     const { getByText } = render(
-      <RecordActionsPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <Menu open={true}>
+        <RecordActionsPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </Menu>
     )
 
     const editItem = getByText('Edit')
@@ -61,10 +68,12 @@ describe('RecordActionsPopupContent', () => {
 
   it('calls the default onClick handler when no item-specific click handler is provided', () => {
     const { getByText } = render(
-      <RecordActionsPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <Menu open={true}>
+        <RecordActionsPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </Menu>
     )
 
     const deleteItem = getByText('Delete')
@@ -75,10 +84,12 @@ describe('RecordActionsPopupContent', () => {
 
   it('renders icons correctly for each menu item', () => {
     const { getByTestId } = render(
-      <RecordActionsPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <Menu open={true}>
+        <RecordActionsPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </Menu>
     )
 
     expect(getByTestId('icon-edit')).toBeInTheDocument()

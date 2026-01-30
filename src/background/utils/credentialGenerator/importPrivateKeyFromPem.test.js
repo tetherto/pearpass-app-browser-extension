@@ -1,7 +1,14 @@
 import { importPrivateKeyFromPem } from './importPrivateKeyFromPem'
+import {
+  CRYPTO_ALGORITHMS,
+  ELLIPTIC_CURVES
+} from '../../../shared/constants/crypto'
 import { base64UrlToArrayBuffer } from '../../../shared/utils/base64UrlToArrayBuffer'
 
-const mockCryptoKey = { type: 'private', algorithm: { name: 'ECDSA' } }
+const mockCryptoKey = {
+  type: 'private',
+  algorithm: { name: CRYPTO_ALGORITHMS.ECDSA }
+}
 const mockImportKey = jest.fn().mockResolvedValue(mockCryptoKey)
 const mockSubtle = {
   importKey: mockImportKey
@@ -34,8 +41,8 @@ describe('importPrivateKeyFromPem', () => {
       'pkcs8',
       mockArrayBuffer,
       {
-        name: 'ECDSA',
-        namedCurve: 'P-256'
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        namedCurve: ELLIPTIC_CURVES.P_256
       },
       false,
       ['sign']
@@ -59,8 +66,8 @@ describe('importPrivateKeyFromPem', () => {
       'pkcs8',
       mockArrayBuffer,
       {
-        name: 'ECDSA',
-        namedCurve: 'P-256'
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        namedCurve: ELLIPTIC_CURVES.P_256
       },
       false,
       ['sign']

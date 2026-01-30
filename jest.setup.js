@@ -1,6 +1,8 @@
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 import { TextEncoder, TextDecoder } from 'util'
 
+import { CRYPTO_ALGORITHMS } from './src/shared/constants/crypto'
+
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
@@ -27,7 +29,7 @@ if (!global.crypto.subtle) {
   global.crypto.subtle = {
     digest: async (algorithm, data) => {
       // Simple mock implementation for SHA-256
-      if (algorithm === 'SHA-256') {
+      if (algorithm === CRYPTO_ALGORITHMS.SHA_256) {
         // Return a fake 32-byte hash
         const hash = new Uint8Array(32)
         for (let i = 0; i < 32; i++) {
@@ -36,6 +38,20 @@ if (!global.crypto.subtle) {
         return hash.buffer
       }
       throw new Error(`Unsupported algorithm: ${algorithm}`)
+    }
+  }
+}
+
+// Mock chrome for tests
+if (typeof global.chrome === 'undefined') {
+  global.chrome = {
+    runtime: {
+      onMessage: {
+        addListener: jest.fn()
+      },
+      sendMessage: jest.fn(),
+      connect: jest.fn(),
+      lastError: null
     }
   }
 }

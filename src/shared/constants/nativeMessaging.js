@@ -1,4 +1,4 @@
-import { MANIFEST_NAME } from 'pearpass-lib-constants'
+import { MANIFEST_NAME, MS_PER_SECOND } from 'pearpass-lib-constants'
 
 /**
  * Error codes used throughout the application
@@ -48,7 +48,8 @@ export const NATIVE_MESSAGE_TYPES = {
  * Special commands that have specific handling
  */
 export const SPECIAL_COMMANDS = {
-  CHECK_AVAILABILITY: 'checkAvailability'
+  CHECK_AVAILABILITY: 'checkAvailability',
+  PAIR_ACTIVE_VAULT: 'pairActiveVault'
 }
 
 /**
@@ -63,9 +64,10 @@ export const AVAILABILITY_CHECK = {
  * Request timeout configuration
  */
 export const REQUEST_TIMEOUT = {
-  DEFAULT_MS: 10000, // 10 seconds default timeout
-  AVAILABILITY_CHECK_MS: 3000, // 3 seconds for availability check
-  CONNECT_MS: 5000 // 5 seconds for connection
+  DEFAULT_MS: MS_PER_SECOND * 10, // 10 seconds default timeout
+  AVAILABILITY_CHECK_MS: MS_PER_SECOND * 3, // 3 seconds for availability check
+  CONNECT_MS: MS_PER_SECOND * 5, // 5 seconds for connection
+  PAIRING_MS: MS_PER_SECOND * 30 // 30 seconds for pairing
 }
 
 /**
@@ -169,6 +171,14 @@ export const BACKGROUND_MESSAGE_TYPES = {
 }
 
 /**
+ * Blocking states - require user action before normal operation can proceed
+ */
+export const BLOCKING_STATE = {
+  PAIRING: 'PAIRING',
+  CONNECTION: 'CONNECTION'
+}
+
+/**
  * Content script message types
  */
 export const CONTENT_MESSAGE_TYPES = {
@@ -176,29 +186,42 @@ export const CONTENT_MESSAGE_TYPES = {
   CREATE_THIRD_PARTY_KEY: 'createThirdPartyKey',
   GOT_PASSKEY: 'gotPasskey',
   GET_THIRD_PARTY_KEY: 'getThirdPartyKey',
-  AUTOFILL_FROM_ACTION: 'autofillFromAction'
+  AUTOFILL_FROM_ACTION: 'autofillFromAction',
+  CREATE_PASSKEY: 'createPasskey',
+  GET_PASSKEY: 'getPasskey'
 }
 
 /**
  * Security error patterns to match against error messages
  */
 export const SECURITY_ERROR_PATTERNS = {
-  SIGNATURE_INVALID: 'SignatureInvalid',
-  DESKTOP_NOT_AUTHENTICATED: 'DesktopNotAuthenticated',
-  IDENTITY_KEYS_UNAVAILABLE: 'IdentityKeysUnavailable'
+  SIGNATURE_INVALID: 'SIGNATURE_INVALID',
+  DESKTOP_NOT_AUTHENTICATED: 'DESKTOP_NOT_AUTHENTICATED',
+  IDENTITY_KEYS_UNAVAILABLE: 'IDENTITY_KEYS_UNAVAILABLE',
+  CLIENT_SIGNATURE_INVALID: 'CLIENT_SIGNATURE_INVALID'
+}
+
+/**
+ * Pairing error patterns to match against error messages
+ */
+export const PAIRING_ERROR_PATTERNS = {
+  PAIRING_TOKEN_REQUIRED: 'PAIRING_TOKEN_REQUIRED',
+  INVALID_PAIRING_TOKEN: 'INVALID_PAIRING_TOKEN',
+  CLIENT_PUBLIC_KEY_REQUIRED: 'CLIENT_PUBLIC_KEY_REQUIRED',
+  CLIENT_ALREADY_PAIRED: 'CLIENT_ALREADY_PAIRED'
 }
 
 /**
  * Session error patterns to match against error messages
  */
 export const SESSION_ERROR_PATTERNS = {
-  NOT_PAIRED: 'NotPaired',
-  DECRYPT_FAILED: 'DecryptFailed',
-  SESSION_NOT_FOUND: 'SessionNotFound',
-  HANDSHAKE_FAILED: 'HandshakeFailed',
-  HANDSHAKE_FINISH_FAILED: 'HandshakeFinishFailed',
-  SECURE_REQUEST_FAILED: 'SecureRequestFailed',
-  NO_SESSION: 'NoSession'
+  NOT_PAIRED: 'NOT_PAIRED',
+  DECRYPT_FAILED: 'DECRYPT_FAILED',
+  SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
+  HANDSHAKE_FAILED: 'HANDSHAKE_FAILED',
+  HANDSHAKE_FINISH_FAILED: 'HANDSHAKE_FINISH_FAILED',
+  SECURE_REQUEST_FAILED: 'SECURE_REQUEST_FAILED',
+  NO_SESSION: 'NO_SESSION'
 }
 
 /**
@@ -213,4 +236,12 @@ export const PAIRING_REASONS = {
   SESSION_NOT_FOUND: 'session-not-found',
   HANDSHAKE_FAILED: 'handshake-failed',
   SECURE_REQUEST_FAILED: 'secure-request-failed'
+}
+
+/**
+ * Protocol domain separation tags for handshake transcript binding
+ * These prevent cross-protocol signature replay attacks
+ */
+export const PROTOCOL_TAGS = {
+  CLIENT_FINISH: 'pearpass/handshake/v1/clientFinish'
 }

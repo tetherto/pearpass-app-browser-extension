@@ -1,6 +1,5 @@
 import EventEmitter from 'events'
 
-import { handleVaultError } from './globalVaultErrorHandler'
 import { COMMAND_NAMES, getCommandParams } from '../shared/commandDefinitions'
 import {
   AVAILABILITY_CHECK,
@@ -15,10 +14,11 @@ import {
   VAULT_CLIENT_EVENTS
 } from '../shared/constants/nativeMessaging'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 /**
  * Native Messaging Client for PearPass Vault
- * Communicates with the desktop app via Chrome Native Messaging API
+ * Communicates with the desktop app via Native Messaging API
  *
  * This client dynamically creates methods based on command definitions.
  *
@@ -54,7 +54,7 @@ export class PearpassVaultClient extends EventEmitter {
    * Setup event listeners for messages from background script
    */
   _setupEventListeners() {
-    chrome.runtime.onMessage.addListener((message) => {
+    runtime.onMessage.addListener((message) => {
       if (message.type === NATIVE_MESSAGE_TYPES.EVENT) {
         this.emit(message.event, message.data)
       } else if (message.type === NATIVE_MESSAGE_TYPES.DISCONNECTED) {
@@ -105,9 +105,9 @@ export class PearpassVaultClient extends EventEmitter {
    */
   _sendMessage(message) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          return reject(new Error(chrome.runtime.lastError.message))
+      runtime.sendMessage(message, (response) => {
+        if (runtime.lastError) {
+          return reject(new Error(runtime.lastError.message))
         }
 
         // Background always returns structured errors with codes
@@ -129,7 +129,7 @@ export class PearpassVaultClient extends EventEmitter {
   async _sendRequest(command, params = {}) {
     // Skip availability check for certain commands
     if (!this._shouldSkipAvailabilityCheck(command)) {
-      await this.checkAndHandleAvailability(command, params)
+      await this.checkAndHandleAvailability(command)
     }
 
     if (!this.connected) {
@@ -169,7 +169,6 @@ export class PearpassVaultClient extends EventEmitter {
           const availability = await this.checkAvailability()
           if (!availability.available) {
             const newError = this._createAvailabilityError(availability)
-            handleVaultError(newError, () => this._sendRequest(command, params))
             throw newError
           }
           break
@@ -218,8 +217,7 @@ export class PearpassVaultClient extends EventEmitter {
   }
 
   async checkAndHandleAvailability(
-    command = SPECIAL_COMMANDS.CHECK_AVAILABILITY,
-    params = {}
+    command = SPECIAL_COMMANDS.CHECK_AVAILABILITY
   ) {
     const now = Date.now()
     const needCheck =
@@ -233,7 +231,6 @@ export class PearpassVaultClient extends EventEmitter {
 
       if (!availability.available) {
         const error = this._createAvailabilityError(availability)
-        handleVaultError(error, () => this._sendRequest(command, params))
         throw error
       }
 
@@ -283,11 +280,6 @@ export class PearpassVaultClient extends EventEmitter {
           return result
         } catch (error) {
           this._logError(`Error in ${commandName}:`, error)
-
-          // Handle desktop unavailability errors
-          if (error.code === ERROR_CODES.DESKTOP_APP_UNAVAILABLE) {
-            handleVaultError(error, () => this[commandName](...args))
-          }
 
           // Session errors are handled by background script which triggers pairing modal
           // We just propagate the error with its code

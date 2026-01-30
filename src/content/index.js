@@ -1,3 +1,5 @@
+import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+import { SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED } from 'pearpass-lib-constants'
 import { RECORD_TYPES } from 'pearpass-lib-vault'
 
 import { IFRAME_TYPES } from './constants/iframe'
@@ -6,16 +8,19 @@ import { createIframe } from './utils/createIframe'
 import { findLoginForms } from './utils/findLoginForms'
 import { findSelectOptionValue } from './utils/findSelectOptionValue'
 import { getField } from './utils/getField'
+import { isContentScriptEnabled } from './utils/isContentScriptEnabled'
 import { isIdentityField } from './utils/isIdentityField'
 import { isPasswordField } from './utils/isPasswordField'
 import { isUsernameField } from './utils/isUsernameField'
 import { triggerInputEvents } from './utils/triggerInputEvents'
 import { CONTENT_MESSAGE_TYPES } from '../shared/constants/nativeMessaging'
+import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 import {
   getAutofillEnabled,
   onAutofillEnabledChanged
 } from '../shared/utils/autofillSetting'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 const activeIframes = new Set()
 
@@ -29,12 +34,14 @@ onAutofillEnabledChanged((isEnabled) => {
   isAutoFillEnabled = isEnabled
 })
 
-// Listeners
-
 window.addEventListener('scroll', removeIframesOnScrollOrResize)
 window.addEventListener('resize', removeIframesOnScrollOrResize)
 
-window.addEventListener('focusin', (event) => {
+window.addEventListener('focusin', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (isAutoFillEnabled) {
     toggleLogoOnFocus(event)
     handlePasswordSuggestionPopup(event)
@@ -42,7 +49,11 @@ window.addEventListener('focusin', (event) => {
   }
 })
 
-window.addEventListener('click', (event) => {
+window.addEventListener('click', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (isAutoFillEnabled) {
     hideLogoOnOutsideClick(event)
     hideAutofillOnOutsideClick(event)
@@ -51,7 +62,11 @@ window.addEventListener('click', (event) => {
   detectSubmitClick(event)
 })
 
-window.addEventListener('message', (event) => {
+window.addEventListener('message', async (event) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (event.source === window) {
     handleWindowEvent(event)
     return
@@ -60,7 +75,11 @@ window.addEventListener('message', (event) => {
   handleIframeEvent(event)
 })
 
-chrome.runtime.onMessage.addListener((msg) => {
+runtime.onMessage.addListener(async (msg) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (msg.type === CONTENT_MESSAGE_TYPES.SAVED_PASSKEY) {
     window.postMessage(
       {
@@ -358,13 +377,17 @@ function hideAutofillOnOutsideClick(event) {
 // Login detection
 
 function onSubmit({ username, password }) {
+  if (!SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED) {
+    return
+  }
+
   if (!username && !password) {
     return
   }
 
   const data = { url: window.location.href, username, password }
 
-  chrome.runtime.sendMessage({
+  runtime.sendMessage({
     type: IFRAME_TYPES.login,
     data: data
   })
@@ -382,6 +405,10 @@ function onSubmit({ username, password }) {
 
 function initFormListener(form) {
   form.addEventListener('submit', async () => {
+    if (!(await isContentScriptEnabled())) {
+      return
+    }
+
     const username = form.querySelector(
       'input[type="text"], input[type="email"]'
     )?.value
@@ -420,17 +447,25 @@ function detectSubmitClick(event) {
   }
 }
 
-const observer = new MutationObserver(() => {
+const observer = new MutationObserver(async () => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   findLoginForms().forEach(initFormListener)
 })
 
 observer.observe(document, { childList: true, subtree: true })
 
-chrome.runtime
+runtime
   .sendMessage({
     type: 'getPendingLogin'
   })
-  .then((msg) => {
+  .then(async (msg) => {
+    if (!(await isContentScriptEnabled())) {
+      return
+    }
+
     if (
       msg.type === 'pendingLogin' &&
       msg.data?.username &&
@@ -528,7 +563,11 @@ function toggleLogoOnFocus(event) {
   }
 }
 
-document.querySelectorAll('input').forEach((input) => {
+document.querySelectorAll('input').forEach(async (input) => {
+  if (!(await isContentScriptEnabled())) {
+    return
+  }
+
   if (input.autofocus && isAcceptedField(input)) {
     showLogoForField(input)
   }
@@ -537,7 +576,12 @@ document.querySelectorAll('input').forEach((input) => {
 // Iframe management
 
 function showIframe(iframeType, { element, data, styles }) {
-  const id = crypto.randomUUID()
+  let id
+  try {
+    id = generateUniqueId()
+  } catch (error) {
+    throw error
+  }
 
   const iframe = createIframe({
     styles: styles,
@@ -578,7 +622,7 @@ function getIframeData(type) {
 }
 
 function sendDataToIframe({ iframeType, iframeData }) {
-  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+  const extensionOrigin = runtime.getURL('').slice(0, -1)
 
   iframeData?.iframe?.contentWindow?.postMessage(
     {
@@ -604,20 +648,21 @@ function handleWindowEvent(event) {
 
   const type = data.type
 
-  if (type === 'createPasskey') {
-    chrome.runtime.sendMessage({
-      type: 'createPasskey',
+  if (type === CONTENT_MESSAGE_TYPES.CREATE_PASSKEY) {
+    runtime.sendMessage({
+      type: MESSAGE_TYPES.CREATE_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
       requestOrigin: data.requestOrigin
     })
   }
 
-  if (type === 'getPasskey') {
-    chrome.runtime.sendMessage({
-      type: 'getPasskey',
+  if (type === CONTENT_MESSAGE_TYPES.GET_PASSKEY) {
+    runtime.sendMessage({
+      type: MESSAGE_TYPES.GET_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
+      mediation: data.mediation,
       requestOrigin: data.requestOrigin
     })
   }
@@ -633,7 +678,7 @@ const handleIframeEvent = (event) => {
     (iframeData) => iframeData.id === iframeId
   )
 
-  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+  const extensionOrigin = runtime.getURL('').slice(0, -1)
 
   if (
     !eventType ||

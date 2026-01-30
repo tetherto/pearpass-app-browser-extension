@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import {
-  AUTO_LOCK_ENABLED,
+  BE_AUTO_LOCK_ENABLED,
   DEFAULT_AUTO_LOCK_TIMEOUT
 } from 'pearpass-lib-constants'
 
@@ -9,7 +9,7 @@ import { LOCAL_STORAGE_KEYS } from '../shared/constants/storage'
 
 export const useAutoLockPreferences = () => {
   const [isAutoLockEnabled, setIsAutoLockEnabledState] = useState(() => {
-    if (!AUTO_LOCK_ENABLED) {
+    if (!BE_AUTO_LOCK_ENABLED) {
       return false
     }
     const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_ENABLED)
@@ -17,7 +17,7 @@ export const useAutoLockPreferences = () => {
   })
 
   const [timeoutMs, setTimeoutMsState] = useState(() => {
-    if (!AUTO_LOCK_ENABLED) {
+    if (!BE_AUTO_LOCK_ENABLED) {
       return DEFAULT_AUTO_LOCK_TIMEOUT
     }
     const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MS)
@@ -49,7 +49,7 @@ export const useAutoLockPreferences = () => {
 }
 
 export function getAutoLockTimeoutMs() {
-  if (!AUTO_LOCK_ENABLED) {
+  if (!BE_AUTO_LOCK_ENABLED) {
     return DEFAULT_AUTO_LOCK_TIMEOUT
   }
   const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MS)

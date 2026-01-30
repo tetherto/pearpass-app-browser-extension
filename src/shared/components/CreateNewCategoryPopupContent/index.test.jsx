@@ -3,6 +3,25 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { CreateNewCategoryPopupContent } from './index'
+import { Menu } from '../Menu'
+
+jest.mock('react-dom', () => ({
+  ...jest.requireActual('react-dom'),
+  createPortal: (node) => node
+}))
+
+beforeEach(() => {
+  jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+    cb()
+    return 1
+  })
+})
+
+afterEach(() => {
+  window.requestAnimationFrame.mockRestore()
+})
+
+const MenuWrapper = ({ children }) => <Menu open={true}>{children}</Menu>
 
 describe('CreateNewCategoryPopupContent', () => {
   const mockOnClick = jest.fn()
@@ -13,20 +32,24 @@ describe('CreateNewCategoryPopupContent', () => {
 
   it('renders correctly and matches snapshot', () => {
     const { asFragment } = render(
-      <CreateNewCategoryPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <MenuWrapper>
+        <CreateNewCategoryPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </MenuWrapper>
     )
     expect(asFragment()).toMatchSnapshot()
   })
 
   it('calls onClick when a menu item is clicked', () => {
     const { getByText } = render(
-      <CreateNewCategoryPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <MenuWrapper>
+        <CreateNewCategoryPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </MenuWrapper>
     )
 
     const menuItem = getByText('Item 1')
@@ -37,10 +60,12 @@ describe('CreateNewCategoryPopupContent', () => {
 
   it('renders the correct number of menu items', () => {
     const { getAllByText } = render(
-      <CreateNewCategoryPopupContent
-        menuItems={mockMenuItems}
-        onClick={mockOnClick}
-      />
+      <MenuWrapper>
+        <CreateNewCategoryPopupContent
+          menuItems={mockMenuItems}
+          onClick={mockOnClick}
+        />
+      </MenuWrapper>
     )
 
     const menuItems = getAllByText(/Item/)

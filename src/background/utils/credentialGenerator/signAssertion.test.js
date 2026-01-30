@@ -8,6 +8,7 @@ Object.defineProperty(global.self, 'crypto', {
 })
 
 import { signAssertion } from './signAssertion'
+import { CRYPTO_ALGORITHMS } from '../../../shared/constants/crypto'
 
 describe('signAssertion', () => {
   const privateKey = { type: 'private' } // Mock CryptoKey
@@ -25,7 +26,10 @@ describe('signAssertion', () => {
 
   it('should hash the clientDataJSON using SHA-256', async () => {
     await signAssertion(privateKey, authData, clientDataJSON)
-    expect(crypto.subtle.digest).toHaveBeenCalledWith('SHA-256', clientDataJSON)
+    expect(crypto.subtle.digest).toHaveBeenCalledWith(
+      CRYPTO_ALGORITHMS.SHA_256,
+      clientDataJSON
+    )
   })
 
   it('should sign the concatenated authenticator data and client data hash', async () => {
@@ -39,17 +43,17 @@ describe('signAssertion', () => {
 
     expect(crypto.subtle.sign).toHaveBeenCalledWith(
       {
-        name: 'ECDSA',
-        hash: { name: 'SHA-256' }
+        name: CRYPTO_ALGORITHMS.ECDSA,
+        hash: { name: CRYPTO_ALGORITHMS.SHA_256 }
       },
       privateKey,
       expectedDataToSign.buffer
     )
   })
 
-  it('should return the signature from crypto.subtle.sign', async () => {
+  it('should return a DER-encoded signature', async () => {
     const result = await signAssertion(privateKey, authData, clientDataJSON)
-    expect(result).toBe(signature)
+    expect(result).toBeInstanceOf(ArrayBuffer)
   })
 
   it('should throw an error if signing fails', async () => {

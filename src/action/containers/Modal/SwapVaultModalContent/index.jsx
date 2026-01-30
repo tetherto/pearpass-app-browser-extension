@@ -23,8 +23,8 @@ export const SwapVaultModalContent = () => {
   } = useVault()
 
   const vaults = useMemo(
-    () => vaultsData.filter((vault) => vault.id !== vaultData?.id),
-    [vaultsData]
+    () => (vaultsData || []).filter((vault) => vault.id !== vaultData?.id),
+    [vaultsData, vaultData?.id]
   )
 
   const onVaultSelect = async (vault) => {

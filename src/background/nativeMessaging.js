@@ -4,6 +4,7 @@ import {
   wrapMessage
 } from './nativeMessagingProtocol'
 import { secureChannel } from './secureChannel'
+import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import {
   NATIVE_MESSAGE_TYPES,
   NATIVE_MESSAGING_CONFIG,
@@ -17,6 +18,7 @@ import {
   DESKTOP_APP_STATUS
 } from '../shared/constants/nativeMessaging'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 const createError = (message) => new Error(message)
 
@@ -34,11 +36,16 @@ const log = (...args) => {
 
 const logError = (...args) =>
   logger.error(NATIVE_MESSAGING_CONFIG.LOG_PREFIX, ...args)
-
-const getTimeoutForCommand = (command) =>
-  command === SPECIAL_COMMANDS.CHECK_AVAILABILITY
-    ? REQUEST_TIMEOUT.AVAILABILITY_CHECK_MS
-    : REQUEST_TIMEOUT.DEFAULT_MS
+const getTimeoutForCommand = (command) => {
+  switch (command) {
+    case SPECIAL_COMMANDS.CHECK_AVAILABILITY:
+      return REQUEST_TIMEOUT.AVAILABILITY_CHECK_MS
+    case SPECIAL_COMMANDS.PAIR_ACTIVE_VAULT:
+      return REQUEST_TIMEOUT.PAIRING_MS
+    default:
+      return REQUEST_TIMEOUT.DEFAULT_MS
+  }
+}
 
 class NativeMessagingHandler {
   constructor() {
@@ -57,9 +64,7 @@ class NativeMessagingHandler {
     return new Promise((resolve, reject) => {
       try {
         log('Connecting to native host:', NATIVE_MESSAGING_CONFIG.HOST_NAME)
-        this.port = chrome.runtime.connectNative(
-          NATIVE_MESSAGING_CONFIG.HOST_NAME
-        )
+        this.port = runtime.connectNative(NATIVE_MESSAGING_CONFIG.HOST_NAME)
 
         this.port.onMessage.addListener(this._handleMessage.bind(this))
         this.port.onDisconnect.addListener(this._handleDisconnect.bind(this))
@@ -83,15 +88,23 @@ class NativeMessagingHandler {
     this._clearPendingRequests()
   }
 
-  sendRequest(command, params = {}) {
+  /**
+   * Send a request to the native host
+   * @param {string} command - The command to send
+   * @param {Object} params - The parameters to send
+   * @param {number} timeout - The timeout in milliseconds
+   * @returns {Promise<any>} The result of the request
+   */
+  sendRequest(command, params = {}, timeout = REQUEST_TIMEOUT.DEFAULT_MS) {
     if (!this.connected) {
-      return this.connect().then(() => this.sendRequest(command, params))
+      return this.connect().then(() =>
+        this.sendRequest(command, params, timeout)
+      )
     }
 
     return new Promise((resolve, reject) => {
       const id = ++this.requestId
       const request = { id, command, params }
-      const timeout = getTimeoutForCommand(command)
 
       const timeoutId = setTimeout(() => {
         this._handleRequestTimeout(id, command)
@@ -172,7 +185,7 @@ class NativeMessagingHandler {
   }
 
   _handleEvent(message) {
-    chrome.runtime
+    runtime
       .sendMessage({
         type: NATIVE_MESSAGE_TYPES.EVENT,
         event: message.event,
@@ -184,7 +197,7 @@ class NativeMessagingHandler {
   }
 
   _handleDisconnect() {
-    const error = chrome.runtime.lastError
+    const error = runtime.lastError
     logError(NATIVE_MESSAGING_ERRORS.DISCONNECTED, error)
 
     this._rejectAllPendingRequests(error)
@@ -205,7 +218,7 @@ class NativeMessagingHandler {
   }
 
   _notifyDisconnection(error) {
-    chrome.runtime
+    runtime
       .sendMessage({
         type: NATIVE_MESSAGE_TYPES.DISCONNECTED,
         error: error?.message
@@ -254,6 +267,12 @@ const getErrorCode = (errorMessage) => {
   ) {
     return ERROR_CODES.DESKTOP_NOT_AUTHENTICATED
   }
+  if (errorMessage.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)) {
+    return ERROR_CODES.AUTHENTICATION_FAILED
+  }
+  if (errorMessage.includes(SECURITY_ERROR_PATTERNS.CLIENT_SIGNATURE_INVALID)) {
+    return ERROR_CODES.SIGNATURE_INVALID
+  }
 
   // Check for session errors
   if (errorMessage.includes(SESSION_ERROR_PATTERNS.NOT_PAIRED)) {
@@ -300,53 +319,32 @@ const getErrorCode = (errorMessage) => {
   return ERROR_CODES.UNKNOWN
 }
 
-/**
- * Check if an error requires clearing the session (pairing modal)
- * @param {string} errorCode - The error code
- * @returns {boolean} Whether to clear the session
- */
-const shouldClearSession = (errorCode) =>
-  [
-    ERROR_CODES.SIGNATURE_INVALID,
-    ERROR_CODES.IDENTITY_KEYS_UNAVAILABLE,
-    ERROR_CODES.NOT_PAIRED,
-    ERROR_CODES.NO_SESSION,
-    ERROR_CODES.HANDSHAKE_FAILED
-  ].includes(errorCode)
-
 const handleRequest = async (msg, sendResponse) => {
-  const { command, params } = msg
+  const { command, params: msgParams } = msg
+  const timeout = getTimeoutForCommand(command)
+  const params = { ...msgParams, timeout }
 
   try {
     let result
     // Only secure if paired and command is not exempt
     if (shouldSecure(command)) {
       await secureChannel.ensureSession()
-      result = await secureChannel.secureRequest({ method: command, params })
+      result = await secureChannel.secureRequest({
+        method: command,
+        params,
+        timeout
+      })
     } else {
-      result = await nativeMessaging.sendRequest(command, params)
+      result = await nativeMessaging.sendRequest(command, params, timeout)
     }
 
     sendResponse({ success: true, result })
   } catch (error) {
-    const errorCode = getErrorCode(error.message)
-
-    // Clear session if needed (triggers pairing modal)
-    if (shouldClearSession(errorCode)) {
-      // Use the specific error pattern for better logging
-      const errorPattern =
-        Object.values({
-          ...SESSION_ERROR_PATTERNS,
-          ...SECURITY_ERROR_PATTERNS
-        }).find((pattern) => error.message.includes(pattern)) || errorCode
-      await secureChannel.clearSession(errorPattern)
-    }
-
-    // Send structured error response
+    // Session clearing is handled by secureChannel - just propagate error
     sendResponse({
       success: false,
       error: error.message,
-      code: errorCode
+      code: getErrorCode(error.message)
     })
   }
 }
@@ -376,7 +374,7 @@ const messageHandlers = {
   [NATIVE_MESSAGE_TYPES.DISCONNECT]: handleDisconnect
 }
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const handler = messageHandlers[msg.type]
   if (handler) {
     handler(msg, sendResponse)
