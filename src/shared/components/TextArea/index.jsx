@@ -16,7 +16,8 @@ export const TextArea = ({
   placeholder,
   readonly,
   onClick,
-  variant
+  variant,
+  additionalItems
 }) => {
   const handleChange = (e) => {
     if (!readonly) {
@@ -30,11 +31,21 @@ export const TextArea = ({
     }
   }
 
-  const baseClasses = `
-    w-full resize-none rounded-[10px] border border-grey100-mode1 
-    bg-grey400-mode1 font-inter outline-none
+  const wrapperClasses = `
+    relative flex w-full rounded-[10px] border border-grey100-mode1 
+    bg-grey400-mode1 transition-colors
     ${readonly ? 'pointer-events-none' : 'pointer-events-auto'}
-    focus:border-primary400-mode1
+    focus-within:border-primary400-mode1
+  `
+
+  const textAreaClasses = `
+    w-full resize-none bg-transparent font-inter outline-none border-none
+    ${
+      variant === 'report'
+        ? 'text-white-mode1 placeholder-grey300-mode1 h-[70px] px-[12px] py-[11px] text-[12px] font-semibold'
+        : 'text-white-mode1 placeholder-grey100-mode1 h-[233px] px-[10px] py-[8px] text-[16px] font-bold'
+    }
+    ${additionalItems ? 'pr-10' : ''}
   `
 
   const commonProps = {
@@ -46,13 +57,16 @@ export const TextArea = ({
   }
 
   return (
-    <textarea
-      {...commonProps}
-      className={` ${baseClasses} ${
-        variant === 'report'
-          ? 'text-white-mode1 placeholder-grey300-mode1 h-[70px] px-[12px] py-[11px] text-[12px] font-semibold'
-          : 'text-white-mode1 placeholder-grey100-mode1 h-[233px] px-[10px] py-[8px] text-[16px] font-bold'
-      } `}
-    />
+    <div className={wrapperClasses}>
+      <textarea {...commonProps} className={textAreaClasses} />
+      {additionalItems && (
+        <div
+          onMouseDown={(e) => e.stopPropagation()}
+          className="pointer-events-auto absolute top-2 right-2 flex items-center justify-center p-1"
+        >
+          {additionalItems}
+        </div>
+      )}
+    </div>
   )
 }

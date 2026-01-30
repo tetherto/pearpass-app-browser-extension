@@ -3,13 +3,11 @@ import { useEffect, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
 import { useForm } from 'pear-apps-lib-ui-react-hooks'
 
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
 import { PassPhrase } from '../../../shared/containers/PassPhrase'
-import { useToast } from '../../../shared/context/ToastContext'
-import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
-import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { CustomFields } from '../CustomFields'
 
 /**
@@ -26,17 +24,6 @@ import { CustomFields } from '../CustomFields'
  */
 
 export const PassPhraseDetailsForm = ({ initialRecord }) => {
-  const { setToast } = useToast()
-
-  const { copyToClipboard } = useCopyToClipboard({
-    onCopy: () => {
-      setToast({
-        message: t`Copied to clipboard`,
-        icon: CopyIcon
-      })
-    }
-  })
-
   const initialValues = useMemo(
     () => ({
       passPhrase: initialRecord?.data?.passPhrase ?? '',
@@ -57,14 +44,6 @@ export const PassPhraseDetailsForm = ({ initialRecord }) => {
     setValues(initialValues)
   }, [initialValues, setValues])
 
-  const handleCopy = (value) => {
-    if (!value?.length) {
-      return
-    }
-
-    copyToClipboard(value)
-  }
-
   return (
     <div className="flex w-full flex-col gap-4 overflow-auto">
       <FormGroup>
@@ -84,7 +63,7 @@ export const PassPhraseDetailsForm = ({ initialRecord }) => {
             placeholder={t`Add note`}
             variant="outline"
             icon={CommonFileIcon}
-            onClick={handleCopy}
+            additionalItems={<CopyButton value={values.note} />}
             readonly
             {...register('note')}
           />
