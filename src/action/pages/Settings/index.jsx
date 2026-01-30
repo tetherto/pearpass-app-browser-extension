@@ -69,7 +69,7 @@ export const Settings = () => {
     getPasskeyVerificationPreference()
   )
 
-  const { isAutoLockEnabled, timeoutMs, setAutoLockEnabled, setTimeoutMs } =
+  const { isAutoLockEnabled, timeoutMs, setTimeoutMs } =
     useAutoLockPreferences()
 
   const [isAutofillEnabled, setIsAutoFillEnabled] = useState(true)
@@ -217,12 +217,8 @@ export const Settings = () => {
             />
             {BE_AUTO_LOCK_ENABLED && (
               <div className="flex flex-col gap-0.5">
-                <SwitchWithLabel
-                  isOn={isAutoLockEnabled}
-                  label={t`Auto Log-out`}
-                  description={t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}
-                  onChange={setAutoLockEnabled}
-                />
+                <div className="font-inter text-[14px] font-bold text-white">{t`Auto Log-out`}</div>
+                <div className="mb-[6px] text-[12px] text-white/70">{t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}</div>
                 {isAutoLockEnabled && (
                   <Select
                     items={translatedOptions}
