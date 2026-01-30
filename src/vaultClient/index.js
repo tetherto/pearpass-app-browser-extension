@@ -14,10 +14,11 @@ import {
   VAULT_CLIENT_EVENTS
 } from '../shared/constants/nativeMessaging'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 /**
  * Native Messaging Client for PearPass Vault
- * Communicates with the desktop app via Chrome Native Messaging API
+ * Communicates with the desktop app via Native Messaging API
  *
  * This client dynamically creates methods based on command definitions.
  *
@@ -53,7 +54,7 @@ export class PearpassVaultClient extends EventEmitter {
    * Setup event listeners for messages from background script
    */
   _setupEventListeners() {
-    chrome.runtime.onMessage.addListener((message) => {
+    runtime.onMessage.addListener((message) => {
       if (message.type === NATIVE_MESSAGE_TYPES.EVENT) {
         this.emit(message.event, message.data)
       } else if (message.type === NATIVE_MESSAGE_TYPES.DISCONNECTED) {
@@ -104,9 +105,9 @@ export class PearpassVaultClient extends EventEmitter {
    */
   _sendMessage(message) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          return reject(new Error(chrome.runtime.lastError.message))
+      runtime.sendMessage(message, (response) => {
+        if (runtime.lastError) {
+          return reject(new Error(runtime.lastError.message))
         }
 
         // Background always returns structured errors with codes
