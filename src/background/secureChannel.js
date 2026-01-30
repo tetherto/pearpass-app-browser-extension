@@ -701,6 +701,46 @@ export class SecureChannelClient {
       this._session = undefined
     }
   }
+
+  async getAutoLockSettings() {
+    try {
+      return await nativeMessaging.sendRequest('getAutoLockSettings')
+    } catch (error) {
+      logger.error('Failed to get auto lock settings:', error?.message || error)
+      throw error
+    }
+  }
+
+  async setAutoLockTimeout(autoLockTimeoutMs) {
+    try {
+      return await nativeMessaging.sendRequest('setAutoLockTimeout', {
+        autoLockTimeoutMs
+      })
+    } catch (error) {
+      logger.error('Failed to set auto lock timeout:', error?.message || error)
+      throw error
+    }
+  }
+
+  async setAutoLockEnabled(autoLockEnabled) {
+    try {
+      return await nativeMessaging.sendRequest('setAutoLockEnabled', {
+        autoLockEnabled
+      })
+    } catch (error) {
+      logger.error('Failed to set auto lock enabled:', error?.message || error)
+      throw error
+    }
+  }
+
+  async resetTimer() {
+    try {
+      return await nativeMessaging.sendRequest('resetTimer')
+    } catch (error) {
+      logger.error('Failed to reset timer:', error?.message || error)
+      throw error
+    }
+  }
 }
 
 export const secureChannel = new SecureChannelClient()

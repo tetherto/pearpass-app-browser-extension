@@ -163,8 +163,10 @@ export const Settings = () => {
   }
 
   const selectedTimeoutOption =
-    translatedOptions.find((option) => option.value === timeoutMs) ||
-    translatedOptions[0]
+    timeoutMs === null
+      ? translatedOptions.find((option) => option.value === null)
+      : translatedOptions.find((option) => option.value === timeoutMs) ||
+        translatedOptions[0]
 
   return (
     <div className="bg-grey400-mode1 flex h-full w-full flex-col gap-1.5 px-5 pt-7 pb-2">

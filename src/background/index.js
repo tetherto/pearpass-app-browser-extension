@@ -44,6 +44,27 @@ chrome.runtime.onSuspend?.addListener(() => {
   }
 })
 
+chrome.windows.onFocusChanged.addListener(async (windowId) => {
+  if (windowId === chrome.windows.WINDOW_ID_NONE) {
+    return
+  }
+
+  if (!secureChannel.hasActiveSession()) {
+    return
+  }
+
+  try {
+    const autoLockSettings = await secureChannel.getAutoLockSettings()
+    const { autoLockEnabled, autoLockTimeoutMs } = autoLockSettings
+    await chrome.storage.local.set({
+      autoLockEnabled,
+      autoLockTimeoutMs
+    })
+  } catch (error) {
+    logger.error('[AutoLock] Failed to fetch settings on focus', error)
+  }
+})
+
 const ensureClipboardOffscreenDocument = async () => {
   try {
     const hasDocument = await chrome.offscreen.hasDocument()
@@ -132,6 +153,75 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     })
 
     openPasskeyWindow(queryParams)
+    return true
+  }
+  if (msg.type === MESSAGE_TYPES.GET_AUTO_LOCK_SETTINGS) {
+    if (!secureChannel.hasActiveSession()) {
+      sendResponse({
+        success: false,
+        error: 'SESSION_NOT_READY'
+      })
+      return false
+    }
+
+    ;(async () => {
+      try {
+        const autoLockSettings = await secureChannel.getAutoLockSettings()
+        sendResponse({ success: true, autoLockSettings })
+      } catch (e) {
+        sendResponse({
+          success: false,
+          error: e?.message,
+          code: ERROR_CODES.UNKNOWN
+        })
+      }
+    })()
+
+    return true
+  }
+
+  if (msg.type === MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED) {
+    ;(async () => {
+      try {
+        await secureChannel.setAutoLockEnabled(msg.autoLockEnabled)
+        await chrome.storage.local.set({ autoLockEnabled: msg.autoLockEnabled })
+        sendResponse({ ok: true })
+      } catch (err) {
+        logger.error(err)
+        sendResponse({ ok: false, error: String(err) })
+      }
+    })()
+
+    return true
+  }
+
+  if (msg.type === MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT) {
+    ;(async () => {
+      try {
+        await secureChannel.setAutoLockTimeout(msg.autoLockTimeoutMs)
+        await chrome.storage.local.set({
+          autoLockTimeoutMs: msg.autoLockTimeoutMs
+        })
+        sendResponse({ ok: true })
+      } catch (err) {
+        logger.error(err)
+        sendResponse({ ok: false, error: String(err) })
+      }
+    })()
+
+    return true
+  }
+
+  if (msg.type === MESSAGE_TYPES.RESET_TIMER) {
+    ;(async () => {
+      try {
+        await secureChannel.resetTimer()
+        sendResponse({ ok: true })
+      } catch (err) {
+        logger.error(err)
+        sendResponse({ ok: false, error: String(err) })
+      }
+    })()
     return true
   }
 
