@@ -20,6 +20,7 @@ import {
   onAutofillEnabledChanged
 } from '../shared/utils/autofillSetting'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 const activeIframes = new Set()
 
@@ -74,7 +75,7 @@ window.addEventListener('message', async (event) => {
   handleIframeEvent(event)
 })
 
-chrome.runtime.onMessage.addListener(async (msg) => {
+runtime.onMessage.addListener(async (msg) => {
   if (!(await isContentScriptEnabled())) {
     return
   }
@@ -386,7 +387,7 @@ function onSubmit({ username, password }) {
 
   const data = { url: window.location.href, username, password }
 
-  chrome.runtime.sendMessage({
+  runtime.sendMessage({
     type: IFRAME_TYPES.login,
     data: data
   })
@@ -456,7 +457,7 @@ const observer = new MutationObserver(async () => {
 
 observer.observe(document, { childList: true, subtree: true })
 
-chrome.runtime
+runtime
   .sendMessage({
     type: 'getPendingLogin'
   })
@@ -621,7 +622,7 @@ function getIframeData(type) {
 }
 
 function sendDataToIframe({ iframeType, iframeData }) {
-  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+  const extensionOrigin = runtime.getURL('').slice(0, -1)
 
   iframeData?.iframe?.contentWindow?.postMessage(
     {
@@ -648,7 +649,7 @@ function handleWindowEvent(event) {
   const type = data.type
 
   if (type === CONTENT_MESSAGE_TYPES.CREATE_PASSKEY) {
-    chrome.runtime.sendMessage({
+    runtime.sendMessage({
       type: MESSAGE_TYPES.CREATE_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
@@ -657,7 +658,7 @@ function handleWindowEvent(event) {
   }
 
   if (type === CONTENT_MESSAGE_TYPES.GET_PASSKEY) {
-    chrome.runtime.sendMessage({
+    runtime.sendMessage({
       type: MESSAGE_TYPES.GET_PASSKEY,
       requestId: data.requestId,
       publicKey: data.publicKey,
@@ -677,7 +678,7 @@ const handleIframeEvent = (event) => {
     (iframeData) => iframeData.id === iframeId
   )
 
-  const extensionOrigin = chrome.runtime.getURL('').slice(0, -1)
+  const extensionOrigin = runtime.getURL('').slice(0, -1)
 
   if (
     !eventType ||

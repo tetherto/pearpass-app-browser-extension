@@ -6,7 +6,8 @@ import { logger } from '../utils/logger'
 export const SECURE_MESSAGE_TYPES = Object.freeze({
   GET_IDENTITY: 'SECURE_CHANNEL_GET_IDENTITY',
   CONFIRM_PAIR: 'SECURE_CHANNEL_CONFIRM_PAIR',
-  CHECK_PAIRED: 'SECURE_CHANNEL_CHECK_PAIRED',
+  PIN_IDENTITY: 'PIN_IDENTITY',
+  UNPAIR: 'SECURE_CHANNEL_UNPAIR',
   UNLOCK_CLIENT_KEYSTORE: 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE',
   GET_BLOCKING_STATE: 'SECURE_CHANNEL_GET_BLOCKING_STATE'
 })
@@ -215,14 +216,18 @@ export const secureChannelMessages = {
     })
   },
 
-  async confirmPair(identity) {
-    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CONFIRM_PAIR, {
+  async confirmPair() {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CONFIRM_PAIR)
+  },
+
+  async pinIdentity(identity) {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.PIN_IDENTITY, {
       identity
     })
   },
 
-  async checkPaired() {
-    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CHECK_PAIRED)
+  async unpair() {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.UNPAIR)
   },
 
   async unlockClientKeystore(masterPassword) {
