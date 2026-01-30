@@ -7,13 +7,11 @@ import { isBefore, subtractDateUnits } from 'pear-apps-utils-date'
 
 import { CardWarning } from '../../../shared/components/CardWarningText'
 import { CompoundField } from '../../../shared/components/CompoundField'
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
 import { InputFieldPassword } from '../../../shared/components/InputFieldPassword'
-import { useToast } from '../../../shared/context/ToastContext'
-import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
-import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { KeyIcon } from '../../../shared/icons/KeyIcon'
 import { UserIcon } from '../../../shared/icons/UserIcon'
 import { WorldIcon } from '../../../shared/icons/WorldIcon'
@@ -34,17 +32,6 @@ import { CustomFields } from '../CustomFields'
  *
  */
 export const LoginDetailsForm = ({ initialRecord }) => {
-  const { setToast } = useToast()
-
-  const { copyToClipboard } = useCopyToClipboard({
-    onCopy: () => {
-      setToast({
-        message: t`Copied to clipboard`,
-        icon: CopyIcon
-      })
-    }
-  })
-
   const initialValues = useMemo(
     () => ({
       username: initialRecord?.data?.username ?? '',
@@ -73,14 +60,6 @@ export const LoginDetailsForm = ({ initialRecord }) => {
   useEffect(() => {
     setValues(initialValues)
   }, [initialValues, setValues])
-
-  const handleCopy = (value) => {
-    if (!value?.length) {
-      return
-    }
-
-    copyToClipboard(value)
-  }
 
   const isPasswordSixMonthsOld = () => {
     const { passwordUpdatedAt } = initialRecord?.data || {}
@@ -111,8 +90,8 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             placeholder={t`Email or username`}
             variant="outline"
             icon={UserIcon}
-            onClick={handleCopy}
             readonly
+            additionalItems={<CopyButton value={values.username} />}
             {...register('username')}
           />
         )}
@@ -123,9 +102,9 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             placeholder={t`Password`}
             variant="outline"
             icon={KeyIcon}
-            onClick={handleCopy}
             hasStrongness
             readonly
+            additionalItems={<CopyButton value={values.password} />}
             {...register('password')}
           />
         )}
@@ -137,7 +116,6 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             }
             variant="outline"
             icon={KeyIcon}
-            onClick={handleCopy}
             readonly
           />
         )}
@@ -151,8 +129,10 @@ export const LoginDetailsForm = ({ initialRecord }) => {
                 label={t`Website`}
                 placeholder="https://"
                 icon={WorldIcon}
-                onClick={handleCopy}
                 readonly
+                additionalItems={
+                  <CopyButton value={registerItem('website', index).value} />
+                }
                 {...registerItem('website', index)}
               />
             </React.Fragment>
@@ -166,8 +146,8 @@ export const LoginDetailsForm = ({ initialRecord }) => {
             placeholder={t`Add note`}
             variant="outline"
             icon={CommonFileIcon}
-            onClick={handleCopy}
             readonly
+            additionalItems={<CopyButton value={values.note} />}
             {...register('note')}
           />
         )}

@@ -3,13 +3,11 @@ import { useEffect, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
 import { useForm } from 'pear-apps-lib-ui-react-hooks'
 
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
 import { InputFieldPassword } from '../../../shared/components/InputFieldPassword'
-import { useToast } from '../../../shared/context/ToastContext'
-import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
-import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { PasswordIcon } from '../../../shared/icons/PasswordIcon'
 import { CustomFields } from '../CustomFields'
 import { WifiPasswordQRCode } from '../WifiPasswordQRCode'
@@ -25,17 +23,6 @@ import { WifiPasswordQRCode } from '../WifiPasswordQRCode'
  *
  */
 export const WifiDetailsForm = ({ initialRecord }) => {
-  const { setToast } = useToast()
-
-  const { copyToClipboard } = useCopyToClipboard({
-    onCopy: () => {
-      setToast({
-        message: t`Copied to clipboard`,
-        icon: CopyIcon
-      })
-    }
-  })
-
   const initialValues = useMemo(
     () => ({
       password: initialRecord?.data?.password ?? '',
@@ -56,14 +43,6 @@ export const WifiDetailsForm = ({ initialRecord }) => {
     setValues(initialValues)
   }, [initialValues, setValues])
 
-  const handleCopy = (value) => {
-    if (!value?.length) {
-      return
-    }
-
-    copyToClipboard(value)
-  }
-
   return (
     <div className="flex w-full flex-col gap-4 overflow-auto">
       <FormGroup>
@@ -79,7 +58,7 @@ export const WifiDetailsForm = ({ initialRecord }) => {
             placeholder={t`Password`}
             variant="outline"
             icon={PasswordIcon}
-            onClick={handleCopy}
+            additionalItems={<CopyButton value={values.password} />}
             readonly
             {...register('password')}
           />
@@ -92,7 +71,7 @@ export const WifiDetailsForm = ({ initialRecord }) => {
             placeholder={t`Add note`}
             variant="outline"
             icon={CommonFileIcon}
-            onClick={handleCopy}
+            additionalItems={<CopyButton value={values.note} />}
             readonly
             {...register('note')}
           />

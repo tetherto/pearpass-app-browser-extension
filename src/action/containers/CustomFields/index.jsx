@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro'
 
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
@@ -8,15 +9,20 @@ import { DeleteIcon } from '../../../shared/icons/DeleteIcon'
 
 /**
  * @param {{
- *  register: (name: string, index: number) => any,
- *  customFields?: {
- *    id: string,
- *    type: 'note',
- *    props: any
- *  }[],
- *  onClick?: () => void,
- *  areInputsDisabled: boolean,
- *  removeItem?: (index: number) => void
+ * register: (name: string, index: number) => {
+ *   name: string;
+ *   value: string;
+ *   error?: string;
+ *   onChange: (e: unknown) => void;
+ * },
+ * customFields?: {
+ *   id: string,
+ *   type: 'note',
+ *   props: Record<string, unknown>
+ * }[],
+ * onClick?: () => void,
+ * areInputsDisabled: boolean,
+ * removeItem?: (index: number) => void
  * }} props
  */
 export const CustomFields = ({
@@ -39,7 +45,9 @@ export const CustomFields = ({
               onClick={onClick}
               readonly={areInputsDisabled}
               additionalItems={
-                !areInputsDisabled && (
+                areInputsDisabled ? (
+                  <CopyButton value={register('note', index).value} />
+                ) : (
                   <ButtonRoundIcon
                     variant="secondary"
                     startIcon={DeleteIcon}
