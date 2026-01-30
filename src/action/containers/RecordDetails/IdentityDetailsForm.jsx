@@ -4,13 +4,11 @@ import { t } from '@lingui/core/macro'
 import { useForm } from 'pear-apps-lib-ui-react-hooks'
 import { DATE_FORMAT } from 'pearpass-lib-constants'
 
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
-import { useToast } from '../../../shared/context/ToastContext'
-import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { CalendarIcon } from '../../../shared/icons/CalendarIcon'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
-import { CopyIcon } from '../../../shared/icons/CopyIcon'
 import { EmailIcon } from '../../../shared/icons/EmailIcon'
 import { GenderIcon } from '../../../shared/icons/GenderIcon'
 import { GroupIcon } from '../../../shared/icons/GroupIcon'
@@ -36,17 +34,6 @@ import { CustomFields } from '../CustomFields'
  * @param {string} [props.initialRecord.folder]
  */
 export const IdentityDetailsForm = ({ initialRecord }) => {
-  const { setToast } = useToast()
-
-  const { copyToClipboard } = useCopyToClipboard({
-    onCopy: () => {
-      setToast({
-        message: t`Copied to clipboard`,
-        icon: CopyIcon
-      })
-    }
-  })
-
   const initialValues = useMemo(
     () => ({
       fullName: initialRecord?.data?.fullName ?? '',
@@ -92,14 +79,6 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
   useEffect(() => {
     setValues(initialValues)
   }, [initialValues, setValues])
-
-  const handleCopy = (value) => {
-    if (!value?.length) {
-      return
-    }
-
-    copyToClipboard(value)
-  }
 
   const hasFullName = !!values?.fullName?.length
   const hasEmail = !!values?.email?.length
@@ -162,7 +141,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Full name`}
               variant="outline"
               icon={UserIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.fullName} />}
               readonly
               {...register('fullName')}
             />
@@ -174,7 +153,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert email`}
               variant="outline"
               icon={EmailIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.email} />}
               readonly
               {...register('email')}
             />
@@ -186,7 +165,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Phone number`}
               variant="outline"
               icon={PhoneIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.phoneNumber} />}
               readonly
               {...register('phoneNumber')}
             />
@@ -201,7 +180,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               label={t`Address`}
               placeholder={t`Address`}
               variant="outline"
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.address} />}
               readonly
               {...register('address')}
             />
@@ -211,7 +190,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               label={t`ZIP`}
               placeholder={t`Insert zip`}
               variant="outline"
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.zip} />}
               readonly
               {...register('zip')}
             />
@@ -221,7 +200,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               label={t`City`}
               placeholder={t`City`}
               variant="outline"
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.city} />}
               readonly
               {...register('city')}
             />
@@ -231,7 +210,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               label={t`Region`}
               placeholder={t`Region`}
               variant="outline"
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.region} />}
               readonly
               {...register('region')}
             />
@@ -241,7 +220,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               label={t`Country`}
               placeholder={t`Country`}
               variant="outline"
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.country} />}
               readonly
               {...register('country')}
             />
@@ -257,7 +236,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`John Smith`}
               variant="outline"
               icon={UserIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.passportFullName} />}
               readonly
               {...register('passportFullName')}
             />
@@ -268,7 +247,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert numbers`}
               variant="outline"
               icon={GroupIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.passportNumber} />}
               readonly
               {...register('passportNumber')}
             />
@@ -279,7 +258,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert country`}
               variant="outline"
               icon={NationalityIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.passportIssuingCountry} />
+              }
               readonly
               {...register('passportIssuingCountry')}
             />
@@ -290,7 +271,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert date of issue`}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.passportDateOfIssue} />
+              }
               readonly
               {...register('passportDateOfIssue')}
             />
@@ -301,7 +284,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.passportExpiryDate} />}
               readonly
               {...register('passportExpiryDate')}
             />
@@ -312,7 +295,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert your nationality`}
               variant="outline"
               icon={NationalityIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.passportNationality} />
+              }
               readonly
               {...register('passportNationality')}
             />
@@ -323,7 +308,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.passportDob} />}
               readonly
               {...register('passportDob')}
             />
@@ -334,7 +319,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`M/F`}
               variant="outline"
               icon={GenderIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.passportGender} />}
               readonly
               {...register('passportGender')}
             />
@@ -350,7 +335,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={'123456789'}
               variant="outline"
               icon={GroupIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.idCardNumber} />}
               readonly
               {...register('idCardNumber')}
             />
@@ -361,7 +346,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.idCardDateOfIssue} />}
               readonly
               {...register('idCardDateOfIssue')}
             />
@@ -372,7 +357,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={<CopyButton value={values.idCardExpiryDate} />}
               readonly
               {...register('idCardExpiryDate')}
             />
@@ -383,7 +368,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert country`}
               variant="outline"
               icon={NationalityIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.idCardIssuingCountry} />
+              }
               readonly
               {...register('idCardIssuingCountry')}
             />
@@ -399,7 +386,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={`123456789`}
               variant="outline"
               icon={GroupIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.drivingLicenseNumber} />
+              }
               readonly
               {...register('drivingLicenseNumber')}
             />
@@ -410,7 +399,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.drivingLicenseDateOfIssue} />
+              }
               readonly
               {...register('drivingLicenseDateOfIssue')}
             />
@@ -421,7 +412,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={DATE_FORMAT}
               variant="outline"
               icon={CalendarIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.drivingLicenseExpiryDate} />
+              }
               readonly
               {...register('drivingLicenseExpiryDate')}
             />
@@ -432,7 +425,9 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
               placeholder={t`Insert country`}
               variant="outline"
               icon={NationalityIcon}
-              onClick={handleCopy}
+              additionalItems={
+                <CopyButton value={values.drivingLicenseIssuingCountry} />
+              }
               readonly
               {...register('drivingLicenseIssuingCountry')}
             />
@@ -447,7 +442,7 @@ export const IdentityDetailsForm = ({ initialRecord }) => {
             placeholder={t`Add note`}
             variant="outline"
             icon={CommonFileIcon}
-            onClick={handleCopy}
+            additionalItems={<CopyButton value={values.note} />}
             readonly
             {...register('note')}
           />
