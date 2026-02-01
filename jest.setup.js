@@ -41,3 +41,17 @@ if (!global.crypto.subtle) {
     }
   }
 }
+
+// Mock chrome for tests
+if (typeof global.chrome === 'undefined') {
+  global.chrome = {
+    runtime: {
+      onMessage: {
+        addListener: jest.fn()
+      },
+      sendMessage: jest.fn(),
+      connect: jest.fn(),
+      lastError: null
+    }
+  }
+}

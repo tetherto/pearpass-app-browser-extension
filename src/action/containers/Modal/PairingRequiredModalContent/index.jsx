@@ -2,31 +2,13 @@ import { useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { useUserData, useVaults } from 'pearpass-lib-vault'
 
+import {
+  useDesktopPairing,
+  PAIRING_STEP
+} from '../../../../hooks/useDesktopPairing.js'
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { ModalCard } from '../../../../shared/components/ModalCard'
-import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
-import { PAIRING_ERROR_PATTERNS } from '../../../../shared/constants/nativeMessaging'
-import { useToast } from '../../../../shared/context/ToastContext'
-import { secureChannelMessages } from '../../../../shared/services/messageBridge'
-import { logger } from '../../../../shared/utils/logger'
-
-/**
- * Pairing step enum
- */
-const PAIRING_STEP = {
-  TOKEN: 'token',
-  PASSWORD: 'password'
-}
-
-/**
- * Error messages
- */
-const PAIRING_ERROR_MESSAGES = {
-  FAILED_TO_GET_IDENTITY:
-    'Failed to get identity. Please ensure the desktop app is running.'
-}
 
 /**
  *
@@ -34,131 +16,22 @@ const PAIRING_ERROR_MESSAGES = {
  * @param {Function} props.onPairSuccess
  */
 export const PairingRequiredModalContent = ({ onPairSuccess }) => {
-  const { setToast } = useToast()
-  const { logIn } = useUserData()
-  const { initVaults } = useVaults()
-  const [pairingToken, setPairingToken] = useState('')
-  const [masterPassword, setMasterPassword] = useState('')
-  const [identity, setIdentity] = useState(null)
-  const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(PAIRING_STEP.TOKEN)
-
-  const fetchIdentity = async () => {
-    if (!pairingToken || pairingToken.trim().length < 10) {
-      setToast({
-        message: t`Please enter a valid pairing token from the desktop app`
-      })
-      return
-    }
-
-    setLoading(true)
-    try {
-      const res = await secureChannelMessages.getIdentity(pairingToken.trim())
-      if (res?.success && res?.identity) {
-        setIdentity(res.identity)
-        setStep(PAIRING_STEP.PASSWORD)
-        setToast({
-          message: t`Desktop verified! Enter your master password to complete.`
-        })
-      } else if (
-        res?.error?.includes(PAIRING_ERROR_PATTERNS.INVALID_PAIRING_TOKEN)
-      ) {
-        throw new Error(t`Invalid pairing token. Please check and try again.`)
-      } else {
-        throw new Error(t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
-      }
-    } catch (error) {
-      logger.error('Failed to fetch identity:', error)
-      setToast({
-        message:
-          error.message ||
-          (error.code === 'TIMEOUT'
-            ? t`Request timed out. Please try again.`
-            : t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const completePairing = async () => {
-    if (!identity) {
-      setToast({ message: t`Please verify desktop identity first` })
-      return
-    }
-    if (!masterPassword) {
-      setToast({ message: t`Please enter your master password` })
-      return
-    }
-
-    setLoading(true)
-    try {
-      let validatedIdentity
-      try {
-        validatedIdentity = await secureChannelMessages.getIdentity(
-          pairingToken.trim()
-        )
-      } catch (validationError) {
-        logger.error('Token validation failed:', validationError)
-        setToast({
-          message: t`Token validation failed. Please enter the new token from desktop.`
-        })
-        setStep(PAIRING_STEP.TOKEN)
-        setIdentity(null)
-        setLoading(false)
-        return
-      }
-
-      if (!validatedIdentity?.success || !validatedIdentity?.identity) {
-        setToast({
-          message: t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY)
-        })
-        setStep(PAIRING_STEP.TOKEN)
-        setIdentity(null)
-        setLoading(false)
-        return
-      }
-
-      // Proceed with pairing using latest identity from desktop
-      const pairingResponse = await secureChannelMessages.confirmPair(
-        validatedIdentity.identity
-      )
-      if (!pairingResponse?.ok) {
-        throw new Error(t`Pairing failed`)
-      }
-
-      try {
-        await secureChannelMessages.unlockClientKeystore(masterPassword)
-      } catch (e) {
-        if (
-          e?.message?.includes(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_REQUIRED)
-        ) {
-          setLoading(false)
-          setToast({ message: t`Incorrect password. Please try again.` })
-          logger.error('Error unlocking keystore:', e)
-          return
-        }
-        logger.error('Keystore error, continuing:', e)
-      }
-
-      // Validate password and initialize vaults
-      await logIn({ password: masterPassword })
-      await initVaults({ password: masterPassword })
-
-      setToast({ message: t`Paired successfully!` })
-      onPairSuccess()
-    } catch (error) {
-      logger.error('Failed to complete pairing:', error)
-      setToast({ message: t`Invalid master password. Please try again.` })
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [masterPassword, setMasterPassword] = useState('')
 
   const handleBack = () => {
     setStep(PAIRING_STEP.TOKEN)
     setMasterPassword('')
   }
+
+  const {
+    pairingToken,
+    setPairingToken,
+    identity,
+    loading,
+    fetchIdentity,
+    completePairing
+  } = useDesktopPairing({ onPairSuccess, handleBack, setStep })
 
   return (
     <ModalCard>
@@ -229,7 +102,7 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter' && masterPassword && !loading) {
-                completePairing()
+                void completePairing(masterPassword)
               }
             }}
           />
@@ -245,7 +118,7 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
             </button>
             <ButtonPrimary
               disabled={loading || !masterPassword}
-              onClick={completePairing}
+              onClick={() => completePairing(masterPassword)}
             >
               <Trans>{loading ? t`Completing...` : t`Complete Pairing`}</Trans>
             </ButtonPrimary>

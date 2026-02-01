@@ -41,8 +41,8 @@ jest.mock('../shared/constants/auth', () => ({
   }
 }))
 
-// Provide a fake global chrome.runtime for testing
-global.chrome = {
+// Provide a fake runtime for testing
+jest.mock('../shared/utils/runtime', () => ({
   runtime: {
     connectNative: jest.fn(),
     lastError: null,
@@ -50,34 +50,37 @@ global.chrome = {
     onMessage: { addListener: jest.fn() },
     onDisconnect: { addListener: jest.fn() }
   }
-}
+}))
 
 describe('NativeMessaging & integration', () => {
   let nativeModule
+  let runtime
   beforeEach(() => {
     // Reset modules to apply fresh mocks
     jest.resetModules()
-    // Clear chrome mocks
-    global.chrome.runtime.connectNative.mockReset()
-    global.chrome.runtime.sendMessage.mockClear()
-    global.chrome.runtime.lastError = null
+
+    // Get fresh runtime mock
+    runtime = require('../shared/utils/runtime').runtime
+
+    // Clear runtime mocks
+    runtime.connectNative.mockReset()
+    runtime.sendMessage.mockClear()
+    runtime.lastError = null
     // Import after mocks
     nativeModule = require('./nativeMessaging')
   })
 
-  test('connect() should call chrome.runtime.connectNative and resolve when not already connected', async () => {
+  test('connect() should call runtime.connectNative and resolve when not already connected', async () => {
     const fakePort = {
       onMessage: { addListener: jest.fn() },
       onDisconnect: { addListener: jest.fn() }
     }
-    global.chrome.runtime.connectNative.mockReturnValue(fakePort)
+    runtime.connectNative.mockReturnValue(fakePort)
 
     await expect(
       nativeModule.nativeMessaging.connect()
     ).resolves.toBeUndefined()
-    expect(global.chrome.runtime.connectNative).toHaveBeenCalledWith(
-      'test-host'
-    )
+    expect(runtime.connectNative).toHaveBeenCalledWith('test-host')
     expect(fakePort.onMessage.addListener).toHaveBeenCalled()
     expect(fakePort.onDisconnect.addListener).toHaveBeenCalled()
   })
@@ -87,17 +90,17 @@ describe('NativeMessaging & integration', () => {
       onMessage: { addListener: jest.fn() },
       onDisconnect: { addListener: jest.fn() }
     }
-    global.chrome.runtime.connectNative.mockReturnValue(fakePort)
+    runtime.connectNative.mockReturnValue(fakePort)
 
     // First connect
     await nativeModule.nativeMessaging.connect()
     // Clear the mock and call again
-    global.chrome.runtime.connectNative.mockClear()
+    runtime.connectNative.mockClear()
 
     await expect(
       nativeModule.nativeMessaging.connect()
     ).resolves.toBeUndefined()
-    expect(global.chrome.runtime.connectNative).not.toHaveBeenCalled()
+    expect(runtime.connectNative).not.toHaveBeenCalled()
   })
 
   test('sendRequest() should wrap and post message and resolve on response', async () => {
@@ -116,7 +119,7 @@ describe('NativeMessaging & integration', () => {
       onMessage: { addListener: jest.fn() },
       onDisconnect: { addListener: jest.fn() }
     }
-    global.chrome.runtime.connectNative.mockReturnValue(fakePort)
+    runtime.connectNative.mockReturnValue(fakePort)
     await nativeMessaging.connect()
 
     // Grab registered listener
@@ -150,7 +153,7 @@ describe('NativeMessaging & integration', () => {
       onMessage: { addListener: jest.fn() },
       onDisconnect: { addListener: jest.fn() }
     }
-    global.chrome.runtime.connectNative.mockReturnValue(fakePort)
+    runtime.connectNative.mockReturnValue(fakePort)
     await nativeMessaging.connect()
 
     const promise = nativeMessaging.sendRequest('OTHER_CMD')
@@ -165,7 +168,7 @@ describe('NativeMessaging & integration', () => {
     const secureChannel = require('./secureChannel')
 
     // Message listener should be registered
-    expect(global.chrome.runtime.onMessage.addListener).toHaveBeenCalled()
+    expect(runtime.onMessage.addListener).toHaveBeenCalled()
 
     // Replace secureChannel.ensureSession to simulate auth failure
     secureChannel.secureChannel.ensureSession = jest
@@ -174,8 +177,7 @@ describe('NativeMessaging & integration', () => {
     secureChannel.secureChannel.secureRequest = jest.fn()
     secureChannel.secureChannel.clearSession = jest.fn()
 
-    const messageListener =
-      global.chrome.runtime.onMessage.addListener.mock.calls[0][0]
+    const messageListener = runtime.onMessage.addListener.mock.calls[0][0]
 
     await new Promise((resolve) => {
       messageListener(

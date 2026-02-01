@@ -341,6 +341,23 @@ export class SecureChannelClient {
   }
 
   /**
+   * Confirm pairing with the desktop app.
+   * Sends nmConfirmPairing to desktop.
+   * Expects generated and unlocked client keypair.
+   *
+   * @returns {Promise<void>}
+   */
+  async confirmPairing() {
+    const keypair = await ensureClientKeypairGeneratedForPairing()
+    const clientEd25519PublicKeyB64 = base64Encode(keypair.publicKey)
+
+    // Confirm pairing on desktop
+    return nativeMessaging.sendRequest('nmConfirmPairing', {
+      clientEd25519PublicKeyB64
+    })
+  }
+
+  /**
    * Fetch short pairing code (for user confirmation).
    * @deprecated This method is deprecated for security reasons.
    * @returns {Promise<{pairingCode: string}>}
@@ -401,6 +418,7 @@ export class SecureChannelClient {
       [STORAGE_KEYS.x25519PublicKey]: undefined,
       [STORAGE_KEYS.paired]: false
     })
+    await clearClientKeypair()
   }
 
   /**
