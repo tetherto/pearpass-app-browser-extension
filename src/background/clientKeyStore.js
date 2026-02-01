@@ -4,6 +4,7 @@ import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { CRYPTO_ALGORITHMS } from '../shared/constants/crypto'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
+import { secureZero } from '../shared/utils/secureZero'
 
 const DB_NAME = 'pearpassClientKeyStore'
 const DB_VERSION = 1
@@ -331,10 +332,10 @@ export const hasPersistedClientKeypair = async () => {
  */
 export const clearClientKeypair = async () => {
   // Zero and clear in-memory state
-  inMemoryKeypair?.privateKey?.fill?.(0)
+  secureZero(inMemoryKeypair?.privateKey)
   inMemoryKeypair = null
 
-  pendingKeypair?.privateKey?.fill?.(0)
+  secureZero(pendingKeypair?.privateKey)
   pendingKeypair = null
 
   // Reset unlocking flag to cancel any in-progress unlock

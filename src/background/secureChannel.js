@@ -24,6 +24,7 @@ import {
 } from '../shared/constants/nativeMessaging'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
+import { secureZero } from '../shared/utils/secureZero'
 
 const concatUint8Arrays = (arrays) => {
   // Concatenate multiple Uint8Arrays without using Buffer.concat
@@ -608,14 +609,8 @@ export class SecureChannelClient {
     } finally {
       // Clear ephemeral keys from memory
       if (this._ephemeralKeyPair) {
-        try {
-          if (this._ephemeralKeyPair.privateKey)
-            this._ephemeralKeyPair.privateKey.fill(0)
-          if (this._ephemeralKeyPair.publicKey)
-            this._ephemeralKeyPair.publicKey.fill(0)
-        } catch (error) {
-          logger.log('Failed to zero ephemeral keys:', error?.message || error)
-        }
+        secureZero(this._ephemeralKeyPair.privateKey)
+        secureZero(this._ephemeralKeyPair.publicKey)
         this._ephemeralKeyPair = undefined
       }
     }
@@ -709,13 +704,7 @@ export class SecureChannelClient {
       return await nativeMessaging.sendRequest('nmCloseSession', { sessionId })
     } finally {
       // Zeroize session key and clear session
-      if (this._session?.key?.fill) {
-        try {
-          this._session.key.fill(0)
-        } catch (error) {
-          logger.log('Failed to zero session key:', error?.message || error)
-        }
-      }
+      secureZero(this._session?.key)
       this._session = undefined
     }
   }
