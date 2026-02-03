@@ -37,7 +37,7 @@ export const SecurityContent = () => {
     getPasskeyVerificationPreference()
   )
 
-  const { isAutoLockEnabled, timeoutMs, setAutoLockEnabled, setTimeoutMs } =
+  const { isAutoLockEnabled, timeoutMs, setTimeoutMs } =
     useAutoLockPreferences()
 
   const { isCopyToClipboardEnabled, handleCopyToClipboardSettingChange } =
@@ -72,9 +72,10 @@ export const SecurityContent = () => {
   }
 
   const selectedTimeoutOption =
-    translatedOptions.find((option) => option.value === timeoutMs) ??
-    translatedOptions[0] ??
-    null
+    timeoutMs === null
+      ? translatedOptions.find((option) => option.value === null)
+      : translatedOptions.find((option) => option.value === timeoutMs) ||
+        translatedOptions[0]
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -103,12 +104,8 @@ export const SecurityContent = () => {
           />
           {BE_AUTO_LOCK_ENABLED && (
             <div className="flex flex-col gap-0.5">
-              <SwitchWithLabel
-                isOn={isAutoLockEnabled}
-                label={t`Auto Log-out`}
-                description={t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}
-                onChange={setAutoLockEnabled}
-              />
+              <div className="font-inter text-[14px] font-bold text-white">{t`Auto Log-out`}</div>
+              <div className="mb-[6px] text-[12px] text-white/70">{t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}</div>
               {isAutoLockEnabled && (
                 <Select
                   items={translatedOptions}

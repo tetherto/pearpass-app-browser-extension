@@ -72,7 +72,10 @@ export const COMMAND_DEFINITIONS = {
   },
   closeAllInstances: { params: [] },
   checkExtensionPairingStatus: { params: ['clientEd25519PublicKeyB64'] },
-
+  getAutoLockSettings: { params: [] },
+  setAutoLockTimeout: { params: ['autoLockTimeoutMs'] },
+  setAutoLockEnabled: { params: ['autoLockEnabled'] },
+  resetTimer: { params: [] },
   // Password commands
   initWithPassword: { params: ['password'] }
 }

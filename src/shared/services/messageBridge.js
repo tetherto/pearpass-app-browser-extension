@@ -26,7 +26,11 @@ export const MESSAGE_TYPES = Object.freeze({
   GET_ASSERTION_CREDENTIAL: 'getAssertionCredential',
   GET_CONDITIONAL_PASSKEY_REQUEST: 'getConditionalPasskeyRequest',
   AUTHENTICATE_WITH_PASSKEY: 'authenticateWithPasskey',
-  GET_PLATFORM_INFO: 'GET_PLATFORM_INFO'
+  GET_PLATFORM_INFO: 'GET_PLATFORM_INFO',
+  GET_AUTO_LOCK_SETTINGS: 'GET_AUTO_LOCK_SETTINGS',
+  SET_AUTO_LOCK_ENABLED: 'SET_AUTO_LOCK_ENABLED',
+  SET_AUTO_LOCK_TIMEOUT: 'SET_AUTO_LOCK_TIMEOUT',
+  RESET_TIMER: 'RESET_TIMER'
 })
 
 /**
@@ -241,6 +245,26 @@ export const secureChannelMessages = {
 
   async getBlockingState() {
     return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.GET_BLOCKING_STATE)
+  },
+
+  async getAutoLockSettings() {
+    return messageBridge.sendMessage(MESSAGE_TYPES.GET_AUTO_LOCK_SETTINGS)
+  },
+
+  async setAutoLockTimeout(autoLockTimeoutMs) {
+    return messageBridge.sendMessage(MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT, {
+      autoLockTimeoutMs
+    })
+  },
+
+  async setAutoLockEnabled(autoLockEnabled) {
+    return messageBridge.sendMessage(MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED, {
+      autoLockEnabled
+    })
+  },
+
+  async resetTimer() {
+    return messageBridge.sendMessage(MESSAGE_TYPES.RESET_TIMER)
   }
 }
 

@@ -524,6 +524,14 @@ function hideLogoOnOutsideClick(event) {
     return
   }
 
+  if (
+    logoIframeData.element &&
+    document.activeElement &&
+    logoIframeData.element.isSameNode(document.activeElement)
+  ) {
+    return
+  }
+
   removeIframe(logoIframeData)
 }
 
