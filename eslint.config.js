@@ -5,7 +5,8 @@ export default [
   {
     languageOptions: {
       globals: {
-        chrome: 'readonly'
+        chrome: 'readonly',
+        browser: 'readonly'
       }
     },
     rules: {

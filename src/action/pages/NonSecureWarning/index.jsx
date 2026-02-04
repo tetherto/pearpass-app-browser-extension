@@ -22,7 +22,7 @@ export const NonSecureWarning = () => {
 
           <p className="text-[16px] font-light">
             <Trans>
-              For your security, the extension is disabled on non-secure HTTP
+              For your security, the extension is disabled on non-secure (HTTP)
               websites by default. If you'd like to move forward, turn on HTTP
               access for PearPass
             </Trans>

@@ -18,6 +18,7 @@ import {
   DESKTOP_APP_STATUS
 } from '../shared/constants/nativeMessaging'
 import { logger } from '../shared/utils/logger'
+import { runtime } from '../shared/utils/runtime'
 
 const createError = (message) => new Error(message)
 
@@ -63,9 +64,7 @@ class NativeMessagingHandler {
     return new Promise((resolve, reject) => {
       try {
         log('Connecting to native host:', NATIVE_MESSAGING_CONFIG.HOST_NAME)
-        this.port = chrome.runtime.connectNative(
-          NATIVE_MESSAGING_CONFIG.HOST_NAME
-        )
+        this.port = runtime.connectNative(NATIVE_MESSAGING_CONFIG.HOST_NAME)
 
         this.port.onMessage.addListener(this._handleMessage.bind(this))
         this.port.onDisconnect.addListener(this._handleDisconnect.bind(this))
@@ -186,7 +185,7 @@ class NativeMessagingHandler {
   }
 
   _handleEvent(message) {
-    chrome.runtime
+    runtime
       .sendMessage({
         type: NATIVE_MESSAGE_TYPES.EVENT,
         event: message.event,
@@ -198,7 +197,7 @@ class NativeMessagingHandler {
   }
 
   _handleDisconnect() {
-    const error = chrome.runtime.lastError
+    const error = runtime.lastError
     logError(NATIVE_MESSAGING_ERRORS.DISCONNECTED, error)
 
     this._rejectAllPendingRequests(error)
@@ -219,7 +218,7 @@ class NativeMessagingHandler {
   }
 
   _notifyDisconnection(error) {
-    chrome.runtime
+    runtime
       .sendMessage({
         type: NATIVE_MESSAGE_TYPES.DISCONNECTED,
         error: error?.message
@@ -375,7 +374,7 @@ const messageHandlers = {
   [NATIVE_MESSAGE_TYPES.DISCONNECT]: handleDisconnect
 }
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const handler = messageHandlers[msg.type]
   if (handler) {
     handler(msg, sendResponse)

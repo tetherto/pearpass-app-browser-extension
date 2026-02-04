@@ -24,6 +24,7 @@ import {
 } from '../shared/constants/nativeMessaging'
 import { base64Encode, base64Decode } from '../shared/utils/base64'
 import { logger } from '../shared/utils/logger'
+import { secureZero } from '../shared/utils/secureZero'
 
 const concatUint8Arrays = (arrays) => {
   // Concatenate multiple Uint8Arrays without using Buffer.concat
@@ -341,6 +342,23 @@ export class SecureChannelClient {
   }
 
   /**
+   * Confirm pairing with the desktop app.
+   * Sends nmConfirmPairing to desktop.
+   * Expects generated and unlocked client keypair.
+   *
+   * @returns {Promise<void>}
+   */
+  async confirmPairing() {
+    const keypair = await ensureClientKeypairGeneratedForPairing()
+    const clientEd25519PublicKeyB64 = base64Encode(keypair.publicKey)
+
+    // Confirm pairing on desktop
+    return nativeMessaging.sendRequest('nmConfirmPairing', {
+      clientEd25519PublicKeyB64
+    })
+  }
+
+  /**
    * Fetch short pairing code (for user confirmation).
    * @deprecated This method is deprecated for security reasons.
    * @returns {Promise<{pairingCode: string}>}
@@ -401,6 +419,7 @@ export class SecureChannelClient {
       [STORAGE_KEYS.x25519PublicKey]: undefined,
       [STORAGE_KEYS.paired]: false
     })
+    await clearClientKeypair()
   }
 
   /**
@@ -494,18 +513,11 @@ export class SecureChannelClient {
         hostEphemeralPublicKeyBytes
       )
 
-      // Derive session key via SHA-256(shared||transcript)
-      const preimage = concatUint8Arrays([sharedSecret, transcript])
-      const digest = await crypto.subtle.digest(
-        CRYPTO_ALGORITHMS.SHA_256,
-        preimage
-      )
-      const sessionSymmetricKey = new Uint8Array(digest).slice(0, 32) // Use first 32 bytes for AES-256
-
-      // Stash session info in-memory (no expiration policy)
+      // Session key derived on-demand from these inputs to minimize memory exposure
       this._session = {
         id: handshakeResponse.sessionId,
-        key: sessionSymmetricKey,
+        sharedSecret,
+        transcript,
         seq: 0,
         hostEphemeralPubB64: handshakeResponse.hostEphemeralPubB64
       }
@@ -590,17 +602,31 @@ export class SecureChannelClient {
     } finally {
       // Clear ephemeral keys from memory
       if (this._ephemeralKeyPair) {
-        try {
-          if (this._ephemeralKeyPair.privateKey)
-            this._ephemeralKeyPair.privateKey.fill(0)
-          if (this._ephemeralKeyPair.publicKey)
-            this._ephemeralKeyPair.publicKey.fill(0)
-        } catch (error) {
-          logger.log('Failed to zero ephemeral keys:', error?.message || error)
-        }
+        secureZero(this._ephemeralKeyPair.privateKey)
+        secureZero(this._ephemeralKeyPair.publicKey)
         this._ephemeralKeyPair = undefined
       }
     }
+  }
+
+  /**
+   * Derive session key from stored shared secret and transcript.
+   * @returns {Promise<Uint8Array>} 32-byte session key
+   * @private
+   */
+  async _deriveSessionKey() {
+    if (!this._session?.sharedSecret || !this._session?.transcript) {
+      throw new Error(SESSION_ERROR_PATTERNS.NO_SESSION)
+    }
+    const preimage = concatUint8Arrays([
+      this._session.sharedSecret,
+      this._session.transcript
+    ])
+    const digest = await crypto.subtle.digest(
+      CRYPTO_ALGORITHMS.SHA_256,
+      preimage
+    )
+    return new Uint8Array(digest).slice(0, 32)
   }
 
   /**
@@ -612,40 +638,46 @@ export class SecureChannelClient {
     if (!this._session) throw new Error(SESSION_ERROR_PATTERNS.NO_SESSION)
 
     const attempt = async () => {
-      // Prepare plaintext JSON
-      const seq = ++this._session.seq
-      const plaintextString = JSON.stringify({ method, params })
-      const plaintext = new TextEncoder().encode(plaintextString)
-      const nonce = generateNonce() // 24-byte nonce for XSalsa20
-      const ciphertext = secretbox(plaintext, nonce, this._session.key)
+      const sessionKey = await this._deriveSessionKey()
+      try {
+        // Prepare plaintext JSON
+        const seq = ++this._session.seq
+        const plaintextString = JSON.stringify({ method, params })
+        const plaintext = new TextEncoder().encode(plaintextString)
+        const nonce = generateNonce() // 24-byte nonce for XSalsa20
+        const ciphertext = secretbox(plaintext, nonce, sessionKey)
 
-      const res = await nativeMessaging.sendRequest(
-        'nmSecureRequest',
-        {
-          sessionId: this._session.id,
-          nonceB64: base64Encode(nonce),
-          ciphertextB64: base64Encode(ciphertext),
-          seq
-        },
-        timeout
-      )
-
-      // Decrypt response
-      const responseNonce = base64Decode(res.nonceB64)
-      const responseCiphertext = base64Decode(res.ciphertextB64)
-      const responsePlaintext = secretboxOpen(
-        responseCiphertext,
-        responseNonce,
-        this._session.key
-      )
-      if (!responsePlaintext)
-        throw new Error(SESSION_ERROR_PATTERNS.DECRYPT_FAILED)
-      const decoded = JSON.parse(new TextDecoder().decode(responsePlaintext))
-      if (!decoded.ok)
-        throw new Error(
-          decoded.error || SESSION_ERROR_PATTERNS.SECURE_REQUEST_FAILED
+        const res = await nativeMessaging.sendRequest(
+          'nmSecureRequest',
+          {
+            sessionId: this._session.id,
+            nonceB64: base64Encode(nonce),
+            ciphertextB64: base64Encode(ciphertext),
+            seq
+          },
+          timeout
         )
-      return decoded.result
+
+        // Decrypt response
+        const responseNonce = base64Decode(res.nonceB64)
+        const responseCiphertext = base64Decode(res.ciphertextB64)
+        const responsePlaintext = secretboxOpen(
+          responseCiphertext,
+          responseNonce,
+          sessionKey
+        )
+        if (!responsePlaintext)
+          throw new Error(SESSION_ERROR_PATTERNS.DECRYPT_FAILED)
+        const decoded = JSON.parse(new TextDecoder().decode(responsePlaintext))
+        if (!decoded.ok)
+          throw new Error(
+            decoded.error || SESSION_ERROR_PATTERNS.SECURE_REQUEST_FAILED
+          )
+        return decoded.result
+      } finally {
+        // Clear session key immediately after use
+        secureZero(sessionKey)
+      }
     }
 
     try {
@@ -690,15 +722,49 @@ export class SecureChannelClient {
     try {
       return await nativeMessaging.sendRequest('nmCloseSession', { sessionId })
     } finally {
-      // Zeroize session key and clear session
-      if (this._session?.key?.fill) {
-        try {
-          this._session.key.fill(0)
-        } catch (error) {
-          logger.log('Failed to zero session key:', error?.message || error)
-        }
-      }
+      // Zeroize shared secret and clear session
+      secureZero(this._session?.sharedSecret)
       this._session = undefined
+    }
+  }
+
+  async getAutoLockSettings() {
+    try {
+      return await nativeMessaging.sendRequest('getAutoLockSettings')
+    } catch (error) {
+      logger.error('Failed to get auto lock settings:', error?.message || error)
+      throw error
+    }
+  }
+
+  async setAutoLockTimeout(autoLockTimeoutMs) {
+    try {
+      return await nativeMessaging.sendRequest('setAutoLockTimeout', {
+        autoLockTimeoutMs
+      })
+    } catch (error) {
+      logger.error('Failed to set auto lock timeout:', error?.message || error)
+      throw error
+    }
+  }
+
+  async setAutoLockEnabled(autoLockEnabled) {
+    try {
+      return await nativeMessaging.sendRequest('setAutoLockEnabled', {
+        autoLockEnabled
+      })
+    } catch (error) {
+      logger.error('Failed to set auto lock enabled:', error?.message || error)
+      throw error
+    }
+  }
+
+  async resetTimer() {
+    try {
+      return await nativeMessaging.sendRequest('resetTimer')
+    } catch (error) {
+      logger.error('Failed to reset timer:', error?.message || error)
+      throw error
     }
   }
 }

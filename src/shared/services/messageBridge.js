@@ -6,7 +6,8 @@ import { logger } from '../utils/logger'
 export const SECURE_MESSAGE_TYPES = Object.freeze({
   GET_IDENTITY: 'SECURE_CHANNEL_GET_IDENTITY',
   CONFIRM_PAIR: 'SECURE_CHANNEL_CONFIRM_PAIR',
-  CHECK_PAIRED: 'SECURE_CHANNEL_CHECK_PAIRED',
+  PIN_IDENTITY: 'PIN_IDENTITY',
+  UNPAIR: 'SECURE_CHANNEL_UNPAIR',
   UNLOCK_CLIENT_KEYSTORE: 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE',
   GET_BLOCKING_STATE: 'SECURE_CHANNEL_GET_BLOCKING_STATE'
 })
@@ -25,7 +26,11 @@ export const MESSAGE_TYPES = Object.freeze({
   GET_ASSERTION_CREDENTIAL: 'getAssertionCredential',
   GET_CONDITIONAL_PASSKEY_REQUEST: 'getConditionalPasskeyRequest',
   AUTHENTICATE_WITH_PASSKEY: 'authenticateWithPasskey',
-  GET_PLATFORM_INFO: 'GET_PLATFORM_INFO'
+  GET_PLATFORM_INFO: 'GET_PLATFORM_INFO',
+  GET_AUTO_LOCK_SETTINGS: 'GET_AUTO_LOCK_SETTINGS',
+  SET_AUTO_LOCK_ENABLED: 'SET_AUTO_LOCK_ENABLED',
+  SET_AUTO_LOCK_TIMEOUT: 'SET_AUTO_LOCK_TIMEOUT',
+  RESET_TIMER: 'RESET_TIMER'
 })
 
 /**
@@ -215,14 +220,18 @@ export const secureChannelMessages = {
     })
   },
 
-  async confirmPair(identity) {
-    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CONFIRM_PAIR, {
+  async confirmPair() {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CONFIRM_PAIR)
+  },
+
+  async pinIdentity(identity) {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.PIN_IDENTITY, {
       identity
     })
   },
 
-  async checkPaired() {
-    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.CHECK_PAIRED)
+  async unpair() {
+    return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.UNPAIR)
   },
 
   async unlockClientKeystore(masterPassword) {
@@ -236,6 +245,26 @@ export const secureChannelMessages = {
 
   async getBlockingState() {
     return messageBridge.sendMessage(SECURE_MESSAGE_TYPES.GET_BLOCKING_STATE)
+  },
+
+  async getAutoLockSettings() {
+    return messageBridge.sendMessage(MESSAGE_TYPES.GET_AUTO_LOCK_SETTINGS)
+  },
+
+  async setAutoLockTimeout(autoLockTimeoutMs) {
+    return messageBridge.sendMessage(MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT, {
+      autoLockTimeoutMs
+    })
+  },
+
+  async setAutoLockEnabled(autoLockEnabled) {
+    return messageBridge.sendMessage(MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED, {
+      autoLockEnabled
+    })
+  },
+
+  async resetTimer() {
+    return messageBridge.sendMessage(MESSAGE_TYPES.RESET_TIMER)
   }
 }
 

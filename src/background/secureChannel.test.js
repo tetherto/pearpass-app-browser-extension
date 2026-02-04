@@ -186,4 +186,44 @@ describe('SecureChannelClient', () => {
     expect(pinned).not.toBeNull()
     expect(global.chrome.runtime.sendMessage).not.toHaveBeenCalled()
   })
+
+  describe('auto-lock passthrough', () => {
+    it('getAutoLockSettings sends request and returns settings', async () => {
+      mockSendRequest.mockResolvedValueOnce({
+        autoLockEnabled: true,
+        autoLockTimeoutMs: 1234
+      })
+
+      const result = await secureChannel.getAutoLockSettings()
+
+      expect(mockSendRequest).toHaveBeenCalledWith('getAutoLockSettings')
+      expect(result).toEqual({ autoLockEnabled: true, autoLockTimeoutMs: 1234 })
+    })
+
+    it('setAutoLockEnabled sends request and resolves', async () => {
+      mockSendRequest.mockResolvedValueOnce({ ok: true })
+      await expect(secureChannel.setAutoLockEnabled(true)).resolves.toEqual({
+        ok: true
+      })
+      expect(mockSendRequest).toHaveBeenCalledWith('setAutoLockEnabled', {
+        autoLockEnabled: true
+      })
+    })
+
+    it('setAutoLockTimeout sends request and resolves', async () => {
+      mockSendRequest.mockResolvedValueOnce({ ok: true })
+      await expect(secureChannel.setAutoLockTimeout(1234)).resolves.toEqual({
+        ok: true
+      })
+      expect(mockSendRequest).toHaveBeenCalledWith('setAutoLockTimeout', {
+        autoLockTimeoutMs: 1234
+      })
+    })
+
+    it('resetTimer sends request and resolves', async () => {
+      mockSendRequest.mockResolvedValueOnce({ ok: true })
+      await expect(secureChannel.resetTimer()).resolves.toEqual({ ok: true })
+      expect(mockSendRequest).toHaveBeenCalledWith('resetTimer')
+    })
+  })
 })

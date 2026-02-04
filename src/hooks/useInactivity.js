@@ -3,26 +3,30 @@ import { useEffect, useRef } from 'react'
 import { BE_AUTO_LOCK_ENABLED } from 'pearpass-lib-constants'
 import { closeAllInstances, useUserData, useVaults } from 'pearpass-lib-vault'
 
-import {
-  getAutoLockTimeoutMs,
-  isAutoLockEnabled
-} from './useAutoLockPreferences'
+import { useAutoLockPreferences } from './useAutoLockPreferences'
 import { NAVIGATION_ROUTES } from '../shared/constants/navigation'
 import { useLoadingContext } from '../shared/context/LoadingContext'
 import { useModal } from '../shared/context/ModalContext'
 import { useRouter } from '../shared/context/RouterContext'
+import { MESSAGE_TYPES } from '../shared/services/messageBridge'
+import { createHeartbeat } from '../shared/utils/heartBeat'
 import { logger } from '../shared/utils/logger'
 
-/**
- * @returns {void}
- */
+const sendResetTimer = createHeartbeat(() => {
+  chrome.runtime.sendMessage({
+    type: MESSAGE_TYPES.RESET_TIMER
+  })
+}, 1000)
+
 export function useInactivity() {
+  const { isAutoLockEnabled, timeoutMs } = useAutoLockPreferences()
+
   const { setIsLoading } = useLoadingContext()
   const { navigate } = useRouter()
   const { refetch: refetchUser } = useUserData()
   const { closeAllModals } = useModal()
-
   const { resetState } = useVaults()
+
   const timerRef = useRef(null)
 
   const resetTimer = () => {
@@ -30,22 +34,20 @@ export function useInactivity() {
       clearTimeout(timerRef.current)
     }
 
-    if (!isAutoLockEnabled()) {
+    if (!isAutoLockEnabled || timeoutMs === null) {
       return
     }
 
-    const timeoutMs = getAutoLockTimeoutMs()
+    sendResetTimer()
 
-    timerRef.current = setTimeout(async () => {
+    timerRef.current = window.setTimeout(async () => {
       const userData = await refetchUser()
       logger.log(
         'INACTIVITY-TIMER',
-        `Inactivity timer triggered, user data: ${JSON.stringify(userData)}`
+        `Triggered, user data: ${JSON.stringify(userData)}`
       )
 
-      if (!userData.isLoggedIn) {
-        return
-      }
+      if (!userData.isLoggedIn) return
 
       setIsLoading(true)
       closeAllModals()
@@ -53,45 +55,27 @@ export function useInactivity() {
         await closeAllInstances()
       }
       setIsLoading(false)
+
       navigate('welcome', {
         params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
       })
-      resetState()
 
-      logger.log('INACTIVITY-TIMER', 'Inactivity timer reset')
+      resetState()
+      logger.log('INACTIVITY-TIMER', 'Completed')
     }, timeoutMs)
   }
 
-  const activityEvents = [
-    'mousemove',
-    'keydown',
-    'mousedown',
-    'touchstart',
-    'scroll'
-  ]
-
   useEffect(() => {
-    // Handler for settings changes - reset timer with new values
-    const handleSettingsChange = () => resetTimer()
+    const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll']
 
-    activityEvents.forEach((event) =>
-      window.addEventListener(event, resetTimer)
-    )
+    events.forEach((e) => window.addEventListener(e, resetTimer))
 
-    // Listen for auto-lock settings changes
-    window.addEventListener('auto-lock-settings-changed', handleSettingsChange)
-
+    // reset when settings change
     resetTimer()
 
     return () => {
-      activityEvents.forEach((event) =>
-        window.removeEventListener(event, resetTimer)
-      )
-      window.removeEventListener(
-        'auto-lock-settings-changed',
-        handleSettingsChange
-      )
+      events.forEach((e) => window.removeEventListener(e, resetTimer))
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [])
+  }, [isAutoLockEnabled, timeoutMs])
 }

@@ -1,43 +1,64 @@
-import { useCallback, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import {
   BE_AUTO_LOCK_ENABLED,
   DEFAULT_AUTO_LOCK_TIMEOUT
 } from 'pearpass-lib-constants'
 
-import { LOCAL_STORAGE_KEYS } from '../shared/constants/storage'
+import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 
-export const useAutoLockPreferences = () => {
-  const [isAutoLockEnabled, setIsAutoLockEnabledState] = useState(() => {
-    if (!BE_AUTO_LOCK_ENABLED) {
-      return false
-    }
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_ENABLED)
-    return stored !== 'false'
-  })
+export function useAutoLockPreferences() {
+  const [isAutoLockEnabled, setIsAutoLockEnabledState] =
+    useState(BE_AUTO_LOCK_ENABLED)
+  const [timeoutMs, setTimeoutMsState] = useState(DEFAULT_AUTO_LOCK_TIMEOUT)
 
-  const [timeoutMs, setTimeoutMsState] = useState(() => {
-    if (!BE_AUTO_LOCK_ENABLED) {
-      return DEFAULT_AUTO_LOCK_TIMEOUT
-    }
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MS)
-    return stored ? Number(stored) : DEFAULT_AUTO_LOCK_TIMEOUT
-  })
+  // Subscribe to storage
+  useEffect(() => {
+    chrome.storage.local.get(
+      ['autoLockEnabled', 'autoLockTimeoutMs'],
+      (res) => {
+        if (typeof res.autoLockEnabled === 'boolean') {
+          setIsAutoLockEnabledState(res.autoLockEnabled)
+        }
+        //newValue can be null when selected "never"
+        if (
+          typeof res.autoLockTimeoutMs === 'number' ||
+          res.autoLockTimeoutMs === null
+        ) {
+          setTimeoutMsState(res.autoLockTimeoutMs)
+        }
+      }
+    )
 
-  const setAutoLockEnabled = useCallback((enabled) => {
-    if (enabled) {
-      localStorage.removeItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_ENABLED)
-    } else {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_ENABLED, 'false')
+    const listener = (changes) => {
+      if (changes.autoLockEnabled) {
+        setIsAutoLockEnabledState(changes.autoLockEnabled.newValue)
+      }
+      //newValue can be null when selected "never"
+      if (
+        changes.autoLockTimeoutMs ||
+        changes.autoLockTimeoutMs?.newValue === null
+      ) {
+        setTimeoutMsState(changes.autoLockTimeoutMs.newValue)
+      }
     }
-    setIsAutoLockEnabledState(enabled)
-    window.dispatchEvent(new Event('auto-lock-settings-changed'))
+
+    chrome.storage.onChanged.addListener(listener)
+    return () => chrome.storage.onChanged.removeListener(listener)
+  }, [])
+
+  const setAutoLockEnabled = useCallback((autoLockEnabled) => {
+    chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED,
+      autoLockEnabled
+    })
   }, [])
 
   const setTimeoutMs = useCallback((ms) => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MS, String(ms))
-    setTimeoutMsState(ms)
-    window.dispatchEvent(new Event('auto-lock-settings-changed'))
+    chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT,
+      autoLockTimeoutMs: ms
+    })
   }, [])
 
   return {
@@ -46,17 +67,4 @@ export const useAutoLockPreferences = () => {
     setAutoLockEnabled,
     setTimeoutMs
   }
-}
-
-export function getAutoLockTimeoutMs() {
-  if (!BE_AUTO_LOCK_ENABLED) {
-    return DEFAULT_AUTO_LOCK_TIMEOUT
-  }
-  const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_TIMEOUT_MS)
-  return stored ? Number(stored) : DEFAULT_AUTO_LOCK_TIMEOUT
-}
-
-export function isAutoLockEnabled() {
-  const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.AUTO_LOCK_ENABLED)
-  return stored !== 'false'
 }

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 
 import { ButtonLittle } from '../../../../shared/components/ButtonLittle'
@@ -53,9 +52,10 @@ export const DesktopConnectionModalContent = ({ onRetry, onClose }) => {
       />
 
       <div className="z-10 flex w-full flex-col items-center gap-[20px]">
-        <span className="font-inter text-white-mode1 w-[350] py-[9] text-center text-[20px] leading-[24px] font-bold">
+        <span className="font-inter text-white-mode1 w-full py-[9] text-center text-[20px] leading-[24px] font-bold">
           <Trans>
-            Open the desktop app and activate browser extension to continue
+            Please make sure the Desktop app is open and you turned on the
+            browser extension connection
           </Trans>
         </span>
 
@@ -65,11 +65,7 @@ export const DesktopConnectionModalContent = ({ onRetry, onClose }) => {
           onClick={handleRetry}
           disabled={loading}
         >
-          {loading ? (
-            <Trans>{t`Syncing...`}</Trans>
-          ) : (
-            <Trans>{t`Sync data with desktop app`}</Trans>
-          )}
+          {loading ? <Trans>Syncing...</Trans> : <Trans>Sync again</Trans>}
         </ButtonLittle>
       </div>
 
