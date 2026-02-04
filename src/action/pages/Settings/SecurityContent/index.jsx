@@ -58,7 +58,7 @@ export const SecurityContent = () => {
         )
       }
       setIsPasswordReminderEnabled(isEnabled)
-    } catch (e) {}
+    } catch {}
   }
 
   const handlePasskeyVerificationChange = (value) => {
@@ -68,7 +68,7 @@ export const SecurityContent = () => {
         value
       )
       setPasskeyVerification(value)
-    } catch (e) {}
+    } catch {}
   }
 
   const selectedTimeoutOption =

@@ -3,6 +3,7 @@ import { eslintConfig } from 'tether-dev-docs'
 export default [
   ...eslintConfig,
   {
+    plugins: eslintConfig[0].plugins,
     languageOptions: {
       globals: {
         chrome: 'readonly',
