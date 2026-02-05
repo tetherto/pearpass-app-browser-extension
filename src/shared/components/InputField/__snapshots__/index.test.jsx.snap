@@ -17,7 +17,6 @@ exports[`InputField Component renders correctly with default props 1`] = `
           <input
             class="font-inter w-full text-base font-bold text-white-mode1 placeholder:text-grey100-mode1 focus:outline-none "
             type="text"
-            value=""
           />
         </div>
       </div>

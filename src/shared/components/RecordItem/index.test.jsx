@@ -51,7 +51,7 @@ describe('RecordItem', () => {
         color: 'blue',
         websiteDomain: 'google.com'
       },
-      {}
+      undefined
     )
   })
 
