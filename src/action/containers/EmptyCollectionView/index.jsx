@@ -5,6 +5,11 @@ import { ButtonCreate } from '../../../shared/components/ButtonCreate'
 import { RECORD_ICON_BY_TYPE } from '../../../shared/constants/recordIconByType'
 import { useRouter } from '../../../shared/context/RouterContext'
 
+/**
+ * @param {{
+ *  isSearchActive?: boolean
+ * }} props
+ */
 export const EmptyCollectionView = ({ isSearchActive }) => {
   const { state, navigate } = useRouter()
 
