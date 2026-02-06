@@ -306,7 +306,7 @@ export const RecordList = () => {
 
         <div className="flex-1 overflow-auto">
           {!records?.length ? (
-            <EmptyCollectionView />
+            <EmptyCollectionView isSearchActive={Boolean(searchValue)} />
           ) : (
             <div className="flex-1 pb-16">
               <RecordListContainer
