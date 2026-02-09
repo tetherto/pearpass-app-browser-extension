@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { BE_AUTO_LOCK_ENABLED } from 'pearpass-lib-constants'
-import { closeAllInstances, useUserData, useVaults } from 'pearpass-lib-vault'
+import { useUserData, useVaults } from 'pearpass-lib-vault'
 
 import { useAutoLockPreferences } from './useAutoLockPreferences'
 import { NAVIGATION_ROUTES } from '../shared/constants/navigation'
@@ -51,9 +50,7 @@ export function useInactivity() {
 
       setIsLoading(true)
       closeAllModals()
-      if (BE_AUTO_LOCK_ENABLED) {
-        await closeAllInstances()
-      }
+
       setIsLoading(false)
 
       navigate('welcome', {
