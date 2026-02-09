@@ -7,7 +7,7 @@ import { LOGO_PADDING, LOGO_SIZE } from './constants/styles'
 import { createIframe } from './utils/createIframe'
 import { findLoginForms } from './utils/findLoginForms'
 import { findSelectOptionValue } from './utils/findSelectOptionValue'
-import { getField } from './utils/getField'
+import { getField, PASSWORD_MATCHERS } from './utils/getField'
 import { isContentScriptEnabled } from './utils/isContentScriptEnabled'
 import { isIdentityField } from './utils/isIdentityField'
 import { isPasswordField } from './utils/isPasswordField'
@@ -237,8 +237,9 @@ function handleAutofillLogin({ username, password }) {
   if (!isAutoFillEnabled) {
     return
   }
+
   const { element: usernameField } = getField(['username', 'email'])
-  const { element: passwordField } = getField(['password'])
+  const { element: passwordField } = getField(PASSWORD_MATCHERS)
 
   if (usernameField) {
     usernameField.value = username
@@ -437,7 +438,7 @@ function detectSubmitClick(event) {
   if (/(next|sign in|login|submit)/.test(label)) {
     setTimeout(() => {
       const { element: userNameField } = getField(['username', 'email'])
-      const { element: passwordField } = getField(['password'])
+      const { element: passwordField } = getField(PASSWORD_MATCHERS)
 
       const username = userNameField?.value
       const password = passwordField?.value
