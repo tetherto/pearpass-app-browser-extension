@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react'
+import { Trans } from '@lingui/react/macro'
 import {
   AUTO_LOCK_TIMEOUT_OPTIONS,
   BE_AUTO_LOCK_ENABLED
@@ -9,6 +10,11 @@ import {
 
 import { useAutoLockPreferences } from '../../../../hooks/useAutoLockPreferences'
 import { CardSingleSetting } from '../../../../shared/components/CardSingleSetting'
+import {
+  Menu,
+  MenuContent,
+  MenuTrigger
+} from '../../../../shared/components/Menu'
 import { RadioOption } from '../../../../shared/components/RadioOption'
 import { Select } from '../../../../shared/components/Select'
 import { SwitchWithLabel } from '../../../../shared/components/SwitchWithLabel'
@@ -18,6 +24,7 @@ import {
 } from '../../../../shared/constants/storage'
 import { useAllowHttpEnabled } from '../../../../shared/hooks/useAllowHttpEnabled'
 import { useCopyToClipboard } from '../../../../shared/hooks/useCopyToClipboard'
+import { InfoIcon } from '../../../../shared/icons/InfoIcon'
 import { isPasswordChangeReminderDisabled } from '../../../../shared/utils/isPasswordChangeReminderDisabled'
 import { getPasskeyVerificationPreference } from '../../../../shared/utils/passkeyVerificationPreference'
 
@@ -104,8 +111,48 @@ export const SecurityContent = () => {
           />
           {BE_AUTO_LOCK_ENABLED && (
             <div className="flex flex-col gap-0.5">
-              <div className="font-inter text-[14px] font-bold text-white">{t`Auto Log-out`}</div>
-              <div className="mb-[6px] text-[12px] text-white/70">{t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}</div>
+              <div className="flex justify-between">
+                <div className="flex flex-col gap-0.5">
+                  <div className="font-inter text-[14px] font-bold text-white">{t`Auto Log-out`}</div>
+                  <div className="mb-[6px] text-[12px] text-white/70">{t`Automatically logs you out after you stop interacting with the app, based on the timeout you select.`}</div>
+                </div>
+                <Menu openOnHover>
+                  <MenuTrigger stopPropagation>
+                    <InfoIcon />
+                  </MenuTrigger>
+                  <MenuContent>
+                    <div className="bg-grey400-mode1 flex w-max flex-col rounded-[10px] p-2.5 shadow-[0px_4px_10px_rgba(0,0,0,0.1)]">
+                      <div className="text-white-mode1 flex w-[400px] flex-col gap-2.5 leading-4">
+                        <ul className="flex list-disc flex-col gap-2 pt-1 pl-5">
+                          <li>
+                            <Trans>
+                              Auto-lock determines how long Pearpass stays
+                              unlocked when you're not actively using it.
+                            </Trans>
+                          </li>
+                          <li>
+                            <Trans>
+                              Inactivity is based on your interaction with
+                              Pearpass, not on device idle time.
+                            </Trans>
+                          </li>
+
+                          {BE_AUTO_LOCK_ENABLED && (
+                            <li>
+                              <Trans>
+                                The browser activity will also keep your session
+                                aligned in Desktop while you're working, and the
+                                setting will be shared by both. Mobile auto-lock
+                                is managed separately.
+                              </Trans>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  </MenuContent>
+                </Menu>
+              </div>
               {isAutoLockEnabled && (
                 <Select
                   items={translatedOptions}

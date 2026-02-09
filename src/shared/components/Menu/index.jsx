@@ -115,6 +115,7 @@ const calculatePosition = (triggerRect, menuRect, anchor, align) => {
  * @property {(open: boolean) => void} [onOpenChange]
  * @property {typeof ANCHOR[keyof typeof ANCHOR]} [anchor='bottom']
  * @property {typeof ALIGN[keyof typeof ALIGN]} [align='start']
+ * @property {boolean} [openOnHover=false]
  */
 
 /**
@@ -125,7 +126,8 @@ export const Menu = ({
   open: controlledOpen,
   onOpenChange,
   anchor = ANCHOR.BOTTOM,
-  align = ALIGN.START
+  align = ALIGN.START,
+  openOnHover = false
 }) => {
   const [internalOpen, setInternalOpen] = useState(false)
   const triggerRef = useRef(null)
@@ -202,10 +204,12 @@ export const Menu = ({
         isOpen,
         toggle,
         close,
+        setIsOpen,
         triggerRef,
         menuRef,
         anchor,
-        align
+        align,
+        openOnHover
       }}
     >
       {children}
@@ -234,19 +238,35 @@ export const MenuTrigger = ({
     throw new Error('MenuTrigger must be used within a Menu')
   }
 
-  const { toggle, triggerRef } = context
+  const { toggle, setIsOpen, triggerRef, openOnHover } = context
 
   const handleClick = (e) => {
     if (stopPropagation) {
       e.stopPropagation()
     }
-    toggle()
+    if (!openOnHover) {
+      toggle()
+    }
+  }
+
+  const handleMouseEnter = () => {
+    if (openOnHover) {
+      setIsOpen(true)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (openOnHover) {
+      setIsOpen(false)
+    }
   }
 
   return (
     <div
       ref={triggerRef}
       onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={className}
       style={{ cursor: 'pointer' }}
     >
@@ -254,7 +274,6 @@ export const MenuTrigger = ({
     </div>
   )
 }
-
 /**
  * @typedef {Object} MenuContentProps
  * @property {React.ReactNode} children
@@ -272,7 +291,20 @@ export const MenuContent = ({ children, className }) => {
     throw new Error('MenuContent must be used within a Menu')
   }
 
-  const { isOpen, menuRef, triggerRef, anchor, align } = context
+  const { isOpen, menuRef, triggerRef, anchor, align, openOnHover, setIsOpen } =
+    context
+
+  const handleMouseEnter = () => {
+    if (openOnHover) {
+      setIsOpen(true)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (openOnHover) {
+      setIsOpen(false)
+    }
+  }
 
   // Calculate position after render
   useEffect(() => {
@@ -314,6 +346,8 @@ export const MenuContent = ({ children, className }) => {
     <div
       ref={menuRef}
       className={className}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       style={{
         position: 'fixed',
         zIndex: 1000,
