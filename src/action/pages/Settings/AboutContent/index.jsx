@@ -6,6 +6,7 @@ import {
   sendSlackFeedback
 } from 'pear-apps-lib-feedback'
 import { PRIVACY_POLICY, TERMS_OF_USE } from 'pearpass-lib-constants'
+import { colors } from 'pearpass-lib-ui-theme-provider'
 
 import { version } from '../../../../../public/manifest.json'
 import { ButtonSecondary } from '../../../../shared/components/ButtonSecondary'
@@ -17,6 +18,7 @@ import {
   SLACK_WEBHOOK_URL_PATH
 } from '../../../../shared/constants/feedback'
 import { useToast } from '../../../../shared/context/ToastContext'
+import { OutsideLinkIcon } from '../../../../shared/icons/OutsideLinkIcon'
 import { logger } from '../../../../shared/utils/logger'
 
 export const AboutContent = () => {
@@ -100,7 +102,7 @@ export const AboutContent = () => {
           <span className="text-grey100-mode1">{t`App version`}</span>
           <span className="text-primary400-mode1 font-bold">{version}</span>
         </div>
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 mb-4 flex flex-col gap-2">
           <a
             className="text-primary400-mode1 hover:text-primary300-mode1 text-[14px] underline"
             target="_blank"
@@ -116,6 +118,26 @@ export const AboutContent = () => {
             {t`Privacy statement`}
           </a>
         </div>
+
+        <a
+          className="flex w-full items-center justify-between text-[14px] text-white"
+          href="https://pass.pears.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="text-grey100-mode1">{t`Visit our website`}</span>
+          <a
+            href="https://pass.pears.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center"
+          >
+            <OutsideLinkIcon size="24" color={colors.primary400.mode1} />
+            <span className="text-primary400-mode1 ml-1 font-bold">
+              {'pass.pears.com'}
+            </span>
+          </a>
+        </a>
       </CardSingleSetting>
     </div>
   )
