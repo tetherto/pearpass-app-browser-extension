@@ -81,7 +81,10 @@ export const RecordList = () => {
           routerState?.recordType === 'all'
             ? undefined
             : routerState?.recordType,
-        folder: routerState?.folder,
+        folder:
+          routerState?.folder && !isFavorite(routerState.folder)
+            ? routerState.folder
+            : undefined,
         isFavorite: routerState?.folder
           ? isFavorite(routerState.folder)
           : undefined
