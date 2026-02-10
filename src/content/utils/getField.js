@@ -1,23 +1,35 @@
+export const PASSWORD_MATCHERS = [
+  'password',
+  'pass',
+  'pwd',
+  'psswd',
+  'pw',
+  'passwd'
+]
+
 /**
  * @param {string[]} keywords
  * @returns {{ element: HTMLInputElement | HTMLSelectElement | null, type: 'input' | 'select' | null }}
  */
 export const getField = (keywords) => {
-  const selector = keywords
-    .flatMap((kw) => [
-      `input[name*="${kw}"]`,
-      `input[id*="${kw}"]`,
-      `input[autocomplete*="${kw}"]`,
-      `input[placeholder*="${kw}"]`,
-      `select[name*="${kw}"]`,
-      `select[id*="${kw}"]`,
-      `select[autocomplete*="${kw}"]`,
-      `label:has(input[id*="${kw}"]) input`,
-      `label:has(select[id*="${kw}"]) select`
-    ])
-    .join(',')
+  const lowerKeywords = keywords.map((kw) => kw.toLowerCase())
+  const attrNames = ['name', 'id', 'autocomplete', 'placeholder']
 
-  let element = document.querySelector(selector)
+  const matches = (element) =>
+    attrNames.some((attr) => {
+      const value = element.getAttribute(attr)
+      return (
+        value && lowerKeywords.some((kw) => value.toLowerCase().includes(kw))
+      )
+    })
+
+  let element = null
+  for (const el of document.querySelectorAll('input, select')) {
+    if (matches(el)) {
+      element = el
+      break
+    }
+  }
 
   if (!element) {
     element = getFieldByLabelText(keywords)
@@ -28,7 +40,6 @@ export const getField = (keywords) => {
   }
 
   const tag = element.tagName.toLowerCase()
-
   return {
     element,
     type: tag === 'input' ? 'input' : tag === 'select' ? 'select' : null

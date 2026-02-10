@@ -1,10 +1,28 @@
-import { getField } from './getField'
+import { getField, PASSWORD_MATCHERS } from './getField'
 
 describe('getField', () => {
   let input, select, label, inputInLabel, selectInLabel
 
   beforeEach(() => {
     document.body.innerHTML = ''
+  })
+
+  it('should match unconventional password field name', () => {
+    document.body.innerHTML =
+      '<input type="password" class="inputtext _55r1 _6luy _9npi" name="psswd" id="psswd" data-testid="royal-psswd">'
+    const input = document.getElementById('psswd')
+    const res = getField(PASSWORD_MATCHERS)
+    expect(res.element).toBe(input)
+    expect(res.type).toBe('input')
+  })
+
+  it('should match case insensitive placeholder', () => {
+    document.body.innerHTML =
+      '<input type="password" class="inputtext _55r1 _6luy _9npi" name="pass" id="pass" data-testid="royal-pass" placeholder="Password" aria-label="Password">'
+    const input = document.getElementById('pass')
+    const res = getField(['password'])
+    expect(res.element).toBe(input)
+    expect(res.type).toBe('input')
   })
 
   it('returns nulls if no matching element', () => {
