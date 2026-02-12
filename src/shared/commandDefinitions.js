@@ -77,7 +77,8 @@ export const COMMAND_DEFINITIONS = {
   setAutoLockEnabled: { params: ['autoLockEnabled'] },
   resetTimer: { params: [] },
   // Password commands
-  initWithPassword: { params: ['password'] }
+  initWithPassword: { params: ['password'] },
+  fetchFavicon: { params: ['url'] }
 }
 
 // Export just the command names
