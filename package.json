@@ -15,7 +15,7 @@
     "build:watch:content": "vite build --watch --config vite.config.content.js --mode development",
     "build:watch:background": "vite build --watch --config vite.config.background.js --mode development",
     "build:watch:inject": "vite build --watch --config vite.config.inject.js --mode development",
-    "build:watch": "npm-run-all --parallel build:watch:main build:watch:content build:watch:background build:watch:inject",
+    "build:watch": "npm-run-all --parallel lingui:extract lingui:compile build:watch:main build:watch:content build:watch:background build:watch:inject",
     "preview": "vite preview",
     "test": "jest",
     "lint:fix": "eslint --fix ./src",
