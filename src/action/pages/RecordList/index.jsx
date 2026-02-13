@@ -81,7 +81,10 @@ export const RecordList = () => {
           routerState?.recordType === 'all'
             ? undefined
             : routerState?.recordType,
-        folder: routerState?.folder,
+        folder:
+          routerState?.folder && !isFavorite(routerState.folder)
+            ? routerState.folder
+            : undefined,
         isFavorite: routerState?.folder
           ? isFavorite(routerState.folder)
           : undefined
@@ -306,7 +309,7 @@ export const RecordList = () => {
 
         <div className="flex-1 overflow-auto">
           {!records?.length ? (
-            <EmptyCollectionView />
+            <EmptyCollectionView isSearchActive={!!searchValue} />
           ) : (
             <div className="flex-1 pb-16">
               <RecordListContainer
