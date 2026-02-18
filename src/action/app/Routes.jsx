@@ -1,5 +1,6 @@
 import { t } from '@lingui/core/macro'
 
+import { useVaultSync } from './hooks/useVaultSync'
 import { useDesktopLogout } from '../../hooks/useDesktopLogout'
 import { useInactivity } from '../../hooks/useInactivity'
 import { FadeInWrapper } from '../../shared/components/FadeInWrapper'
@@ -44,6 +45,8 @@ export const Routes = () => {
   })
 
   useInactivity()
+
+  useVaultSync()
 
   const renderPage = () => {
     switch (currentPage) {

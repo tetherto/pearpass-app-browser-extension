@@ -29,3 +29,5 @@ yalc.lock
 .env
 
 tsconfig.tsbuildinfo
+
+/src/locales

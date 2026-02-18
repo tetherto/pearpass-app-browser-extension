@@ -177,7 +177,7 @@ export const useRecordActionItems = ({
   return {
     actions: [
       ...filteredActions,
-      ...(actionsByRecordType[record.type]
+      ...(record?.type && actionsByRecordType[record.type]
         ? [actionsByRecordType[record.type]]
         : [])
     ]
