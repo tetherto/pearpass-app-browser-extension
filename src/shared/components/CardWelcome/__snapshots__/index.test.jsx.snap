@@ -2,7 +2,7 @@
 
 exports[`CardWelcome Component renders correctly with default props 1`] = `
 <div
-  class="w-full bg-grey400-mode1 border-grey400-mode1 flex max-h-[75vh] flex-col items-center gap-[20px] rounded-[20px] px-[15px] py-[9px] shadow-[5px_5px_10px_0_rgba(0,0,0,0.25)]"
+  class="w-full bg-grey400-mode1 border-grey400-mode1 flex max-h-[75vh] min-h-0 flex-col items-center gap-[20px] overflow-hidden rounded-[20px] px-[15px] py-[9px] shadow-[5px_5px_10px_0_rgba(0,0,0,0.25)]"
 >
   Welcome Content
 </div>
@@ -10,7 +10,7 @@ exports[`CardWelcome Component renders correctly with default props 1`] = `
 
 exports[`CardWelcome Component renders correctly with stretch set to false 1`] = `
 <div
-  class="false bg-grey400-mode1 border-grey400-mode1 flex max-h-[75vh] flex-col items-center gap-[20px] rounded-[20px] px-[15px] py-[9px] shadow-[5px_5px_10px_0_rgba(0,0,0,0.25)]"
+  class="false bg-grey400-mode1 border-grey400-mode1 flex max-h-[75vh] min-h-0 flex-col items-center gap-[20px] overflow-hidden rounded-[20px] px-[15px] py-[9px] shadow-[5px_5px_10px_0_rgba(0,0,0,0.25)]"
 >
   Welcome Content
 </div>

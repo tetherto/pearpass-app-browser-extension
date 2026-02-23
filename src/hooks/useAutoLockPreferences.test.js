@@ -5,7 +5,10 @@ jest.mock('pearpass-lib-constants', () => ({
   DEFAULT_AUTO_LOCK_TIMEOUT: 300000
 }))
 
-import { useAutoLockPreferences } from './useAutoLockPreferences'
+import {
+  useAutoLockPreferences,
+  AutoLockProvider
+} from './useAutoLockPreferences'
 import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 
 describe('useAutoLockPreferences (extension)', () => {
@@ -47,7 +50,9 @@ describe('useAutoLockPreferences (extension)', () => {
       cb({ autoLockEnabled: false, autoLockTimeoutMs: 1234 })
     })
 
-    const { result } = renderHook(() => useAutoLockPreferences())
+    const { result } = renderHook(() => useAutoLockPreferences(), {
+      wrapper: AutoLockProvider
+    })
 
     expect(getMock).toHaveBeenCalledWith(
       ['autoLockEnabled', 'autoLockTimeoutMs'],
@@ -71,7 +76,9 @@ describe('useAutoLockPreferences (extension)', () => {
 
   it('setAutoLockEnabled sends runtime message', () => {
     getMock.mockImplementation((keys, cb) => cb({}))
-    const { result } = renderHook(() => useAutoLockPreferences())
+    const { result } = renderHook(() => useAutoLockPreferences(), {
+      wrapper: AutoLockProvider
+    })
 
     act(() => {
       result.current.setAutoLockEnabled(true)
@@ -85,7 +92,9 @@ describe('useAutoLockPreferences (extension)', () => {
 
   it('setTimeoutMs sends runtime message', () => {
     getMock.mockImplementation((keys, cb) => cb({}))
-    const { result } = renderHook(() => useAutoLockPreferences())
+    const { result } = renderHook(() => useAutoLockPreferences(), {
+      wrapper: AutoLockProvider
+    })
 
     act(() => {
       result.current.setTimeoutMs(9999)

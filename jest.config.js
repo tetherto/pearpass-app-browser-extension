@@ -6,7 +6,10 @@ export default {
   },
   moduleNameMapper: {
     '^pearpass-lib-ui-theme-provider$':
-      '<rootDir>/node_modules/pearpass-lib-ui-theme-provider/src/index.js'
+      '<rootDir>/node_modules/pearpass-lib-ui-theme-provider/src/index.js',
+    '^react$': '<rootDir>/node_modules/react',
+    '^react-dom$': '<rootDir>/node_modules/react-dom',
+    '^react-dom/client$': '<rootDir>/node_modules/react-dom/client'
   },
   testPathIgnorePatterns: ['/node_modules/', '/.yalc/', '/packages/'],
   transformIgnorePatterns: [

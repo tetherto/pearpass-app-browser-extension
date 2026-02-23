@@ -1,4 +1,12 @@
-import { useEffect, useState, useCallback } from 'react'
+import {
+  createContext,
+  createElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 
 import {
   BE_AUTO_LOCK_ENABLED,
@@ -7,7 +15,17 @@ import {
 
 import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 
-export function useAutoLockPreferences() {
+export const AutoLockContext = createContext({
+  shouldBypassAutoLock: false,
+  setShouldBypassAutoLock: () => {},
+  isAutoLockEnabled: BE_AUTO_LOCK_ENABLED,
+  timeoutMs: DEFAULT_AUTO_LOCK_TIMEOUT,
+  setAutoLockEnabled: () => {},
+  setTimeoutMs: () => {}
+})
+
+export const AutoLockProvider = ({ children }) => {
+  const [shouldBypassAutoLock, setShouldBypassAutoLock] = useState(false)
   const [isAutoLockEnabled, setIsAutoLockEnabledState] =
     useState(BE_AUTO_LOCK_ENABLED)
   const [timeoutMs, setTimeoutMsState] = useState(DEFAULT_AUTO_LOCK_TIMEOUT)
@@ -61,10 +79,25 @@ export function useAutoLockPreferences() {
     })
   }, [])
 
-  return {
-    isAutoLockEnabled,
-    timeoutMs,
-    setAutoLockEnabled,
-    setTimeoutMs
-  }
+  const value = useMemo(
+    () => ({
+      shouldBypassAutoLock,
+      setShouldBypassAutoLock,
+      isAutoLockEnabled,
+      timeoutMs,
+      setAutoLockEnabled,
+      setTimeoutMs
+    }),
+    [
+      shouldBypassAutoLock,
+      isAutoLockEnabled,
+      timeoutMs,
+      setAutoLockEnabled,
+      setTimeoutMs
+    ]
+  )
+
+  return createElement(AutoLockContext.Provider, { value }, children)
 }
+
+export const useAutoLockPreferences = () => useContext(AutoLockContext)

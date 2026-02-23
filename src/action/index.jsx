@@ -5,6 +5,7 @@ import { I18nProvider } from '@lingui/react'
 import { VaultProvider } from 'pearpass-lib-vault'
 import { createRoot } from 'react-dom/client'
 
+import { AutoLockProvider } from '../hooks/useAutoLockPreferences'
 import { messages } from '../locales/en/messages.mjs'
 import { createClient } from '../shared/client'
 import { AppWithBlockingState } from '../shared/containers/AppWithBlockingState'
@@ -34,7 +35,9 @@ createRoot(document.getElementById('root')).render(
           <I18nProvider i18n={i18n}>
             <RouterProvider>
               <ModalProvider>
-                <AppWithBlockingState />
+                <AutoLockProvider>
+                  <AppWithBlockingState />
+                </AutoLockProvider>
               </ModalProvider>
             </RouterProvider>
           </I18nProvider>

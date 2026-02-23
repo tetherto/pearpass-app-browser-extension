@@ -1,7 +1,11 @@
 {
   "name": "pearpass-app-browser-extension",
   "private": true,
+<<<<<<< HEAD
   "version": "1.4.0",
+=======
+  "version": "1.5.0",
+>>>>>>> 80365084a03166b152bfa66429d2be77d7528fc7
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
@@ -15,7 +19,7 @@
     "build:watch:content": "vite build --watch --config vite.config.content.js --mode development",
     "build:watch:background": "vite build --watch --config vite.config.background.js --mode development",
     "build:watch:inject": "vite build --watch --config vite.config.inject.js --mode development",
-    "build:watch": "npm-run-all --parallel build:watch:main build:watch:content build:watch:background build:watch:inject",
+    "build:watch": "npm-run-all --parallel lingui:extract lingui:compile build:watch:main build:watch:content build:watch:background build:watch:inject",
     "preview": "vite preview",
     "test": "jest",
     "lint:fix": "eslint --fix ./src",
@@ -48,9 +52,9 @@
     "pearpass-lib-vault": "file:packages/pearpass-lib-vault",
     "pearpass-utils-password-check": "file:packages/pearpass-utils-password-check",
     "pearpass-utils-password-generator": "file:packages/pearpass-utils-password-generator",
-    "react": "18.3.1",
-    "react-dom": "18.3.0",
-    "react-redux": "9.1.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-redux": "9.2.0",
     "styled-components": "6.1.19",
     "tailwind-merge": "3.3.0",
     "tailwindcss": "4.1.4",
@@ -60,10 +64,16 @@
     "@babel/core": "7.26.10",
     "@babel/preset-env": "7.26.9",
     "@babel/preset-react": "7.26.3",
+    "@babel/preset-typescript": "^7.28.5",
     "@lingui/babel-plugin-lingui-macro": "5.1.2",
     "@lingui/cli": "5.1.2",
     "@testing-library/jest-dom": "6.6.3",
-    "@testing-library/react": "15.0.7",
+    "@testing-library/react": "16.3.2",
+    "@types/chrome": "^0.1.36",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.1.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "4.3.4",
     "babel-jest": "29.7.0",
     "husky": "9.1.7",
@@ -72,6 +82,7 @@
     "npm-run-all": "4.1.5",
     "pear-interface": "1.0.0",
     "prettier-plugin-tailwindcss": "0.6.11",
+    "typescript": "^5.9.3",
     "vite": "6.3.1"
   }
 }

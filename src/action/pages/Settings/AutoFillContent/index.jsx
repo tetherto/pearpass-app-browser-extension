@@ -27,7 +27,7 @@ export const AutoFillContent = () => {
     setIsAutoFillEnabled(isEnabled)
     try {
       await setAutofillEnabled(isEnabled)
-    } catch (e) {
+    } catch {
       setIsAutoFillEnabled(prev)
     }
   }

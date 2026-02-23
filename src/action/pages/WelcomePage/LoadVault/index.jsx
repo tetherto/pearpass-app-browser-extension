@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 import { usePair, useVault } from 'pearpass-lib-vault'
 
+import { useAutoLockPreferences } from '../../../../hooks/useAutoLockPreferences'
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { ButtonSecondary } from '../../../../shared/components/ButtonSecondary'
 import { CardWelcome } from '../../../../shared/components/CardWelcome'
@@ -15,6 +16,7 @@ import { logger } from '../../../../shared/utils/logger'
 import { WelcomeCardHeader } from '../components/WelcomeCardHeader'
 
 export const LoadVault = () => {
+  const { setShouldBypassAutoLock } = useAutoLockPreferences()
   const { isLoading, setIsLoading } = useLoadingContext()
   const { navigate } = useRouter()
   const { setToast } = useToast()
@@ -28,6 +30,11 @@ export const LoadVault = () => {
     cancelPairActiveVault,
     isLoading: isPairing
   } = usePair()
+
+  useEffect(() => {
+    setShouldBypassAutoLock(isPairing)
+    return () => setShouldBypassAutoLock(false)
+  }, [isPairing, setShouldBypassAutoLock])
 
   const handleChange = (e) => {
     setInviteCodeId(e.target.value)

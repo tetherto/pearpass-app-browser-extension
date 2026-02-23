@@ -18,7 +18,8 @@ const sendResetTimer = createHeartbeat(() => {
 }, 1000)
 
 export function useInactivity() {
-  const { isAutoLockEnabled, timeoutMs } = useAutoLockPreferences()
+  const { isAutoLockEnabled, timeoutMs, shouldBypassAutoLock } =
+    useAutoLockPreferences()
 
   const { setIsLoading } = useLoadingContext()
   const { navigate } = useRouter()
@@ -33,7 +34,7 @@ export function useInactivity() {
       clearTimeout(timerRef.current)
     }
 
-    if (!isAutoLockEnabled || timeoutMs === null) {
+    if (!isAutoLockEnabled || timeoutMs === null || shouldBypassAutoLock) {
       return
     }
 
@@ -74,5 +75,5 @@ export function useInactivity() {
       events.forEach((e) => window.removeEventListener(e, resetTimer))
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [isAutoLockEnabled, timeoutMs])
+  }, [isAutoLockEnabled, timeoutMs, shouldBypassAutoLock])
 }

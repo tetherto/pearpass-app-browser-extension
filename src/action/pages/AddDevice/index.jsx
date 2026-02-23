@@ -12,6 +12,7 @@ import {
   useVault
 } from 'pearpass-lib-vault'
 
+import { useAutoLockPreferences } from '../../../hooks/useAutoLockPreferences'
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
 import { CardWarning } from '../../../shared/components/CardWarningText'
@@ -33,6 +34,13 @@ import { logger } from '../../../shared/utils/logger'
 import { VaultPasswordForm } from '../../containers/VaultPasswordForm'
 
 export const AddDevice = () => {
+  const { setShouldBypassAutoLock } = useAutoLockPreferences()
+
+  useEffect(() => {
+    setShouldBypassAutoLock(true)
+    return () => setShouldBypassAutoLock(false)
+  }, [setShouldBypassAutoLock])
+
   const { navigate } = useRouter()
   const { closeModal } = useModal()
   const [qrSvg, setQrSvg] = useState('')

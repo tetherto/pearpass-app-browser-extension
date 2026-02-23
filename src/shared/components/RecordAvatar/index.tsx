@@ -1,23 +1,21 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { colors } from 'pearpass-lib-ui-theme-provider'
-import { getDefaultFavicon } from 'pearpass-lib-vault'
 
 import { CheckIcon } from '../../../shared/icons/CheckIcon'
 import { StarIcon } from '../../../shared/icons/StarIcon'
-import { extractDomainName } from '../../utils/extractDomainName'
+import { useFavicon } from 'pearpass-lib-vault'
 
-/**
- * @param {{
- *  websiteDomain: string,
- *  initials: string,
- *  size?: 'md' | 'sm',
- *  isSelected?: boolean,
- *  isFavorite?: boolean,
- *  color: string
- * }} props
- */
-export const RecordAvatar = ({
+interface RecordAvatarProps {
+  websiteDomain: string
+  initials: string
+  size?: 'md' | 'sm'
+  isSelected?: boolean
+  isFavorite?: boolean
+  color: string
+}
+
+export const RecordAvatar: React.FC<RecordAvatarProps> = ({
   websiteDomain,
   initials,
   size = 'md',
@@ -26,16 +24,9 @@ export const RecordAvatar = ({
   color
 }) => {
   const isSmall = size === 'sm'
+  const { faviconSrc } = useFavicon({ url: websiteDomain })
 
-  const avatarSrc = useMemo(() => {
-    if (!websiteDomain) {
-      return null
-    }
-
-    const website = extractDomainName(websiteDomain)
-    const avatarBuffer = getDefaultFavicon(website) || null
-    return avatarBuffer ? URL.createObjectURL(new Blob([avatarBuffer])) : null
-  }, [websiteDomain])
+  const avatarSrc = faviconSrc
 
   if (isSelected) {
     return (
