@@ -59,8 +59,8 @@ export const PassPhraseDetailsForm = ({ initialRecord }) => {
       <FormGroup>
         {!!values?.note?.length && (
           <InputField
-            label={t`Note`}
-            placeholder={t`Add note`}
+            label={t`Comment`}
+            placeholder={t`Add comment`}
             variant="outline"
             icon={CommonFileIcon}
             additionalItems={<CopyButton value={values.note} />}

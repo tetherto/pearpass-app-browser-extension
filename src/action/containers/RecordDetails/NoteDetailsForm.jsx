@@ -46,7 +46,7 @@ export const NoteDetailsForm = ({ initialRecord }) => {
             readonly
             additionalItems={<CopyButton value={values.note} />}
             {...register('note')}
-            placeholder={t`Write a note...`}
+            placeholder={t`Write a comment...`}
           />
         )}
       </FormGroup>

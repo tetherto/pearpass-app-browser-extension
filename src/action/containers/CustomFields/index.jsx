@@ -38,8 +38,8 @@ export const CustomFields = ({
         return (
           <FormGroup key={customField.id}>
             <InputField
-              label={t`Note`}
-              placeholder={t`Add note`}
+              label={t`Comment`}
+              placeholder={t`Add comment`}
               variant="outline"
               icon={CommonFileIcon}
               onClick={onClick}
