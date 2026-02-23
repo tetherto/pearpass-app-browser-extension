@@ -44,7 +44,7 @@ export const LockedScreen = () => {
 
         <div className="text-white-mode1 font-inter flex flex-col text-sm leading-normal font-normal">
           <span>{t`Too many failed attempts.`}</span>
-          <span>{t`For your security, access is locked for 5 minutes.`}</span>
+          <span>{t`For your security, access is temporarily locked.`}</span>
         </div>
 
         <div className="mt-[15px] flex w-full items-center justify-between rounded-[10px] bg-white/5 px-[10px] py-[7px]">
