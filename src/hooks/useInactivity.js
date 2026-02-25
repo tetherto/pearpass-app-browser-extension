@@ -29,6 +29,8 @@ export function useInactivity() {
 
   const timerRef = useRef(null)
 
+  const bypassIntervalRef = useRef(null)
+
   const resetTimer = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current)
@@ -62,6 +64,25 @@ export function useInactivity() {
       logger.log('INACTIVITY-TIMER', 'Completed')
     }, timeoutMs)
   }
+
+  useEffect(() => {
+    if (shouldBypassAutoLock) {
+      bypassIntervalRef.current = setInterval(() => {
+        sendResetTimer()
+      }, 1000)
+    } else {
+      if (bypassIntervalRef.current) {
+        clearInterval(bypassIntervalRef.current)
+        bypassIntervalRef.current = null
+      }
+    }
+    return () => {
+      if (bypassIntervalRef.current) {
+        clearInterval(bypassIntervalRef.current)
+        bypassIntervalRef.current = null
+      }
+    }
+  }, [shouldBypassAutoLock])
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll']
