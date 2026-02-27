@@ -20,7 +20,7 @@ export const CreateOrEditCustom = ({
     title: Validator.string().required(t`Title is required`),
     customFields: Validator.array().items(
       Validator.object({
-        note: Validator.string().required(t`Note is required`)
+        note: Validator.string().required(t`Comment is required`)
       })
     ),
     folder: Validator.string()

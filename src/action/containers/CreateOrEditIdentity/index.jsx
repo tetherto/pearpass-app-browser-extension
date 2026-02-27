@@ -38,7 +38,7 @@ export const CreateOrEditIdentity = ({
     note: Validator.string(),
     customFields: Validator.array().items(
       Validator.object({
-        note: Validator.string().required(t`Note is required`)
+        note: Validator.string().required(t`Comment is required`)
       })
     ),
     folder: Validator.string(),
@@ -382,8 +382,8 @@ export const CreateOrEditIdentity = ({
 
         <FormGroup>
           <InputField
-            label={t`Note`}
-            placeholder={t`Add note`}
+            label={t`Comment`}
+            placeholder={t`Add comment`}
             variant="outline"
             icon={CommonFileIcon}
             {...register('note')}

@@ -11,7 +11,7 @@ import { PlusIcon } from '../../../shared/icons/PlusIcon'
 
 const OPTIONS = [
   {
-    name: 'Note',
+    name: 'Comment',
     type: 'note',
     icon: CommonFileIcon
   }
