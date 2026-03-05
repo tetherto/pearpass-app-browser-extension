@@ -79,6 +79,16 @@
     "pear-interface": "1.0.0",
     "prettier-plugin-tailwindcss": "0.6.11",
     "typescript": "^5.9.3",
-    "vite": "6.3.1"
+    "vite": "6.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint": "9.18.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-eslint-plugin": "6.4.0",
+    "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-react": "7.37.4",
+    "globals": "15.14.0",
+    "prettier": "3.4.2"
   }
 }
