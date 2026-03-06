@@ -24,18 +24,13 @@ This is the browser extension for Pearpass, a secure password and data vault. It
     cd pearpass-app-browser-extension
     ```
 
-2. **Initialize and update submodules**
-    ```sh
-    git submodule update --init --recursive
-    ```
-
-3.  **Install dependencies:**
+2.  **Install dependencies:**
     This project uses `npm`.
     ```sh
     npm install
     ```
 
-4.  **Build the extension:**
+3.  **Build the extension:**
     ```sh
     npm run build
     ```
@@ -47,7 +42,7 @@ This is the browser extension for Pearpass, a secure password and data vault. It
     ```
     This will watch for file changes and rebuild automatically.
 
-5.  **Load the extension in your browser:**
+4.  **Load the extension in your browser:**
     *   Open your browser's extension management page (e.g., `chrome://extensions` in Chrome).
     *   Enable "Developer mode".
     *   Click "Load unpacked" and select the `dist` directory.
