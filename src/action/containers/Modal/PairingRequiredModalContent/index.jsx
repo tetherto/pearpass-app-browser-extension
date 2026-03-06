@@ -46,10 +46,12 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
               <Trans>1. Open PearPass desktop app</Trans>
             </p>
             <p>
-              <Trans>2. Go to Settings → Advanced → Custom settings</Trans>
+              <Trans>2. Go to Settings → Syncing → Browser Extension</Trans>
             </p>
             <p>
-              <Trans>3. Activate extension and copy the pairing token</Trans>
+              <Trans>
+                3. Activate browser extension and copy the pairing token
+              </Trans>
             </p>
           </div>
 
