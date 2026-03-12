@@ -78,7 +78,13 @@ export const COMMAND_DEFINITIONS = {
   resetTimer: { params: [] },
   // Password commands
   initWithPassword: { params: ['password'] },
-  fetchFavicon: { params: ['url'] }
+  fetchFavicon: { params: ['url'] },
+
+  // OTP commands
+  generateOtpCodesByIds: { params: ['recordIds'] },
+  generateHotpNext: { params: ['recordId'] },
+  addOtpToRecord: { params: ['recordId', 'otpInput'] },
+  removeOtpFromRecord: { params: ['recordId'] }
 }
 
 // Export just the command names

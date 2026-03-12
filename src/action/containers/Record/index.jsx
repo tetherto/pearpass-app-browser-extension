@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { formatOtpCode } from 'pearpass-lib-vault'
+
+import { CopyButton } from '../../../shared/components/CopyButton'
 import { Menu, MenuContent, MenuTrigger } from '../../../shared/components/Menu'
 import { RecordActionsPopupContent } from '../../../shared/components/RecordActionsPopupContent'
 import { RecordItem } from '../../../shared/components/RecordItem'
@@ -23,10 +26,17 @@ import { KebabMenuIcon } from '../../../shared/icons/KebabMenuIcon'
  *  },
  *  isSelected: boolean,
  *  onClick: () => void
- *  onSelect: () => void
+ *  onSelect: () => void,
+ *  otpCode?: string | null
  * }} props
  */
-export const Record = ({ record, isSelected = false, onClick, onSelect }) => {
+export const Record = ({
+  record,
+  isSelected = false,
+  onClick,
+  onSelect,
+  otpCode
+}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const { actions } = useRecordActionItems({
@@ -44,6 +54,8 @@ export const Record = ({ record, isSelected = false, onClick, onSelect }) => {
   const websiteDomain =
     record.type === 'login' ? record?.data?.websites?.[0] : null
 
+  const formattedOtp = otpCode ? formatOtpCode(otpCode) : null
+
   return (
     <div
       onClick={onClick}
@@ -58,16 +70,29 @@ export const Record = ({ record, isSelected = false, onClick, onSelect }) => {
         isSelected={isSelected}
       />
 
-      {!isSelected && (
-        <Menu open={isOpen} onOpenChange={setIsOpen}>
-          <MenuTrigger stopPropagation>
-            <KebabMenuIcon />
-          </MenuTrigger>
-          <MenuContent>
-            <RecordActionsPopupContent menuItems={actions} />
-          </MenuContent>
-        </Menu>
-      )}
+      <div className="flex shrink-0 items-center gap-2">
+        {formattedOtp && (
+          <>
+            <span className="text-white-mode1 text-sm font-semibold tracking-wider">
+              {formattedOtp}
+            </span>
+            <span onClick={(e) => e.stopPropagation()}>
+              <CopyButton value={otpCode} />
+            </span>
+          </>
+        )}
+
+        {!isSelected && (
+          <Menu open={isOpen} onOpenChange={setIsOpen}>
+            <MenuTrigger stopPropagation>
+              <KebabMenuIcon />
+            </MenuTrigger>
+            <MenuContent>
+              <RecordActionsPopupContent menuItems={actions} />
+            </MenuContent>
+          </Menu>
+        )}
+      </div>
     </div>
   )
 }

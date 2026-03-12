@@ -1,0 +1,4 @@
+import { colors } from 'pearpass-lib-ui-theme-provider'
+
+export const getTimerColor = (expiring) =>
+  expiring ? colors.errorRed.mode1 : colors.primary400.mode1

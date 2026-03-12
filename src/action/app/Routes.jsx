@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro'
+import { OtpRefreshProvider } from 'pearpass-lib-vault'
 
 import { useVaultSync } from './hooks/useVaultSync'
 import { useDesktopLogout } from '../../hooks/useDesktopLogout'
@@ -13,6 +14,7 @@ import { useAllowHttpEnabled } from '../../shared/hooks/useAllowHttpEnabled'
 import { LockIcon } from '../../shared/icons/LockIcon'
 import { CreateOrEditCategory } from '../../shared/pages/CreateOrEditCategory'
 import { AddDevice } from '../pages/AddDevice'
+import { AuthenticatorView } from '../pages/AuthenticatorView'
 import { CreatePasskey } from '../pages/CreatePasskey'
 import { NonSecureWarning } from '../pages/NonSecureWarning'
 import { RecordDetails } from '../pages/RecordDetails'
@@ -68,6 +70,12 @@ export const Routes = () => {
             <RecordList />
           </FadeInWrapper>
         )
+      case 'authenticator':
+        return (
+          <FadeInWrapper key="authenticator">
+            <AuthenticatorView />
+          </FadeInWrapper>
+        )
       case 'recordDetails':
         return (
           <FadeInWrapper key="recordDetails">
@@ -104,7 +112,7 @@ export const Routes = () => {
   }
 
   return (
-    <>
+    <OtpRefreshProvider>
       {renderPage()}
 
       {!isSecure && !isAllowHttpEnabled && (
@@ -112,6 +120,6 @@ export const Routes = () => {
           <NonSecureWarning />
         </FadeInWrapper>
       )}
-    </>
+    </OtpRefreshProvider>
   )
 }

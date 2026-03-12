@@ -58,7 +58,7 @@ export const CreateOrEditCategory = () => {
         })
       } else if (initialRecord && Object.keys(initialRecord).length > 0) {
         navigate('recordDetails', {
-          params: { recordId: initialRecord.id },
+          params: { recordId: initialRecord.id, source: params?.source },
           state: {}
         })
       } else {

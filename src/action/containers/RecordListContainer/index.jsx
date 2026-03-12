@@ -45,6 +45,7 @@ export const RecordListContainer = ({
               key={record.id}
               record={record}
               isSelected={isSelected}
+              otpCode={record?.otpPublic?.currentCode ?? null}
               onClick={() => onRecordClick(record.id, isSelected)}
               onSelect={() => onRecordSelect(record.id)}
             />

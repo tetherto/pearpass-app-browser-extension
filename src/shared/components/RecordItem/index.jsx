@@ -25,7 +25,10 @@ export const RecordItem = ({
   isSelected = false,
   onClick
 }) => (
-  <div className="flex items-center gap-[10px]" onClick={onClick}>
+  <div
+    className="flex min-w-0 flex-1 items-center gap-[10px]"
+    onClick={onClick}
+  >
     <RecordAvatar
       websiteDomain={websiteDomain}
       initials={generateAvatarInitials(title)}
@@ -34,10 +37,10 @@ export const RecordItem = ({
       color={RECORD_COLOR_BY_TYPE[type]}
     />
 
-    <div className="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal">
-      <span>{title}</span>
+    <div className="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal">
+      <span className="truncate">{title}</span>
 
-      <p className="text-grey100-mode1 text-[12px]">{folder}</p>
+      <p className="text-grey100-mode1 truncate text-[12px]">{folder}</p>
     </div>
   </div>
 )

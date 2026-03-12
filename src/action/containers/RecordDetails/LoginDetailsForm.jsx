@@ -11,6 +11,7 @@ import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
 import { InputFieldPassword } from '../../../shared/components/InputFieldPassword'
+import { OtpCodeField } from '../../../shared/components/OtpCodeField'
 import { CommonFileIcon } from '../../../shared/icons/CommonFileIcon'
 import { KeyIcon } from '../../../shared/icons/KeyIcon'
 import { UserIcon } from '../../../shared/icons/UserIcon'
@@ -120,6 +121,15 @@ export const LoginDetailsForm = ({ initialRecord }) => {
           />
         )}
       </FormGroup>
+
+      {!!initialRecord?.otpPublic && (
+        <FormGroup>
+          <OtpCodeField
+            recordId={initialRecord.id}
+            otpPublic={initialRecord.otpPublic}
+          />
+        </FormGroup>
+      )}
 
       {websitesList.length && (
         <CompoundField>

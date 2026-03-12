@@ -38,11 +38,17 @@ export const RecordDetails = () => {
   })
 
   const handleEdit = () => {
-    navigate('createOrEditCategory', { params: { recordId: record?.id } })
+    navigate('createOrEditCategory', {
+      params: { recordId: record?.id, source: params.source }
+    })
   }
 
   const handleCollapseRecordDetails = () => {
-    navigate('vault', { state: { recordType: 'all' } })
+    if (params.source === 'authenticator') {
+      navigate('authenticator')
+    } else {
+      navigate('vault', { state: { recordType: 'all' } })
+    }
   }
 
   useEffect(() => {
