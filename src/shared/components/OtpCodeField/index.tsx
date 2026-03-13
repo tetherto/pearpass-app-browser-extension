@@ -2,21 +2,12 @@ import React from 'react'
 
 import { t } from '@lingui/core/macro'
 import { formatOtpCode, OTP_TYPE, useOtp } from 'pearpass-lib-vault'
+import type { OtpPublic } from 'pearpass-lib-vault/src/types'
 
 import { CopyButton } from '../CopyButton'
 import { InputField } from '../InputField'
 import { TimerBar } from '../TimerBar'
 import { LockIcon } from '../../icons/LockIcon'
-
-interface OtpPublic {
-  type: 'TOTP' | 'HOTP'
-  digits: number
-  period?: number
-  issuer?: string
-  label?: string
-  currentCode: string | null
-  timeRemaining?: number | null
-}
 
 interface OtpCodeFieldProps {
   recordId: string

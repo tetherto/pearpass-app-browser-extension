@@ -2,7 +2,7 @@ import React from 'react'
 
 import { useTimerAnimation } from 'pearpass-lib-vault'
 
-import { getTimerColor } from '../../constants/otp'
+import { getTimerColor } from '../../utils/otp'
 
 interface TimerBarProps {
   timeRemaining: number | null

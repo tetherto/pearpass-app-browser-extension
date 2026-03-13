@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useRecords, isExpiring, OTP_TYPE } from 'pearpass-lib-vault'
+import { useRecords, isExpiring, groupOtpRecords } from 'pearpass-lib-vault'
 
 import { InputSearch } from '../../../shared/components/InputSearch'
 import { TimerCircle } from '../../../shared/components/TimerCircle'
-import { getTimerColor } from '../../../shared/constants/otp'
 import { Sidebar } from '../../../shared/containers/Sidebar'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { PlusIcon } from '../../../shared/icons/PlusIcon'
 import { AuthenticatorIllustration } from '../../../shared/svgs/authenticatorIllustration'
 import { LogoLock } from '../../../shared/svgs/logoLock'
+import { getTimerColor } from '../../../shared/utils/otp'
 import { Record } from '../../containers/Record'
 import { SyncData } from '../../containers/SyncData'
 
@@ -41,29 +41,10 @@ export const AuthenticatorView = () => {
     })
   }
 
-  const { totpGroups, hotpRecords } = useMemo(() => {
-    const groupMap = {}
-    const hotp = []
-
-    for (const record of otpRecords) {
-      if (record.otpPublic?.type === OTP_TYPE.HOTP) {
-        hotp.push(record)
-      } else {
-        const period = record.otpPublic?.period ?? 30
-        if (!groupMap[period]) groupMap[period] = []
-        groupMap[period].push(record)
-      }
-    }
-
-    const groups = Object.entries(groupMap)
-      .map(([period, groupRecords]) => ({
-        period: Number(period),
-        records: groupRecords
-      }))
-      .sort((a, b) => a.period - b.period)
-
-    return { totpGroups: groups, hotpRecords: hotp }
-  }, [otpRecords])
+  const { totpGroups, hotpRecords } = useMemo(
+    () => groupOtpRecords(otpRecords),
+    [otpRecords]
+  )
 
   return (
     <div className="flex h-full w-full flex-col">
