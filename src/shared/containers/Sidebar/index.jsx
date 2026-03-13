@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
+import { AUTHENTICATOR_ENABLED } from 'pearpass-lib-constants'
 import { colors } from 'pearpass-lib-ui-theme-provider'
 import {
   closeAllInstances,
@@ -221,16 +222,18 @@ export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
           />
         </div>
         <div className="flex flex-col gap-2.5">
-          <button
-            onClick={() => {
-              navigate('authenticator')
-              onClose()
-            }}
-            className="text-white-mode1 bg-grey400-mode1 flex cursor-pointer items-center gap-1 rounded-[10px] px-[15px] py-[8px] text-[14px]"
-          >
-            <LockIcon size="24" color={colors.white.mode1} />
-            {t`Authenticator`}
-          </button>
+          {AUTHENTICATOR_ENABLED && (
+            <button
+              onClick={() => {
+                navigate('authenticator')
+                onClose()
+              }}
+              className="text-white-mode1 bg-grey400-mode1 flex cursor-pointer items-center gap-1 rounded-[10px] px-[15px] py-[8px] text-[14px]"
+            >
+              <LockIcon size="24" color={colors.white.mode1} />
+              {t`Authenticator`}
+            </button>
+          )}
 
           <button
             onClick={() => {

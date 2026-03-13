@@ -3,6 +3,7 @@ import React from 'react'
 import { t } from '@lingui/core/macro'
 import { useForm } from 'pear-apps-lib-ui-react-hooks'
 import { Validator } from 'pear-apps-utils-validator'
+import { AUTHENTICATOR_ENABLED } from 'pearpass-lib-constants'
 import { RECORD_TYPES, useCreateRecord, useRecords } from 'pearpass-lib-vault'
 
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
@@ -223,15 +224,17 @@ export const CreateOrEditLogin = ({
           )}
         </FormGroup>
 
-        <FormGroup>
-          <InputFieldPassword
-            label={t`Authenticator Secret Key`}
-            placeholder={t`Enter Secret Key or otpauth:// URI`}
-            variant="outline"
-            icon={LockIcon}
-            {...register('otpSecret')}
-          />
-        </FormGroup>
+        {AUTHENTICATOR_ENABLED && (
+          <FormGroup>
+            <InputFieldPassword
+              label={t`Authenticator Secret Key`}
+              placeholder={t`Enter Secret Key or otpauth:// URI`}
+              variant="outline"
+              icon={LockIcon}
+              {...register('otpSecret')}
+            />
+          </FormGroup>
+        )}
 
         <CompoundField>
           {websitesList.map((website, index) => (

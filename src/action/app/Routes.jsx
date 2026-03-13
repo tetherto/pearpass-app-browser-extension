@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro'
+import { AUTHENTICATOR_ENABLED } from 'pearpass-lib-constants'
 import { OtpRefreshProvider } from 'pearpass-lib-vault'
 
 import { useVaultSync } from './hooks/useVaultSync'
@@ -71,6 +72,7 @@ export const Routes = () => {
           </FadeInWrapper>
         )
       case 'authenticator':
+        if (!AUTHENTICATOR_ENABLED) break
         return (
           <FadeInWrapper key="authenticator">
             <AuthenticatorView />
