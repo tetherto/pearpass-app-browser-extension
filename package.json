@@ -22,8 +22,7 @@
     "lint": "eslint ./src",
     "prepare": "husky",
     "lingui:extract": "lingui extract",
-    "lingui:compile": "lingui compile",
-    "update-submodules": "bash scripts/update-submodules.sh"
+    "lingui:compile": "lingui compile"
   },
   "dependencies": {
     "@lingui/core": "5.1.2",
