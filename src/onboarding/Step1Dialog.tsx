@@ -1,6 +1,10 @@
 import React from 'react'
-import { Button, Title, Text } from '@tetherto/pearpass-lib-ui-kit'
-import { InlineDialog } from './InlineDialog'
+import {
+  Button,
+  Title,
+  Text,
+  DialogSurface
+} from '@tetherto/pearpass-lib-ui-kit'
 import {
   ONBOARDING_DIALOG_HEIGHT,
   ONBOARDING_ICON_COLOR,
@@ -25,12 +29,17 @@ export const Step1Dialog = ({ onNext }: Step1Props) => {
   )
 
   return (
-    <InlineDialog
+    <DialogSurface
       title="Step 1 of 3"
       footer={footer}
       hideCloseButton
-      open
-      style={{ height: ONBOARDING_DIALOG_HEIGHT }}
+      style={
+        {
+          width: '100%',
+          maxWidth: '100%',
+          minHeight: ONBOARDING_DIALOG_HEIGHT
+        } as any
+      }
     >
       <div className="flex flex-col gap-4">
         <img
@@ -77,6 +86,6 @@ export const Step1Dialog = ({ onNext }: Step1Props) => {
           </div>
         </div>
       </div>
-    </InlineDialog>
+    </DialogSurface>
   )
 }

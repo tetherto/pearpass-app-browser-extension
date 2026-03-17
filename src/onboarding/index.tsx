@@ -18,7 +18,10 @@ const OnboardingPage = () => {
 
   return (
     <div className="bg-grey500-mode1 h-screen w-full">
-      <div className="relative flex h-full w-full flex-col items-center gap-5 overflow-hidden p-9 pt-[52px]">
+      <div
+        className="relative flex h-full w-full flex-col items-center gap-5 overflow-y-auto p-9 pt-[52px]"
+        style={{ scrollbarWidth: 'auto', msOverflowStyle: 'auto' }}
+      >
         <img
           src="/assets/images/logoLock.png"
           className="h-[50px] w-[190px]"

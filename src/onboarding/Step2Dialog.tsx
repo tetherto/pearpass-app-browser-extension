@@ -4,9 +4,9 @@ import {
   Title,
   Text,
   InputField,
-  AlertMessage
+  AlertMessage,
+  DialogSurface
 } from '@tetherto/pearpass-lib-ui-kit'
-import { InlineDialog } from './InlineDialog'
 import {
   ONBOARDING_DIALOG_HEIGHT,
   ONBOARDING_ICON_COLOR,
@@ -65,12 +65,17 @@ export const Step2Dialog = ({ onNext }: Step2Props) => {
   )
 
   return (
-    <InlineDialog
+    <DialogSurface
       title="Step 2 of 3"
       footer={footer}
       hideCloseButton
-      open
-      style={{ height: ONBOARDING_DIALOG_HEIGHT }}
+      style={
+        {
+          width: '100%',
+          maxWidth: '100%',
+          minHeight: ONBOARDING_DIALOG_HEIGHT
+        } as any
+      }
     >
       <div className="flex flex-col gap-4">
         <img
@@ -170,6 +175,6 @@ export const Step2Dialog = ({ onNext }: Step2Props) => {
           </div>
         </div>
       </div>
-    </InlineDialog>
+    </DialogSurface>
   )
 }
