@@ -1,3 +1,5 @@
+// PairingRequiredModalContentV2.tsx
+
 import React, { useState, useEffect, useCallback } from 'react'
 
 import { t } from '@lingui/core/macro'
@@ -62,15 +64,12 @@ export const PairingRequiredModalContentV2 = ({
   const [masterPassword, setMasterPassword] = useState('')
   const [missingToken, setMissingToken] = useState(false)
 
-  // TODO: useDesktopPairing — expose 'error' state to handle token validation failures,
-  //       either by showing a feedback message or redirecting to onboarding.
-  //       Currently useDesktopPairing is using setToast unde the hood.
-
   const {
     pairingToken,
     setPairingToken,
     identity,
     loading,
+    error,
     fetchIdentity,
     completePairing
   } = useDesktopPairing({
@@ -100,10 +99,22 @@ export const PairingRequiredModalContentV2 = ({
 
   // Automatically fetch identity behind the scenes once the token is known
   useEffect(() => {
-    if (pairingToken && !identity && !loading) {
+    if (pairingToken && !identity && !loading && !error) {
       void fetchIdentity()
     }
   }, [pairingToken, identity, loading, fetchIdentity])
+
+  // If an error occurs, remove the invalid token and navigate back to onboarding
+  useEffect(() => {
+    if (error) {
+      localStorage.removeItem('PendingPairingToken')
+      const timer = setTimeout(async () => {
+        await openOnboardingPage()
+        window.close()
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   const handleComplete = useCallback(async () => {
     if (masterPassword && !loading && identity) {
@@ -122,6 +133,27 @@ export const PairingRequiredModalContentV2 = ({
           <header className="flex flex-col items-center gap-3 text-center">
             <Title as="h1">
               <Trans>Insert Pairing Token</Trans>
+            </Title>
+            <Text variant="body">
+              <Trans>Navigating to onboarding page...</Trans>
+            </Text>
+          </header>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div
+        id="pairing-modal-v2"
+        className="bg-grey500-mode1 flex h-full w-full flex-col overflow-hidden"
+        style={{ minHeight: '100vh', minWidth: '100vw' }}
+      >
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-8">
+          <header className="flex flex-col items-center gap-3 text-center">
+            <Title as="h1">
+              <Trans>Invalid Pairing Token</Trans>
             </Title>
             <Text variant="body">
               <Trans>Navigating to onboarding page...</Trans>

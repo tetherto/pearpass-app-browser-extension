@@ -13,6 +13,7 @@ export interface UseDesktopPairingReturn {
   loading: boolean
   fetchIdentity: () => Promise<void>
   completePairing: (password: string) => Promise<void>
+  error: string | null
 }
 
 export declare const PAIRING_STEP: {

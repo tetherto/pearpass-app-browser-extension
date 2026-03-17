@@ -1,3 +1,5 @@
+// useDesktopPairing.js
+
 import { useState } from 'react'
 
 import { t } from '@lingui/core/macro'
@@ -32,6 +34,7 @@ const PAIRING_ERROR_MESSAGES = {
  * @returns {Function} returns.setPairingToken - Function to update the pairing token
  * @returns {Object|null} returns.identity - Desktop identity information
  * @returns {boolean} returns.loading - Loading state indicator
+ * @returns {string|null} returns.error - Error message if a pairing error occurred
  * @returns {Function} returns.fetchIdentity - Fetches and verifies desktop identity using the pairing token
  * @returns {Function} returns.completePairing - Completes the pairing process with the provided password
  */
@@ -42,6 +45,7 @@ export const useDesktopPairing = ({ onPairSuccess, handleBack, setStep }) => {
   const [pairingToken, setPairingToken] = useState('')
   const [identity, setIdentity] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   /**
    * Fetches and validates the desktop identity using the pairing token
@@ -74,13 +78,13 @@ export const useDesktopPairing = ({ onPairSuccess, handleBack, setStep }) => {
       }
     } catch (error) {
       logger.error('Failed to fetch identity:', error)
-      setToast({
-        message:
-          error.message ||
-          (error.code === 'TIMEOUT'
-            ? t`Request timed out. Please try again.`
-            : t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
-      })
+      const message =
+        error.message ||
+        (error.code === 'TIMEOUT'
+          ? t`Request timed out. Please try again.`
+          : t(PAIRING_ERROR_MESSAGES.FAILED_TO_GET_IDENTITY))
+      setToast({ message })
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -226,6 +230,7 @@ export const useDesktopPairing = ({ onPairSuccess, handleBack, setStep }) => {
     setPairingToken,
     identity,
     loading,
+    error,
     fetchIdentity,
     completePairing
   }

@@ -37,10 +37,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     <button onClick={onClick} disabled={disabled}>
       {children}
     </button>
-  )
-}))
-
-jest.mock('@tetherto/pearpass-lib-ui-kit/components/PasswordField', () => ({
+  ),
   PasswordField: ({
     label,
     value,
