@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { DATE_FORMAT } from 'pearpass-lib-constants'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { DATE_FORMAT } from '@tetherto/pearpass-lib-constants'
 
 import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'

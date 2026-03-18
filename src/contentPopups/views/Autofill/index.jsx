@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { RECORD_TYPES, useVault } from 'pearpass-lib-vault'
+import { RECORD_TYPES, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { PopupCard } from '../../../shared/components/PopupCard'
 import { RecordItem } from '../../../shared/components/RecordItem'

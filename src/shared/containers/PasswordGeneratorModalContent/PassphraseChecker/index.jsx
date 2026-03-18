@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro'
-import { checkPassphraseStrength } from 'pearpass-utils-password-check'
+import { checkPassphraseStrength } from '@tetherto/pearpass-utils-password-check'
 
 import { HighlightString } from '../../../components/HighlightString'
 import { NoticeText } from '../../../components/NoticeText'

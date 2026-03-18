@@ -6,7 +6,7 @@ jest.mock('@lingui/core/macro', () => ({
   t: (strs) => strs[0] || strs
 }))
 
-jest.mock('pearpass-lib-constants', () => ({
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
   LANGUAGES: [
     { value: 'en' },
     { value: 'it' },

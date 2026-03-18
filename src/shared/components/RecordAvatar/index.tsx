@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { CheckIcon } from '../../../shared/icons/CheckIcon'
 import { StarIcon } from '../../../shared/icons/StarIcon'
-import { useFavicon } from 'pearpass-lib-vault'
+import { useFavicon } from '@tetherto/pearpass-lib-vault'
 
 interface RecordAvatarProps {
   websiteDomain: string

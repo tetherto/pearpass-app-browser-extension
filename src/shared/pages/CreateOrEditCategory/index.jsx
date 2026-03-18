@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { RECORD_TYPES, useRecordById } from 'pearpass-lib-vault'
+import { RECORD_TYPES, useRecordById } from '@tetherto/pearpass-lib-vault'
 
 import { CreateOrEditCreditCard } from '../../../action/containers/CreateOrEditCreditCard'
 import { CreateOrEditCustom } from '../../../action/containers/CreateOrEditCustom'

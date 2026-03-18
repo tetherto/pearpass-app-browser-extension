@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { useUserData, useVault, useVaults } from 'pearpass-lib-vault'
+import { useUserData, useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
 import { useBlockingStateContext } from '../../../shared/context/BlockingStateContext'

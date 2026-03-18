@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { AboutContent } from './AboutContent'
 import { AppearanceContent } from './AppearanceContent'

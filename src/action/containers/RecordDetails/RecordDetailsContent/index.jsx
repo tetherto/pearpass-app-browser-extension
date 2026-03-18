@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { RECORD_TYPES } from 'pearpass-lib-vault'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { CreditCardDetailsForm } from '../CreditCardDetailsForm'
 import { CustomDetailsForm } from '../CustomDetailsForm'

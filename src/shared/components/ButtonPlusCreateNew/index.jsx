@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { PlusIcon } from '../../../shared/icons/PlusIcon'
 import { XIcon } from '../../../shared/icons/XIcon'

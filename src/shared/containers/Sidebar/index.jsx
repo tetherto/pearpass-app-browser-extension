@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { AUTHENTICATOR_ENABLED } from 'pearpass-lib-constants'
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 import {
   closeAllInstances,
   useFolders,
   useVault,
   useVaults
-} from 'pearpass-lib-vault'
+} from '@tetherto/pearpass-lib-vault'
 
 import { ButtonPrimary } from '../../components/ButtonPrimary'
 import { VaultActionsPopupContent } from '../../components/VaultActionsPopupContent'

@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { formatDate } from 'pear-apps-utils-date'
-import { useUserData, useVault, useVaults } from 'pearpass-lib-vault'
+import { formatDate } from '@tetherto/pear-apps-utils-date'
+import { useUserData, useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { LoadingOverlay } from '../../../shared/components/LoadingOverlay'

@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useVaultSync } from './useVaultSync'
-import { useVault } from 'pearpass-lib-vault'
+import { useVault } from '@tetherto/pearpass-lib-vault'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { logger } from '../../../shared/utils/logger'
 
 // Mock dependencies
-jest.mock('pearpass-lib-vault', () => ({
+jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useVault: jest.fn()
 }))
 

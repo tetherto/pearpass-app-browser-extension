@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
 import { PassPhrase } from '../'
-jest.mock('pearpass-lib-constants', () => ({
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
   PASSPHRASE_WORD_COUNTS: {
     STANDARD_12: 12,
     WITH_RANDOM_12: 13,

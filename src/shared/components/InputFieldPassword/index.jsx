@@ -5,7 +5,7 @@ import {
   checkPassphraseStrength,
   checkPasswordStrength,
   PASSWORD_STRENGTH
-} from 'pearpass-utils-password-check'
+} from '@tetherto/pearpass-utils-password-check'
 
 import { EyeClosedIcon } from '../../../shared/icons/EyeClosedIcon'
 import { EyeIcon } from '../../../shared/icons/EyeIcon'

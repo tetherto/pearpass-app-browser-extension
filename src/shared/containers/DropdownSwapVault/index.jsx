@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useVault } from 'pearpass-lib-vault'
+import { useVault } from '@tetherto/pearpass-lib-vault'
 
 import { useModal } from '../../context/ModalContext'
 import { ArrowDownIcon } from '../../icons/ArrowDownIcon'

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { RECORD_COLOR_BY_TYPE } from '../../../shared/constants/recordColorByType'
 import { RECORD_ICON_BY_TYPE } from '../../../shared/constants/recordIconByType'

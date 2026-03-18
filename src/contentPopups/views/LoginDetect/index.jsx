@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
 import {
   RECORD_TYPES,
   useCreateRecord,
   useRecords,
   useVault
-} from 'pearpass-lib-vault'
+} from '@tetherto/pearpass-lib-vault'
 
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'

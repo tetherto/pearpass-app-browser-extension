@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
-import { PROTECTED_VAULT_ENABLED } from 'pearpass-lib-constants'
-import { useCreateVault, useVault } from 'pearpass-lib-vault'
-import { checkPasswordStrength } from 'pearpass-utils-password-check'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
+import { PROTECTED_VAULT_ENABLED } from '@tetherto/pearpass-lib-constants'
+import { useCreateVault, useVault } from '@tetherto/pearpass-lib-vault'
+import { checkPasswordStrength } from '@tetherto/pearpass-utils-password-check'
 
 import { ButtonPrimary } from '../../components/ButtonPrimary'
 import { ButtonRoundIcon } from '../../components/ButtonRoundIcon'

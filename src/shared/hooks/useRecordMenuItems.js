@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro'
-import { RECORD_TYPES } from 'pearpass-lib-vault'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { RECORD_COLOR_BY_TYPE } from '../../shared/constants/recordColorByType'
 import { RECORD_ICON_BY_TYPE } from '../../shared/constants/recordIconByType'

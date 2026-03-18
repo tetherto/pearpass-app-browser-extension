@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Trans } from '@lingui/react/macro'
-import { useVault } from 'pearpass-lib-vault'
-import { generatePassword } from 'pearpass-utils-password-generator'
+import { useVault } from '@tetherto/pearpass-lib-vault'
+import { generatePassword } from '@tetherto/pearpass-utils-password-generator'
 
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
 import { HighlightString } from '../../../shared/components/HighlightString'

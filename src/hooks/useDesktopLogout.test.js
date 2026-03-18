@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react'
-import { useVaults } from 'pearpass-lib-vault'
+import { useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { useDesktopLogout } from './useDesktopLogout'
 import { getClient } from '../shared/client'
 import { VAULT_CLIENT_EVENTS } from '../shared/constants/nativeMessaging'
 import { logger } from '../shared/utils/logger'
 
-jest.mock('pearpass-lib-vault')
+jest.mock('@tetherto/pearpass-lib-vault')
 jest.mock('../shared/client', () => ({
   getClient: jest.fn()
 }))

@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { useCountDown } from 'pear-apps-lib-ui-react-hooks'
-import { generateQRCodeSVG } from 'pear-apps-utils-qr'
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { useCountDown } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { generateQRCodeSVG } from '@tetherto/pear-apps-utils-qr'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 import {
   authoriseCurrentProtectedVault,
   useInvite,
   usePair,
   useVault
-} from 'pearpass-lib-vault'
+} from '@tetherto/pearpass-lib-vault'
 
 import { useAutoLockPreferences } from '../../../hooks/useAutoLockPreferences'
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'

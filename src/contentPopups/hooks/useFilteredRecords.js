@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { useRecords } from 'pearpass-lib-vault'
+import { useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { useRouter } from '../../shared/context/RouterContext'
 

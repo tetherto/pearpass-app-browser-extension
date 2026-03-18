@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useRecords, useVault } from 'pearpass-lib-vault'
+import { useRecords, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { PopupCard } from '../../../shared/components/PopupCard'
 import { PasswordGeneratorModalContent } from '../../../shared/containers/PasswordGeneratorModalContent'

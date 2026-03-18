@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { generateAvatarInitials } from 'pear-apps-utils-avatar-initials'
-import { colors } from 'pearpass-lib-ui-theme-provider'
-import { useRecordById, useRecords } from 'pearpass-lib-vault'
+import { generateAvatarInitials } from '@tetherto/pear-apps-utils-avatar-initials'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useRecordById, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonLittle } from '../../../shared/components/ButtonLittle'
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'

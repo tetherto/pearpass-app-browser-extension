@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { isBefore, subtractDateUnits } from 'pear-apps-utils-date'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { isBefore, subtractDateUnits } from '@tetherto/pear-apps-utils-date'
 
 import { CardWarning } from '../../../shared/components/CardWarningText'
 import { CompoundField } from '../../../shared/components/CompoundField'
