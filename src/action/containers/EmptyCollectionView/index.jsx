@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro'
-import { RECORD_TYPES } from 'pearpass-lib-vault'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonCreate } from '../../../shared/components/ButtonCreate'
 import { RECORD_ICON_BY_TYPE } from '../../../shared/constants/recordIconByType'

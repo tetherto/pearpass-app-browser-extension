@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { generateAvatarInitials } from 'pear-apps-utils-avatar-initials'
+import { generateAvatarInitials } from '@tetherto/pear-apps-utils-avatar-initials'
 
 import { RecordAvatar } from '../../../shared/components/RecordAvatar'
 import { RECORD_COLOR_BY_TYPE } from '../../../shared/constants/recordColorByType'

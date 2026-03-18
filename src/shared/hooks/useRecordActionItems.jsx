@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { RECORD_TYPES, useRecords } from 'pearpass-lib-vault'
+import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { useModal } from '../../shared/context/ModalContext'
 import { useRouter } from '../../shared/context/RouterContext'

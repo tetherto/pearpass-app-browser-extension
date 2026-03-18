@@ -4,9 +4,9 @@ import { t } from '@lingui/core/macro'
 import {
   sendGoogleFormFeedback,
   sendSlackFeedback
-} from 'pear-apps-lib-feedback'
-import { PRIVACY_POLICY, TERMS_OF_USE } from 'pearpass-lib-constants'
-import { colors } from 'pearpass-lib-ui-theme-provider'
+} from '@tetherto/pear-apps-lib-feedback'
+import { PRIVACY_POLICY, TERMS_OF_USE } from '@tetherto/pearpass-lib-constants'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { version } from '../../../../../public/manifest.json'
 import { ButtonSecondary } from '../../../../shared/components/ButtonSecondary'

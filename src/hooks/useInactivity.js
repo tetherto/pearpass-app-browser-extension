@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { useUserData, useVaults } from 'pearpass-lib-vault'
+import { useUserData, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { useAutoLockPreferences } from './useAutoLockPreferences'
 import { NAVIGATION_ROUTES } from '../shared/constants/navigation'

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 
 import { Trans } from '@lingui/react/macro'
-import { useVault, useVaults } from 'pearpass-lib-vault'
+import { useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { ButtonSecondary } from '../../../../shared/components/ButtonSecondary'

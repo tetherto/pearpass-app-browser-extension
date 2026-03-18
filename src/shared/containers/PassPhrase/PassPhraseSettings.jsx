@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { t } from '@lingui/core/macro'
-import { PASSPHRASE_TYPE_OPTIONS } from 'pearpass-lib-constants'
+import { PASSPHRASE_TYPE_OPTIONS } from '@tetherto/pearpass-lib-constants'
 
 import { RadioSelect } from '../../components/RadioSelect'
 import { SwitchWithLabel } from '../../components/SwitchWithLabel'

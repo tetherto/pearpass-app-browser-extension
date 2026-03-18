@@ -6,7 +6,7 @@ import {
   useUserData,
   useVault,
   useVaults
-} from 'pearpass-lib-vault'
+} from '@tetherto/pearpass-lib-vault'
 
 import { InputSearch } from '../../../shared/components/InputSearch'
 import { RecordItem } from '../../../shared/components/RecordItem'

@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
 
 import { ButtonPrimary } from '../../../shared/components/ButtonPrimary'
 import { InputPasswordPearPass } from '../../../shared/components/InputPasswordPearPass'

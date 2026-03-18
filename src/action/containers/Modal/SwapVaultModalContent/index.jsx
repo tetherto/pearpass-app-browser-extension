@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useVault, useVaults } from 'pearpass-lib-vault'
+import { useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { FormModalHeaderWrapper } from '../../../../shared/components/FormModalHeaderWrapper'
 import { Vault } from '../../../../shared/components/Vault'

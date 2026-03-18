@@ -5,7 +5,7 @@ import { render } from '@testing-library/react'
 import { Vault } from './index'
 import '@testing-library/jest-dom'
 
-jest.mock('pear-apps-utils-date', () => ({
+jest.mock('@tetherto/pear-apps-utils-date', () => ({
   formatDate: jest.fn(() => '06/05/2025')
 }))
 

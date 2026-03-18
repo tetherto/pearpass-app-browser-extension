@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { useLingui } from '@lingui/react/macro'
-import { generateQRCodeSVG } from 'pear-apps-utils-qr'
+import { generateQRCodeSVG } from '@tetherto/pear-apps-utils-qr'
 
 import { logger } from '../../../shared/utils/logger'
 

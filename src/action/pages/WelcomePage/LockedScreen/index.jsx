@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useCountDown } from 'pear-apps-lib-ui-react-hooks'
-import { colors } from 'pearpass-lib-ui-theme-provider'
-import { useUserData } from 'pearpass-lib-vault'
+import { useCountDown } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useUserData } from '@tetherto/pearpass-lib-vault'
 
 import { CardWelcome } from '../../../../shared/components/CardWelcome'
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'

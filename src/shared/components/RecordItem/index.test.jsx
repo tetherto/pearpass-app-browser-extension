@@ -10,7 +10,7 @@ jest.mock('../../../shared/components/RecordAvatar', () => ({
   RecordAvatar: jest.fn(() => <div data-testid="record-avatar" />)
 }))
 
-jest.mock('pear-apps-utils-avatar-initials', () => ({
+jest.mock('@tetherto/pear-apps-utils-avatar-initials', () => ({
   generateAvatarInitials: jest.fn(() => 'TI')
 }))
 

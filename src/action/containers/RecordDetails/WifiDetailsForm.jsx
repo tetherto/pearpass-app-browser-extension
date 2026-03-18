@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 
 import { CopyButton } from '../../../shared/components/CopyButton'
 import { FormGroup } from '../../../shared/components/FormGroup'

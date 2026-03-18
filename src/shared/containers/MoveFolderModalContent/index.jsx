@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useFolders, useRecords } from 'pearpass-lib-vault'
+import { useFolders, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonFolder } from '../../components/ButtonFolder'
 import { ButtonSingleInput } from '../../components/ButtonSingleInput'

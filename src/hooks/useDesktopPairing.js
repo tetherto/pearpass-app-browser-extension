@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useUserData, useVaults } from 'pearpass-lib-vault'
+import { useUserData, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { PAIRING_ERROR_PATTERNS } from '../shared/constants/nativeMessaging'

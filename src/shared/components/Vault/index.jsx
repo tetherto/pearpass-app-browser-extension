@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { formatDate } from 'pear-apps-utils-date'
+import { formatDate } from '@tetherto/pear-apps-utils-date'
 
 import { BrushIcon } from '../../../shared/icons/BrushIcon'
 import { DeleteIcon } from '../../../shared/icons/DeleteIcon'

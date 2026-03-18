@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react'
-import { useRecords } from 'pearpass-lib-vault'
+import { useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { useFilteredRecords } from './useFilteredRecords'
 import { useRouter } from '../../shared/context/RouterContext'
 
-jest.mock('pearpass-lib-vault', () => ({
+jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useRecords: jest.fn()
 }))
 

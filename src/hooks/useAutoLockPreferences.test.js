@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 
-jest.mock('pearpass-lib-constants', () => ({
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
   BE_AUTO_LOCK_ENABLED: true,
   DEFAULT_AUTO_LOCK_TIMEOUT: 300000
 }))

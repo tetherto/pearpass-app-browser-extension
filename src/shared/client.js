@@ -1,4 +1,4 @@
-import { setPearpassVaultClient } from 'pearpass-lib-vault'
+import { setPearpassVaultClient } from '@tetherto/pearpass-lib-vault'
 
 import { PearpassVaultClient } from '../vaultClient'
 

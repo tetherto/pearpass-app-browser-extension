@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { formatOtpCode } from 'pearpass-lib-vault'
+import { formatOtpCode } from '@tetherto/pearpass-lib-vault'
 
 import { CopyButton } from '../../../shared/components/CopyButton'
 import { Menu, MenuContent, MenuTrigger } from '../../../shared/components/Menu'

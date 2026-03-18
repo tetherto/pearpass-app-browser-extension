@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useFolders } from 'pearpass-lib-vault'
+import { useFolders } from '@tetherto/pearpass-lib-vault'
 
 import { MenuDropdown } from '../../../shared/components/MenuDropdown'
 import { FolderIcon } from '../../../shared/icons/FolderIcon'

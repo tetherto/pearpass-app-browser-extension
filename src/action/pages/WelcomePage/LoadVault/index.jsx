@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { usePair, useVault } from 'pearpass-lib-vault'
+import { usePair, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { useAutoLockPreferences } from '../../../../hooks/useAutoLockPreferences'
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'

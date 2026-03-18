@@ -1,13 +1,13 @@
 import React from 'react'
 
 import { render, fireEvent, screen } from '@testing-library/react'
-import { useFolders } from 'pearpass-lib-vault'
+import { useFolders } from '@tetherto/pearpass-lib-vault'
 
 import { FolderDropdown } from './index'
 
 import '@testing-library/jest-dom'
 
-jest.mock('pearpass-lib-vault', () => ({
+jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useFolders: jest.fn()
 }))
 

@@ -1,8 +1,12 @@
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
-import { DATE_FORMAT } from 'pearpass-lib-constants'
-import { RECORD_TYPES, useCreateRecord, useRecords } from 'pearpass-lib-vault'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
+import { DATE_FORMAT } from '@tetherto/pearpass-lib-constants'
+import {
+  RECORD_TYPES,
+  useCreateRecord,
+  useRecords
+} from '@tetherto/pearpass-lib-vault'
 
 import { FormGroup } from '../../../shared/components/FormGroup'
 import { InputField } from '../../../shared/components/InputField'
