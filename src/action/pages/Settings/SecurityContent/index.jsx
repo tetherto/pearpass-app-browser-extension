@@ -6,7 +6,7 @@ import { Trans } from '@lingui/react/macro'
 import {
   AUTO_LOCK_TIMEOUT_OPTIONS,
   BE_AUTO_LOCK_ENABLED
-} from 'pearpass-lib-constants'
+} from '@tetherto/pearpass-lib-constants'
 
 import { useAutoLockPreferences } from '../../../../hooks/useAutoLockPreferences'
 import { CardSingleSetting } from '../../../../shared/components/CardSingleSetting'

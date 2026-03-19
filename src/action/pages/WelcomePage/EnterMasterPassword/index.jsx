@@ -1,8 +1,8 @@
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
-import { useUserData, useVaults } from 'pearpass-lib-vault'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
+import { useUserData, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonPrimary } from '../../../../shared/components/ButtonPrimary'
 import { CardWarning } from '../../../../shared/components/CardWarningText'

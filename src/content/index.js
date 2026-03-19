@@ -1,6 +1,6 @@
-import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
-import { SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED } from 'pearpass-lib-constants'
-import { RECORD_TYPES } from 'pearpass-lib-vault'
+import { generateUniqueId } from '@tetherto/pear-apps-utils-generate-unique-id'
+import { SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED } from '@tetherto/pearpass-lib-constants'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { IFRAME_TYPES } from './constants/iframe'
 import { LOGO_PADDING, LOGO_SIZE } from './constants/styles'

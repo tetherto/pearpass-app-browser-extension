@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useRecords, isExpiring, groupOtpRecords } from 'pearpass-lib-vault'
+import {
+  useRecords,
+  isExpiring,
+  groupOtpRecords
+} from '@tetherto/pearpass-lib-vault'
 
 import { InputSearch } from '../../../shared/components/InputSearch'
 import { TimerCircle } from '../../../shared/components/TimerCircle'

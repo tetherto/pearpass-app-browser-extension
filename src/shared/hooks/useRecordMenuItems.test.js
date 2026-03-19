@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { RECORD_TYPES } from 'pearpass-lib-vault'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { useRecordMenuItems } from './useRecordMenuItems'
 import { RECORD_COLOR_BY_TYPE } from '../constants/recordColorByType'
@@ -10,7 +10,7 @@ jest.mock('@lingui/core/macro', () => {
   return { t }
 })
 
-jest.mock('pearpass-lib-vault', () => ({
+jest.mock('@tetherto/pearpass-lib-vault', () => ({
   RECORD_TYPES: {
     LOGIN: 'login',
     IDENTITY: 'identity',

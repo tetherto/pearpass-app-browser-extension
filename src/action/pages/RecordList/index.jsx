@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useRecords } from 'pearpass-lib-vault'
+import { useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { BadgeCategory } from '../../../shared/components/BadgeCategory'
 import { ButtonFilter } from '../../../shared/components/ButtonFilter'

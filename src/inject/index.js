@@ -1,4 +1,4 @@
-import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+import { generateUniqueId } from '@tetherto/pear-apps-utils-generate-unique-id'
 
 import { CONTENT_MESSAGE_TYPES } from '../shared/constants/nativeMessaging'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'

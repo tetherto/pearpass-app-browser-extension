@@ -1,10 +1,14 @@
 import React from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
-import { AUTHENTICATOR_ENABLED } from 'pearpass-lib-constants'
-import { RECORD_TYPES, useCreateRecord, useRecords } from 'pearpass-lib-vault'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
+import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
+import {
+  RECORD_TYPES,
+  useCreateRecord,
+  useRecords
+} from '@tetherto/pearpass-lib-vault'
 
 import { ButtonRoundIcon } from '../../../shared/components/ButtonRoundIcon'
 import { ButtonSingleInput } from '../../../shared/components/ButtonSingleInput'

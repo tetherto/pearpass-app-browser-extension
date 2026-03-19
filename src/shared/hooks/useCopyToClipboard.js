@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 
-import { CLIPBOARD_CLEAR_TIMEOUT } from 'pearpass-lib-constants'
+import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
 
 import { MESSAGES } from '../../background/constants'
 import { LOCAL_STORAGE_KEYS } from '../constants/storage'

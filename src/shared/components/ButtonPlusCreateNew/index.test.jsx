@@ -6,7 +6,7 @@ import { ButtonPlusCreateNew } from './index'
 
 import '@testing-library/jest-dom'
 
-jest.mock('pearpass-lib-ui-theme-provider', () => ({
+jest.mock('@tetherto/pearpass-lib-ui-theme-provider', () => ({
   colors: {
     gray: { mode1: '#cccccc' },
     black: { mode1: '#000000' }

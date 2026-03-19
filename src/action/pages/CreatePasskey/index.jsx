@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { RECORD_TYPES, useRecords } from 'pearpass-lib-vault'
+import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
 import { ReplacePasskeyModalContent } from '../../../shared/containers/ReplacePasskeyModalContent'

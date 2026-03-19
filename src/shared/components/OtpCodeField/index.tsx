@@ -1,8 +1,8 @@
 import React from 'react'
 
 import { t } from '@lingui/core/macro'
-import { formatOtpCode, OTP_TYPE, useOtp } from 'pearpass-lib-vault'
-import type { OtpPublic } from 'pearpass-lib-vault/src/types'
+import { formatOtpCode, OTP_TYPE, useOtp } from '@tetherto/pearpass-lib-vault'
+import type { OtpPublic } from '@tetherto/pearpass-lib-vault/src/types'
 
 import { CopyButton } from '../CopyButton'
 import { InputField } from '../InputField'

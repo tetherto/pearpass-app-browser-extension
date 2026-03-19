@@ -1,10 +1,10 @@
-import { setPearpassVaultClient } from 'pearpass-lib-vault'
+import { setPearpassVaultClient } from '@tetherto/pearpass-lib-vault'
 
 import { createClient } from './client'
 import { PearpassVaultClient } from '../vaultClient'
 
 jest.mock('../vaultClient')
-jest.mock('pearpass-lib-vault', () => ({
+jest.mock('@tetherto/pearpass-lib-vault', () => ({
   setPearpassVaultClient: jest.fn()
 }))
 jest.mock('./constants/envMode', () => ({

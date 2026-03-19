@@ -6,7 +6,7 @@ import React, {
   useState
 } from 'react'
 
-import { generateUniqueId } from 'pear-apps-utils-generate-unique-id'
+import { generateUniqueId } from '@tetherto/pear-apps-utils-generate-unique-id'
 
 import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import { Overlay } from '../containers/Overlay'

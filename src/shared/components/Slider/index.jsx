@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 
-import { colors } from 'pearpass-lib-ui-theme-provider'
+import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 /**
  * @param {{

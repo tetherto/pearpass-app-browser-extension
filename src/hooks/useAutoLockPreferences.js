@@ -11,7 +11,7 @@ import {
 import {
   BE_AUTO_LOCK_ENABLED,
   DEFAULT_AUTO_LOCK_TIMEOUT
-} from 'pearpass-lib-constants'
+} from '@tetherto/pearpass-lib-constants'
 
 import { MESSAGE_TYPES } from '../shared/services/messageBridge'
 

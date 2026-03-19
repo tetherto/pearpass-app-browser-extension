@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 
-import { setPearpassVaultClient, useUserData } from 'pearpass-lib-vault'
+import {
+  setPearpassVaultClient,
+  useUserData
+} from '@tetherto/pearpass-lib-vault'
 
 import { Routes } from './Routes'
 import { useRouter } from '../../shared/context/RouterContext'

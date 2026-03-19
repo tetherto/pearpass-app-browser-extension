@@ -5,7 +5,7 @@ import '@testing-library/jest-dom'
 
 import { PassPhraseSettings } from '../PassPhraseSettings'
 
-jest.mock('pearpass-lib-constants', () => ({
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
   PASSPHRASE_TYPE_OPTIONS: [{ value: 12 }, { value: 24 }]
 }))
 

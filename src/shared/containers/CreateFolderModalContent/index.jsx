@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { t } from '@lingui/core/macro'
-import { useForm } from 'pear-apps-lib-ui-react-hooks'
-import { Validator } from 'pear-apps-utils-validator'
-import { useCreateFolder, useFolders } from 'pearpass-lib-vault'
+import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
+import { Validator } from '@tetherto/pear-apps-utils-validator'
+import { useCreateFolder, useFolders } from '@tetherto/pearpass-lib-vault'
 
 import { ButtonLittle } from '../../components/ButtonLittle'
 import { InputField } from '../../components/InputField'
