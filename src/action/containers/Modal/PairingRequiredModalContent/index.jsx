@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
@@ -32,6 +32,13 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
     fetchIdentity,
     completePairing
   } = useDesktopPairing({ onPairSuccess, handleBack, setStep })
+
+  useEffect(() => {
+    const token = localStorage.getItem('PendingPairingToken')
+    if (token) {
+      setPairingToken(token)
+    }
+  }, [setPairingToken])
 
   return (
     <ModalCard>

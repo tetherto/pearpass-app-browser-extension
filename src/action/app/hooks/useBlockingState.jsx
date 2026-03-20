@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react'
 
+import { DESIGN_VERSION } from '@tetherto/pearpass-lib-constants'
+
 import { client } from '../../../shared/client'
 import {
   BACKGROUND_MESSAGE_TYPES,
@@ -13,6 +15,7 @@ import { secureChannelMessages } from '../../../shared/services/messageBridge'
 import { logger } from '../../../shared/utils/logger'
 import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent'
 import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequiredModalContent'
+import { PairingRequiredModalContentV2 } from '../../containers/Modal/PairingRequiredModalContent/PairingRequiredModalContentV2'
 
 /**
  * Hook to check blocking state on extension open and reactively handle
@@ -39,7 +42,17 @@ export const useBlockingState = () => {
     if (pairingModalOpenRef.current) return
     pairingModalOpenRef.current = true
     closeAllModals()
-    setModal(<PairingRequiredModalContent onPairSuccess={onPairSuccess} />, {
+
+    const content =
+      DESIGN_VERSION === 2 ? (
+        <PairingRequiredModalContentV2 onPairSuccess={onPairSuccess} />
+      ) : (
+        // TODO: Remove this component once version 2 is the only supported version.
+        <PairingRequiredModalContent onPairSuccess={onPairSuccess} />
+      )
+
+    setModal(content, {
+      fullScreen: DESIGN_VERSION === 2,
       closeable: false
     })
   }, [closeAllModals, setModal, onPairSuccess])

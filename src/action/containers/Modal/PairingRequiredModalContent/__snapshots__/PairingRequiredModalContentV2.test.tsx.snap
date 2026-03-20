@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PairingRequiredModalContentV2 - snapshot renders master password form when token is present 1`] = `
+<div>
+  <div
+    class="bg-grey500-mode1 flex h-full w-full flex-col overflow-hidden"
+    id="pairing-modal-v2"
+    style="min-height: 100vh; min-width: 100vw;"
+  >
+    <div
+      class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-8"
+    >
+      <div
+        class="flex flex-col gap-10"
+      >
+        <header
+          class="flex flex-col items-center gap-3 text-center"
+        >
+          <h1>
+            Enter Your Master Password
+          </h1>
+          <p>
+            Enter your Master Password to complete the pairing
+          </p>
+        </header>
+        <main
+          class="flex flex-col gap-8"
+        >
+          <div
+            class="flex flex-col gap-4"
+          >
+            <input
+              aria-label="Master Password"
+              data-testid="pairing-password-input"
+              value=""
+            />
+          </div>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              disabled=""
+            >
+              Continue
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+`;

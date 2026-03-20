@@ -11,6 +11,11 @@ jest.mock('@lingui/core/macro', () => ({
   t: (str) => str
 }))
 
+// Mock @lingui/react for tests
+jest.mock('@lingui/react', () => ({
+  Trans: ({ children, id, message }) => children || message || id
+}))
+
 // Mock crypto.getRandomValues for tests
 if (!global.crypto) {
   global.crypto = {}

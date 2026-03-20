@@ -47,7 +47,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         action: path.resolve(__dirname, 'index.html'),
-        'content-popups': path.resolve(__dirname, 'content-popups.html')
+        'content-popups': path.resolve(__dirname, 'content-popups.html'),
+        onboarding: path.resolve(__dirname, 'onboarding.html')
       },
       output: {
         entryFileNames: '[name].js',

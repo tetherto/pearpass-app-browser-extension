@@ -1,4 +1,6 @@
 import './nativeMessaging' // Initialize native messaging handler
+import { DESIGN_VERSION } from '@tetherto/pearpass-lib-constants'
+
 import { ensureClientKeypairUnlocked } from './clientKeyStore'
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
@@ -26,6 +28,13 @@ const { CLEAR_CLIPBOARD } = ALARMS
 
 const pending = new Map()
 const conditionalPasskeyRequests = new Map()
+
+// Open onboarding page on install
+chrome.runtime.onInstalled.addListener((details) => {
+  if (DESIGN_VERSION && details.reason === 'install') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') })
+  }
+})
 
 // Initialize secure session on startup if already paired
 runtime.onStartup?.addListener(async () => {
