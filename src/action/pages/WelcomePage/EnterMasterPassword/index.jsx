@@ -107,7 +107,7 @@ export const EnterMasterPassword = () => {
         password:
           typeof error === 'string'
             ? error
-            : t`Incorrect password. You have ${remainingAttempts} attempts before the app locks for 5 minutes.`
+            : t`Incorrect password. You have ${remainingAttempts} ${remainingAttempts === 1 ? 'attempt' : 'attempts'} before the app will be temporarily locked.`
       })
 
       logger.error('Error unlocking PearPass:', error)
