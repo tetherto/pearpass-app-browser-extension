@@ -383,6 +383,21 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
         try {
           await secureChannel.pinIdentity(msg.identity)
           sendResponse({ success: true })
+
+          try {
+            await secureChannel.ensureSession()
+            const autoLockSettings = await secureChannel.getAutoLockSettings()
+            const { autoLockEnabled, autoLockTimeoutMs } = autoLockSettings
+            await chrome.storage.local.set({
+              autoLockEnabled,
+              autoLockTimeoutMs
+            })
+          } catch (error) {
+            logger.error(
+              '[AutoLock] Failed to sync settings after pairing',
+              error
+            )
+          }
         } catch (e) {
           sendResponse({
             success: false,
