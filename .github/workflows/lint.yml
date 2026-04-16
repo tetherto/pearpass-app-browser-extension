@@ -28,3 +28,13 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+      # Step : Run the Format Check (e.g., Prettier)
+      # If the code is formatted poorly, the pipeline stops here and fails.
+      - name: Check Formatting
+        run: npm run format:check
+
+      # Step : Run the Type Check (e.g., TypeScript)
+      # If there are type errors, the pipeline stops here and fails.
+      - name: Type Check
+        run: npx tsc --noEmit
