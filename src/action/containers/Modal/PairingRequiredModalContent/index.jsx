@@ -49,7 +49,9 @@ export const PairingRequiredModalContent = ({ onPairSuccess }) => {
               <Trans>2. Go to Settings → Syncing → Browser Extension</Trans>
             </p>
             <p>
-              <Trans>3. Activate extension and copy the pairing token</Trans>
+              <Trans>
+                3. Activate browser extension and copy the pairing token
+              </Trans>
             </p>
           </div>
 
