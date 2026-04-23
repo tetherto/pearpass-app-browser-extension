@@ -25,15 +25,19 @@ export const SidebarDropdownItem = ({
     className="bg-grey350-mode1 relative flex w-full cursor-pointer items-center justify-between rounded-[10px] border-none px-2 py-1.5 transition-colors hover:opacity-90"
     style={{ minHeight: '40px' }}
   >
-    <div className="flex items-center gap-3">
-      {Icon && <Icon size="24" color="white" />}
-      <span className="font-inter text-white-mode1 text-base font-bold">
+    <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
+      {Icon && (
+        <div className="flex-shrink-0">
+          <Icon size="24" color="white" />
+        </div>
+      )}
+      <span className="font-inter text-white-mode1 block min-w-0 flex-1 truncate text-left text-base font-bold">
         {label}
       </span>
     </div>
     {showMenu && (
       <Menu>
-        <MenuTrigger stopPropagation>
+        <MenuTrigger stopPropagation className="flex-shrink-0">
           <KebabMenuIcon size="24" color="white" />
         </MenuTrigger>
         <MenuContent>{menuPopupContent}</MenuContent>

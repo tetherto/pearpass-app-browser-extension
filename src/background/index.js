@@ -94,19 +94,33 @@ const ensureClipboardOffscreenDocument = async () => {
   }
 }
 
+const clearClipboard = async () => {
+  // Chrome: use offscreen document (service workers have no DOM/clipboard access)
+  if (typeof chrome.offscreen !== 'undefined') {
+    const offscreenReady = await ensureClipboardOffscreenDocument()
+    if (!offscreenReady) {
+      logger.error('[Clipboard] Failed to ensure offscreen document for alarm')
+      return
+    }
+    runtime.sendMessage({ type: CLEAR_CLIPBOARD_NOW })
+    return
+  }
+
+  // Firefox: background event pages have DOM access, use clipboard API directly
+  try {
+    await navigator.clipboard.writeText(' ')
+  } catch (error) {
+    logger.error(
+      '[Clipboard] Failed to clear clipboard via navigator API',
+      error
+    )
+  }
+}
+
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === CLEAR_CLIPBOARD) {
     try {
-      const offscreenReady = await ensureClipboardOffscreenDocument()
-      if (!offscreenReady) {
-        logger.error(
-          '[Clipboard] Failed to ensure offscreen document for alarm'
-        )
-        return
-      }
-      runtime.sendMessage({
-        type: CLEAR_CLIPBOARD_NOW
-      })
+      await clearClipboard()
     } catch (error) {
       logger.error('[Clipboard] Failed to handle clipboard clear alarm', error)
     }
@@ -392,6 +406,21 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
         try {
           await secureChannel.pinIdentity(msg.identity)
           sendResponse({ success: true })
+
+          try {
+            await secureChannel.ensureSession()
+            const autoLockSettings = await secureChannel.getAutoLockSettings()
+            const { autoLockEnabled, autoLockTimeoutMs } = autoLockSettings
+            await chrome.storage.local.set({
+              autoLockEnabled,
+              autoLockTimeoutMs
+            })
+          } catch (error) {
+            logger.error(
+              '[AutoLock] Failed to sync settings after pairing',
+              error
+            )
+          }
         } catch (e) {
           sendResponse({
             success: false,

@@ -1,7 +1,7 @@
 {
   "name": "pearpass-app-browser-extension",
   "private": true,
-  "version": "1.6.0",
+  "version": "1.6.1",
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
@@ -54,7 +54,7 @@
     "styled-components": "6.1.19",
     "tailwind-merge": "3.3.0",
     "tailwindcss": "4.1.4",
-    "tether-dev-docs": "git+https://github.com/tetherto/tether-dev-docs.git"
+    "@tetherto/tether-dev-docs": "git+https://github.com/tetherto/tether-dev-docs.git"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",
@@ -95,8 +95,12 @@
     "vite-plugin-babel": "^1.5.1"
   },
   "overrides": {
-    "@types/react": "^19.0.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-native-windows": {
+      "react": "$react"
+    },
+    "react-native": {
+      ".": "0.79.5",
+      "@types/react": "^18.3.0"
+    }
   }
 }

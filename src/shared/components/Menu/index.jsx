@@ -187,14 +187,28 @@ export const Menu = ({
   useEffect(() => {
     if (!isOpen) return
 
-    const handleScrollOrResize = () => close()
+    // Firefox extension popups synthesize a resize event when the portal
+    // inserts its element. Ignore resizes that don't actually change size.
+    const initialWidth = window.innerWidth
+    const initialHeight = window.innerHeight
 
-    window.addEventListener('scroll', handleScrollOrResize, true)
-    window.addEventListener('resize', handleScrollOrResize)
+    const handleScroll = () => close()
+    const handleResize = () => {
+      if (
+        window.innerWidth === initialWidth &&
+        window.innerHeight === initialHeight
+      ) {
+        return
+      }
+      close()
+    }
+
+    window.addEventListener('scroll', handleScroll, true)
+    window.addEventListener('resize', handleResize)
 
     return () => {
-      window.removeEventListener('scroll', handleScrollOrResize, true)
-      window.removeEventListener('resize', handleScrollOrResize)
+      window.removeEventListener('scroll', handleScroll, true)
+      window.removeEventListener('resize', handleResize)
     }
   }, [isOpen, close])
 

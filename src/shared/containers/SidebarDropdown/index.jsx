@@ -55,12 +55,12 @@ export const SidebarDropdown = ({
           minHeight: '42px'
         }}
       >
-        <span className="font-inter text-white-mode1 text-base font-bold">
+        <span className="font-inter text-white-mode1 block min-w-0 flex-1 truncate text-left text-base font-bold">
           {selectedItem.label}
         </span>
 
         <div
-          className="flex items-center transition-transform"
+          className="flex flex-shrink-0 items-center transition-transform"
           style={{
             transitionDuration: `${TRANSITION_DURATION}ms`,
             transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)'

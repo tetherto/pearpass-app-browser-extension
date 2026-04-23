@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './color-vars.css';
+@import '@tetherto/pearpass-lib-ui-kit/tailwind.css';
 
 @font-face {
   font-family: 'Humble Nostalgia';

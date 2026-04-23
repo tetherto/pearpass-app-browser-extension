@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PearPass",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "permissions": [
     "storage",
     "nativeMessaging",
@@ -11,8 +11,15 @@
     "alarms",
     "activeTab"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "pass@pears.com",
+      "strict_min_version": "109.0"
+    }
+  },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "description": "Password manager extension for PearPass",
   "web_accessible_resources": [

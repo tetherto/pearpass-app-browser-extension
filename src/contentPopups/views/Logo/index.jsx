@@ -40,6 +40,10 @@ export const Logo = () => {
     refetchVault()
   }, [filteredRecords?.length, isInitialized])
 
+  if (isLoading || !isInitialized || !count) {
+    return null
+  }
+
   return (
     <div
       className="bg-grey500-mode1 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px]"
