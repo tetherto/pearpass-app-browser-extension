@@ -12,18 +12,36 @@ export default [
     },
     rules: {
       'no-underscore-dangle': 'off',
+      'prettier/prettier': [
+        'error',
+        {
+          ...eslintConfig[0].rules['prettier/prettier'][1],
+          plugins: ['prettier-plugin-tailwindcss']
+        }
+      ]
+    }
+  },
+  {
+    files: ['**/*.{js,jsx,mjs,cjs}'],
+    rules: {
       'no-unused-vars': [
         'error',
         {
           varsIgnorePattern: '^React$',
           ignoreRestSiblings: true
         }
-      ],
-      'prettier/prettier': [
+      ]
+    }
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          ...eslintConfig[0].rules['prettier/prettier'][1],
-          plugins: ['prettier-plugin-tailwindcss']
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^React$',
+          ignoreRestSiblings: true
         }
       ]
     }

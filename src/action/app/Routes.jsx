@@ -14,6 +14,7 @@ import { useActiveTabSecureProtocol } from '../../shared/hooks/useActiveTabSecur
 import { useAllowHttpEnabled } from '../../shared/hooks/useAllowHttpEnabled'
 import { LockIcon } from '../../shared/icons/LockIcon'
 import { CreateOrEditCategory } from '../../shared/pages/CreateOrEditCategory'
+import { isV2 } from '../../shared/utils/designVersion'
 import { AddDevice } from '../pages/AddDevice'
 import { AuthenticatorView } from '../pages/AuthenticatorView'
 import { CreatePasskey } from '../pages/CreatePasskey'
@@ -22,6 +23,7 @@ import { RecordDetails } from '../pages/RecordDetails'
 import { RecordList } from '../pages/RecordList'
 import { SelectPasskey } from '../pages/SelectPasskey'
 import { Settings } from '../pages/Settings'
+import { SettingsV2 } from '../pages/SettingsV2'
 import { WelcomePage } from '../pages/WelcomePage'
 
 export const Routes = () => {
@@ -93,7 +95,7 @@ export const Routes = () => {
       case 'settings':
         return (
           <FadeInWrapper key="settings">
-            <Settings />
+            {isV2() ? <SettingsV2 /> : <Settings />}
           </FadeInWrapper>
         )
       case 'getPasskey':

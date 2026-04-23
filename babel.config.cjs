@@ -5,7 +5,10 @@ const isTest = process.env.NODE_ENV === 'test'
 
 const resolvePaths = [
   __dirname,
-  path.resolve(__dirname, 'node_modules/@tetherto/pearpass-lib-ui-kit/node_modules')
+  path.resolve(
+    __dirname,
+    'node_modules/@tetherto/pearpass-lib-ui-kit/node_modules'
+  )
 ]
 
 const rsdBabelPreset = require.resolve('react-strict-dom/babel-preset', {
@@ -14,9 +17,6 @@ const rsdBabelPreset = require.resolve('react-strict-dom/babel-preset', {
 
 module.exports = {
   compact: false,
-  parserOpts: {
-    plugins: ['typescript', 'jsx']
-  },
   plugins: ['@lingui/babel-plugin-lingui-macro'],
   presets: isTest
     ? [
@@ -32,6 +32,8 @@ module.exports = {
       ]
     : [
         ['@babel/preset-env', { targets: 'defaults', modules: false }],
+        ['@babel/preset-react', { runtime: 'automatic' }],
+        '@babel/preset-typescript',
         [
           rsdBabelPreset,
           {

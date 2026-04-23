@@ -3,19 +3,21 @@
 exports[`RecordItem renders correctly when isSelected is true 1`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -27,19 +29,21 @@ exports[`RecordItem renders correctly when isSelected is true 1`] = `
 exports[`RecordItem renders correctly with different record types 1`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -51,19 +55,21 @@ exports[`RecordItem renders correctly with different record types 1`] = `
 exports[`RecordItem renders correctly with different record types 2`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -75,19 +81,21 @@ exports[`RecordItem renders correctly with different record types 2`] = `
 exports[`RecordItem renders correctly with different record types 3`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -99,19 +107,21 @@ exports[`RecordItem renders correctly with different record types 3`] = `
 exports[`RecordItem renders correctly with different record types 4`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -123,19 +133,21 @@ exports[`RecordItem renders correctly with different record types 4`] = `
 exports[`RecordItem renders correctly with different record types 5`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>
@@ -147,19 +159,21 @@ exports[`RecordItem renders correctly with different record types 5`] = `
 exports[`RecordItem renders correctly with given props 1`] = `
 <DocumentFragment>
   <div
-    class="flex items-center gap-[10px]"
+    class="flex min-w-0 flex-1 items-center gap-[10px]"
   >
     <div
       data-testid="record-avatar"
     />
     <div
-      class="text-white-mode1 font-inter flex flex-col justify-start text-[16px] font-normal"
+      class="text-white-mode1 font-inter flex min-w-0 flex-col justify-start text-[16px] font-normal"
     >
-      <span>
+      <span
+        class="truncate"
+      >
         Test Item
       </span>
       <p
-        class="text-grey100-mode1 text-[12px]"
+        class="text-grey100-mode1 truncate text-[12px]"
       >
         Test Folder
       </p>

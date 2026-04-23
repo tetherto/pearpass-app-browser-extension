@@ -12,7 +12,7 @@ This is the design system for the PearPass browser extension (Chrome MV3). All U
 
 UI is being migrated onto `@tetherto/pearpass-lib-ui-kit`. For **new UI work** — v2 redesigns of existing screens and net-new features — use the kit. Today the only kit wiring in this repo is the `ThemeProvider` in `src/action/index.jsx`; every actual component rendered in the UI still comes from the legacy tree at `src/shared/components/`. That tree keeps working while the migration is in progress — do not delete anything from it as part of v2 work.
 
-Note: unlike the sibling desktop repo, this extension does **not** currently gate v1 vs v2 behind a `DESIGN_VERSION` / `isV2()` runtime flag. Kit-based components render directly at their call sites.
+Note: unlike the sibling desktop repo, this extension does **not** currently gate v1 vs v2 behind a `EXTENSION_DESIGN_VERSION` / `isV2()` runtime flag. Kit-based components render directly at their call sites.
 
 ## File naming: when to use the `V2` suffix
 
