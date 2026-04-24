@@ -77,13 +77,12 @@ export const PairedDevicesModalContent = () => {
       closeButtonTestID="paired-devices-close"
       footer={
         <Button
-          variant="secondary"
           size="small"
           type="button"
           onClick={closeModal}
           data-testid="paired-devices-close-button"
         >
-          {t`Close`}
+          {t`Understood`}
         </Button>
       }
     >
