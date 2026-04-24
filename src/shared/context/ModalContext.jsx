@@ -88,7 +88,7 @@ export const ModalProvider = ({ children }) => {
       {modalStack?.map(({ content, id, isOpen, params }) => (
         <div
           key={id}
-          className="fixed top-0 left-0 z-[500] flex h-full w-screen items-center justify-center"
+          className={`fixed top-0 left-0 ${isV2 ? 'z-[10000]' : 'z-[500]'} flex h-full w-screen items-center justify-center`}
         >
           {params.hasOverlay && (
             <Overlay
@@ -100,7 +100,7 @@ export const ModalProvider = ({ children }) => {
 
           {isOpen && (
             <div
-              className={`relative z-[1000] ${params.fullScreen ? 'h-full w-full' : ''}`}
+              className={`relative ${isV2 ? 'z-[10000]' : 'z-[1000]'} ${params.fullScreen ? 'h-full w-full' : ''}`}
             >
               {content}
             </div>

@@ -14,6 +14,8 @@ import {
   ExpandMore,
   InfoOutlined,
   KeyboardArrowRightFilled,
+  LayerFilled,
+  LockOutlined,
   PaletteOutlined,
   SecurityFilled,
   SettingsApplicationsFilled,
@@ -25,7 +27,8 @@ import {
   AppPreferencesContent,
   AppVersionContent,
   LanguageContent,
-  ReportAProblemContent
+  ReportAProblemContent,
+  YourVaultsContent
 } from './content'
 import type { Section } from './sections'
 import { SettingsItemKey, SettingsSectionKey } from './sections'
@@ -35,6 +38,8 @@ const renderActiveContent = (activeItemKey: SettingsItemKey) => {
   switch (activeItemKey) {
     case SettingsItemKey.AppPreferences:
       return <AppPreferencesContent />
+    case SettingsItemKey.YourVaults:
+      return <YourVaultsContent />
     case SettingsItemKey.Language:
       return <LanguageContent />
     case SettingsItemKey.ReportAProblem:
@@ -61,6 +66,18 @@ export const SettingsV2 = () => {
             key: SettingsItemKey.AppPreferences,
             label: t`App Preferences`,
             icon: SettingsApplicationsFilled
+          }
+        ]
+      },
+      {
+        key: SettingsSectionKey.Vault,
+        title: t`Vault`,
+        icon: LockOutlined,
+        items: [
+          {
+            key: SettingsItemKey.YourVaults,
+            label: t`Your vaults`,
+            icon: LayerFilled
           }
         ]
       },
