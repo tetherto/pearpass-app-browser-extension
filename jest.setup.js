@@ -1,14 +1,27 @@
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 import { TextEncoder, TextDecoder } from 'util'
 
+import { i18n } from '@lingui/core'
+
 import { CRYPTO_ALGORITHMS } from './src/shared/constants/crypto'
 
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
-// Mock @lingui/core/macro for tests
+// Activate a default locale so lingui's ICU runtime (plural rules, etc.)
+// has a valid Intl.PluralRules locale to resolve against in tests.
+i18n.load('en', {})
+i18n.activate('en')
+
+// Mock @lingui/core/macro for tests. Templates tagged with `t` are still
+// processed by the macro plugin, but any leftover direct calls fall back
+// to identity.
 jest.mock('@lingui/core/macro', () => ({
-  t: (str) => str
+  t: (str) => str,
+  plural: (count, forms) => {
+    const form = count === 1 ? forms.one : forms.other
+    return String(form ?? '').replace(/#/g, String(count))
+  }
 }))
 
 // Mock crypto.getRandomValues for tests

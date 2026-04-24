@@ -30,7 +30,9 @@ import { ErrorIcon } from '../../../shared/icons/ErrorIcon'
 import { PasteIcon } from '../../../shared/icons/PasteIcon'
 import { TimeIcon } from '../../../shared/icons/TimeIcon'
 import { XIcon } from '../../../shared/icons/XIcon'
+import { isV2 } from '../../../shared/utils/designVersion'
 import { logger } from '../../../shared/utils/logger'
+import { ImportItemOrVaultModalContent } from '../../containers/Modal/ImportItemOrVaultModalContent'
 import { VaultPasswordForm } from '../../containers/VaultPasswordForm'
 
 export const AddDevice = () => {
@@ -42,7 +44,7 @@ export const AddDevice = () => {
   }, [setShouldBypassAutoLock])
 
   const { navigate } = useRouter()
-  const { closeModal } = useModal()
+  const { closeModal, setModal } = useModal()
   const [qrSvg, setQrSvg] = useState('')
   const [activeTab, setActiveTab] = useState('share')
   const [inviteCode, setInviteCode] = useState('')
@@ -226,7 +228,13 @@ export const AddDevice = () => {
             <Trans>Share this vault</Trans>
           </button>
           <button
-            onClick={() => setActiveTab('load')}
+            onClick={() => {
+              if (isV2()) {
+                setModal(<ImportItemOrVaultModalContent onClose={closeModal} />)
+                return
+              }
+              setActiveTab('load')
+            }}
             className={`h-full w-1/2 rounded-[8px] px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'load'
                 ? 'bg-primary400-mode1 text-black'
@@ -287,7 +295,7 @@ export const AddDevice = () => {
         </>
       )}
 
-      {activeTab === 'load' && (
+      {!isV2() && activeTab === 'load' && (
         <div className="flex w-full flex-1 pt-[30px]">
           <div className="border-grey100-mode1 text-grey100-mode1 flex w-full items-center self-start rounded-[10px] border-[1px] bg-transparent p-[10px]">
             <div className="flex-1">
