@@ -15,6 +15,28 @@ jest.mock('../context/RouterContext', () => ({
   useRouter: jest.fn()
 }))
 
+const mockIsV2 = jest.fn(() => false)
+
+jest.mock('../utils/designVersion', () => ({
+  isV2: () => mockIsV2()
+}))
+
+jest.mock('../containers/MoveFolderModalContent', () => ({
+  __esModule: true,
+  MoveFolderModalContent: 'MoveFolderModalContent'
+}))
+
+jest.mock('../containers/MoveFolderModalContentV2', () => ({
+  __esModule: true,
+  MoveFolderModalContentV2: 'MoveFolderModalContentV2',
+  MOVE_FOLDER_MODAL_V2_PARAMS: { hasOverlay: false }
+}))
+
+jest.mock('../containers/ConfirmationModalContent', () => ({
+  __esModule: true,
+  ConfirmationModalContent: 'ConfirmationModalContent'
+}))
+
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useRecords: () => ({
     deleteRecords: mockDeleteRecord,
@@ -40,6 +62,7 @@ describe('useRecordActionItems', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsV2.mockReturnValue(false)
 
     useModal.mockReturnValue({
       setModal: mockSetModal,
@@ -146,5 +169,43 @@ describe('useRecordActionItems', () => {
     result.current.actions[3].click()
 
     expect(mockSetModal).toHaveBeenCalled()
+  })
+
+  test('move action opens the V1 modal without modal params when isV2() is false', () => {
+    const { result } = renderHook(() =>
+      useRecordActionItems({
+        record: mockRecord,
+        onSelect: mockOnSelect,
+        onClose: mockOnClose
+      })
+    )
+
+    result.current.actions[2].click()
+
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const [element, params] = mockSetModal.mock.calls[0]
+    expect(element.type).toBe('MoveFolderModalContent')
+    expect(params).toBeUndefined()
+    expect(mockOnClose).toHaveBeenCalled()
+  })
+
+  test('move action opens the V2 modal with hasOverlay:false when isV2() is true', () => {
+    mockIsV2.mockReturnValue(true)
+
+    const { result } = renderHook(() =>
+      useRecordActionItems({
+        record: mockRecord,
+        onSelect: mockOnSelect,
+        onClose: mockOnClose
+      })
+    )
+
+    result.current.actions[2].click()
+
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const [element, params] = mockSetModal.mock.calls[0]
+    expect(element.type).toBe('MoveFolderModalContentV2')
+    expect(params).toEqual({ hasOverlay: false })
+    expect(mockOnClose).toHaveBeenCalled()
   })
 })

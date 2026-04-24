@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './color-vars.css';
+@import './kit-theme.css';
 
 @font-face {
   font-family: 'Humble Nostalgia';

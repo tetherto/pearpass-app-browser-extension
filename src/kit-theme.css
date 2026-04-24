@@ -1,0 +1,107 @@
+/*
+ * V2 design-system tokens from @tetherto/pearpass-lib-ui-kit.
+ *
+ * The kit ships these at src/theme/tailwind-theme.css but does NOT expose a
+ * public CSS export path (package.json's `exports` only covers JS modules).
+ * We copy them here so:
+ *   - Tailwind utilities like `bg-surface-primary`, `border-border-secondary`,
+ *     `text-text-primary` resolve to actual colors.
+ *   - Arbitrary values like `p-[var(--spacing12)]`, `rounded-[var(--radius8)]`
+ *     actually apply (padding: 12px, border-radius: 8px).
+ *
+ * To sync with an upstream kit update, copy-paste from:
+ *   node_modules/@tetherto/pearpass-lib-ui-kit/src/theme/tailwind-theme.css
+ */
+
+:root,
+[data-theme='dark'] {
+  --color-background: #080a05;
+  --color-surface-primary: #15180e;
+  --color-surface-search-field: #16181b;
+  --color-surface-secondary: #fdca40;
+  --color-primary: #b0d944;
+  --color-secondary: #8ae081;
+  --color-accent-hover: #bae061;
+  --color-accent-active: #98c328;
+  --color-surface-hover: #212814;
+  --color-surface-elevated-on-interaction: #2c3618;
+  --color-surface-disabled: #212814;
+  --color-surface-destructive-elevated: #d13b3d;
+  --color-surface-destructive: #421010;
+  --color-text-primary: #ffffff;
+  --color-on-primary: #08090c;
+  --color-text-search-field: #67707e;
+  --color-text-secondary: #bdc3ac;
+  --color-text-disabled: #435123;
+  --color-border-primary: #212814;
+  --color-border-search-field: #252937;
+  --color-border-secondary: #2c3618;
+  --color-surface-error: #d1383d;
+  --color-surface-warning: #d7d245;
+  --color-focus-ring: #b0d944;
+  --color-text-tertiary: #f6f6f6;
+  --color-link-text: #bade5b;
+  --background-snackbar: #ffffff;
+  --spacing2: 2px;
+  --spacing4: 4px;
+  --spacing6: 6px;
+  --spacing8: 8px;
+  --spacing10: 10px;
+  --spacing12: 12px;
+  --spacing16: 16px;
+  --spacing20: 20px;
+  --spacing24: 24px;
+  --spacing32: 32px;
+  --spacing40: 40px;
+  --spacing48: 48px;
+  --radius8: 8px;
+  --radius16: 16px;
+  --radius20: 20px;
+  --radius26: 26px;
+  --font-primary: Inter;
+  --font-display: Humble Nostalgia;
+  --font-size12: 12px;
+  --font-size14: 14px;
+  --font-size16: 16px;
+  --font-size24: 24px;
+  --font-size28: 28px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+}
+
+/* Expose color vars to Tailwind v4 so utilities (bg-*, text-*, border-*, ...)
+   respond to data-theme switches. Non-color tokens stay as raw vars and are
+   referenced via arbitrary values (e.g. `p-[var(--spacing12)]`). */
+@theme inline {
+  --color-background: var(--color-background);
+  --color-surface-primary: var(--color-surface-primary);
+  --color-surface-search-field: var(--color-surface-search-field);
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-active: var(--color-accent-active);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-surface-elevated-on-interaction: var(
+    --color-surface-elevated-on-interaction
+  );
+  --color-surface-disabled: var(--color-surface-disabled);
+  --color-surface-destructive-elevated: var(
+    --color-surface-destructive-elevated
+  );
+  --color-surface-destructive: var(--color-surface-destructive);
+  --color-text-primary: var(--color-text-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-text-search-field: var(--color-text-search-field);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-disabled: var(--color-text-disabled);
+  --color-border-primary: var(--color-border-primary);
+  --color-border-search-field: var(--color-border-search-field);
+  --color-border-secondary: var(--color-border-secondary);
+  --color-surface-error: var(--color-surface-error);
+  --color-surface-warning: var(--color-surface-warning);
+  --color-focus-ring: var(--color-focus-ring);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-link-text: var(--color-link-text);
+  --background-snackbar: var(--background-snackbar);
+}
