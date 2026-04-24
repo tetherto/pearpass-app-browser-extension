@@ -2,6 +2,9 @@
 // Untyped JS dependencies — keeps strict TS files importable project-wide
 declare module '@tetherto/pear-apps-lib-ui-react-hooks'
 declare module '@tetherto/pear-apps-utils-validator'
+declare module '@tetherto/pear-apps-utils-avatar-initials' {
+  export function generateAvatarInitials(text?: string): string
+}
 declare module '@tetherto/pearpass-lib-vault' {
   export interface Vault {
     id: string

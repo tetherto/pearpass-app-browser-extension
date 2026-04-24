@@ -10,21 +10,26 @@ import { generateUniqueId } from '@tetherto/pear-apps-utils-generate-unique-id'
 
 import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import { Overlay } from '../containers/Overlay'
+import { isV2 } from '../utils/designVersion'
 
 const ModalContext = createContext()
 
-const DEFAULT_MODAL_PARAMS = {
-  hasOverlay: true,
+// V1 modals rely on this context's <Overlay/> for their backdrop. V2 modals
+// use the kit Dialog, which ships its own backdrop + focus trap, so we skip
+// our overlay in V2 mode to avoid stacking two layers. Callers can still
+// override via explicit setModal(content, { hasOverlay: true }).
+const getDefaultModalParams = () => ({
+  hasOverlay: !isV2(),
   overlayType: 'default',
   closeable: true,
   fullScreen: false
-}
+})
 
 const createModalConfig = (content, params = {}) => ({
   content,
   id: generateUniqueId(),
   isOpen: true,
-  params: { ...DEFAULT_MODAL_PARAMS, ...params }
+  params: { ...getDefaultModalParams(), ...params }
 })
 
 const getTopModal = (modalStack) => modalStack[modalStack.length - 1]
@@ -109,7 +114,15 @@ export const ModalProvider = ({ children }) => {
 /**
  * @returns {{
  *   isOpen: boolean,
- *   setModal: () => void,
+ *   setModal: (
+ *     content: import('react').ReactNode,
+ *     params?: {
+ *       hasOverlay?: boolean,
+ *       overlayType?: string,
+ *       closeable?: boolean,
+ *       fullScreen?: boolean,
+ *     }
+ *   ) => void,
  *   closeModal: () => Promise<void>,
  *   closeAllModals: () => void
  * }}

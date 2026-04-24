@@ -6,6 +6,11 @@ import { ModalProvider, useModal } from './ModalContext'
 import { BASE_TRANSITION_DURATION } from '../constants/transitions'
 import '@testing-library/jest-dom'
 
+const mockIsV2 = jest.fn(() => false)
+
+jest.mock('../utils/designVersion', () => ({
+  isV2: () => mockIsV2()
+}))
 jest.mock('../containers/Overlay', () => ({
   Overlay: ({ children, onClick }) => (
     <div role="dialog" aria-label="overlay" onClick={onClick}>
@@ -39,6 +44,10 @@ const TestComponent = () => {
 
 describe('ModalContext', () => {
   const renderWithProvider = (ui) => render(<ModalProvider>{ui}</ModalProvider>)
+
+  beforeEach(() => {
+    mockIsV2.mockReturnValue(false)
+  })
 
   it('should open a modal when setModal is called', () => {
     renderWithProvider(<TestComponent />)
@@ -97,6 +106,18 @@ describe('ModalContext', () => {
     renderWithProvider(<TestComponentWithoutOverlay />)
 
     fireEvent.click(screen.getByText('Open Modal Without Overlay'))
+
+    expect(
+      screen.queryByRole('dialog', { name: /overlay/i })
+    ).not.toBeInTheDocument()
+  })
+
+  it('should not render an overlay by default when isV2() is true', () => {
+    mockIsV2.mockReturnValue(true)
+
+    renderWithProvider(<TestComponent />)
+
+    fireEvent.click(screen.getByText('Open Modal'))
 
     expect(
       screen.queryByRole('dialog', { name: /overlay/i })

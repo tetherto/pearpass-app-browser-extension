@@ -5,8 +5,10 @@ import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { useModal } from '../../shared/context/ModalContext'
 import { useRouter } from '../../shared/context/RouterContext'
+import { isV2 } from '../../shared/utils/designVersion'
 import { ConfirmationModalContent } from '../containers/ConfirmationModalContent'
 import { MoveFolderModalContent } from '../containers/MoveFolderModalContent'
+import { MoveFolderModalContentV2 } from '../containers/MoveFolderModalContentV2'
 
 /**
  * @param {{
@@ -92,7 +94,13 @@ export const useRecordActionItems = ({
   }
 
   const handleMoveClick = () => {
-    setModal(<MoveFolderModalContent records={[record]} />)
+    setModal(
+      isV2() ? (
+        <MoveFolderModalContentV2 records={[record]} />
+      ) : (
+        <MoveFolderModalContent records={[record]} />
+      )
+    )
     onClose?.()
   }
 
