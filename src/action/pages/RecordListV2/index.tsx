@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFolders, useRecords } from '@tetherto/pearpass-lib-vault'
-import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
-import { createStyles } from './RecordListV2.styles'
 import { EmptyCollectionViewV2 } from '../../containers/EmptyCollectionViewV2'
 import { EmptyResultsViewV2 } from '../../containers/EmptyResultsViewV2'
 import { MainViewHeader } from '../../containers/MainViewHeader'
@@ -18,8 +16,8 @@ import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { DeleteRecordsModalContentV2 } from '../../../shared/containers/DeleteRecordsModalContentV2'
+import { LayoutWithSidebar } from '../../../shared/containers/LayoutWithSidebar'
 import { MoveFolderModalContentV2 } from '../../../shared/containers/MoveFolderModalContentV2'
-import { SidebarV2 } from '../../../shared/containers/SidebarV2'
 import {
   groupRecordsByTimePeriod,
   type VaultRecord
@@ -27,9 +25,6 @@ import {
 import { isFavorite } from '../../../shared/utils/isFavorite'
 
 export const RecordListV2 = () => {
-  const { theme } = useTheme()
-  const styles = createStyles(theme.colors)
-
   const { state: routerState } = useRouter() as {
     state: { recordType?: string; folder?: string } | undefined
   }
@@ -135,39 +130,40 @@ export const RecordListV2 = () => {
   const hasRecords = !!records?.length
 
   return (
-    <div style={styles.root} data-testid="record-list-v2-page">
-      <SidebarV2 />
-      <div style={styles.main}>
-        <MainViewHeader
-          sortKey={sortKey}
-          setSortKey={setSortKey}
-          isMultiSelectOn={isMultiSelectOn}
-          setIsMultiSelectOn={setIsMultiSelectOn}
-        />
-
-        {isMultiSelectOn && (
-          <MultiSelectActionsBar
-            selectedCount={selectedCount}
-            allSelectedFavorited={allSelectedFavorited}
-            canMove={hasCustomFolders}
-            onMove={handleMove}
-            onToggleFavorite={handleToggleFavorite}
-            onDelete={handleDelete}
-          />
-        )}
-
-        {hasRecords && (
-          <RecordListViewV2
-            sections={sections}
+    <LayoutWithSidebar
+      mainView={
+        <>
+          <MainViewHeader
+            sortKey={sortKey}
+            setSortKey={setSortKey}
             isMultiSelectOn={isMultiSelectOn}
-            selectedRecords={selectedRecords}
-            setSelectedRecords={setSelectedRecords}
+            setIsMultiSelectOn={setIsMultiSelectOn}
           />
-        )}
 
-        {!hasRecords && !searchValue && <EmptyCollectionViewV2 />}
-        {!hasRecords && !!searchValue && <EmptyResultsViewV2 />}
-      </div>
-    </div>
+          {isMultiSelectOn && (
+            <MultiSelectActionsBar
+              selectedCount={selectedCount}
+              allSelectedFavorited={allSelectedFavorited}
+              canMove={hasCustomFolders}
+              onMove={handleMove}
+              onToggleFavorite={handleToggleFavorite}
+              onDelete={handleDelete}
+            />
+          )}
+
+          {hasRecords && (
+            <RecordListViewV2
+              sections={sections}
+              isMultiSelectOn={isMultiSelectOn}
+              selectedRecords={selectedRecords}
+              setSelectedRecords={setSelectedRecords}
+            />
+          )}
+
+          {!hasRecords && !searchValue && <EmptyCollectionViewV2 />}
+          {!hasRecords && !!searchValue && <EmptyResultsViewV2 />}
+        </>
+      }
+    />
   )
 }
