@@ -41,18 +41,20 @@ export const AppHeaderV2 = ({
   return (
     <header style={styles.root} data-testid="app-header-v2">
       <div style={styles.leading}>
-        <Button
-          variant="tertiary"
-          size="medium"
-          type="button"
-          data-testid={sidebarToggleTestID}
-          aria-label={
-            isSidebarCollapsed ? t`Expand sidebar` : t`Collapse sidebar`
-          }
-          aria-pressed={!isSidebarCollapsed}
-          onClick={onSidebarToggle}
-          iconBefore={<MenuOpen style={iconStyle} />}
-        />
+        <div style={styles.sidebarToggle(isSidebarCollapsed)}>
+          <Button
+            variant="tertiary"
+            size="medium"
+            type="button"
+            data-testid={sidebarToggleTestID}
+            aria-label={
+              isSidebarCollapsed ? t`Expand sidebar` : t`Collapse sidebar`
+            }
+            aria-pressed={!isSidebarCollapsed}
+            onClick={onSidebarToggle}
+            iconBefore={<MenuOpen style={iconStyle} />}
+          />
+        </div>
       </div>
       <div style={styles.searchWrap}>
         <div style={styles.search}>

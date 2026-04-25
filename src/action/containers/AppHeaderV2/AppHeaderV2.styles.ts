@@ -25,6 +25,11 @@ export const createStyles = (colors: ThemeColors) => ({
     flexShrink: 0
   },
 
+  sidebarToggle: (isCollapsed: boolean) => ({
+    display: 'flex' as const,
+    rotate: `${isCollapsed ? 180 : 0}deg`
+  }),
+
   searchWrap: {
     flex: 1,
     minWidth: 0,
