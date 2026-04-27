@@ -1,4 +1,5 @@
 import { CreateNewVault } from './CreateNewVault'
+import { EnterMasterPassword } from './EnterMasterPassword'
 import { EnterMasterPasswordV2 } from './EnterMasterPassword/EnterMasterPasswordV2'
 import { LoadVault } from './LoadVault'
 import { LockedScreen } from './LockedScreen'
@@ -7,11 +8,12 @@ import { UnlockVault } from './UnlockVault'
 import { WelcomePageWrapper } from '../../../shared/components/WelcomePageWrapper'
 import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
 import { useRouter } from '../../../shared/context/RouterContext'
+import { isV2 } from '../../../shared/utils/designVersion'
 
 export const WelcomePage = () => {
   const { params } = useRouter()
 
-  if (params.state === NAVIGATION_ROUTES.MASTER_PASSWORD) {
+  if (params.state === NAVIGATION_ROUTES.MASTER_PASSWORD && isV2()) {
     return <EnterMasterPasswordV2 />
   }
 
@@ -25,6 +27,8 @@ export const WelcomePage = () => {
 
 const renderPage = (state) => {
   switch (state) {
+    case NAVIGATION_ROUTES.MASTER_PASSWORD:
+      return <EnterMasterPassword />
     case NAVIGATION_ROUTES.VAULTS:
       return <SelectOrLoadVault />
     case NAVIGATION_ROUTES.VAULT_PASSWORD:
