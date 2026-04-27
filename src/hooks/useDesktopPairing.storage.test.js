@@ -71,7 +71,8 @@ describe('useDesktopPairing — storage behavior', () => {
   const props = {
     onPairSuccess: mockOnPairSuccess,
     handleBack: jest.fn(),
-    setStep: jest.fn()
+    setStep: jest.fn(),
+    hydrateFromStore: true
   }
 
   beforeEach(() => {
