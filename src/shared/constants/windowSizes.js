@@ -1,9 +1,11 @@
+import { isV2 } from '../utils/designVersion'
+
 export const passkeyWindowSize = {
   width: 460,
   height: 440
 }
 
 export const mainExtensionWindowSize = {
-  width: 600,
-  height: 455
+  width: isV2() ? 650 : 600,
+  height: isV2() ? 494 : 455
 }

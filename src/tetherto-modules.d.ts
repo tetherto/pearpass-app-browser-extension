@@ -5,11 +5,20 @@ declare module '@tetherto/pear-apps-utils-validator'
 declare module '@tetherto/pear-apps-utils-avatar-initials' {
   export function generateAvatarInitials(text?: string): string
 }
+declare module '@tetherto/pear-apps-utils-qr'
+declare module '@tetherto/pear-apps-utils-date'
 declare module '@tetherto/pearpass-lib-vault' {
+  export interface VaultDevice {
+    id?: string
+    name?: string
+    createdAt?: string
+  }
+
   export interface Vault {
     id: string
     name: string
     createdAt?: string
+    devices?: VaultDevice[]
   }
 
   export interface UseVaultsResult {
