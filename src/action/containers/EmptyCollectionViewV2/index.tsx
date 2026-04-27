@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro'
 import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 import { Button, Text, Title, useTheme } from '@tetherto/pearpass-lib-ui-kit'
-import { Add, ImportOutlined } from '@tetherto/pearpass-lib-ui-kit/icons'
+import { Add, ImportExport } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { createStyles } from './EmptyCollectionViewV2.styles'
 import { useRouter } from '../../../shared/context/RouterContext'
@@ -85,7 +85,7 @@ export const EmptyCollectionViewV2 = () => {
               fullWidth
               data-testid="empty-collection-v2-import"
               iconBefore={
-                <ImportOutlined
+                <ImportExport
                   width={16}
                   height={16}
                   color={theme.colors.colorTextPrimary}

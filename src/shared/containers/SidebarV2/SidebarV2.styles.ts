@@ -1,7 +1,7 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-export const SIDEBAR_WIDTH_EXPANDED = 200
+export const SIDEBAR_WIDTH_EXPANDED = 250
 export const SIDEBAR_WIDTH_COLLAPSED = 0
 export const SIDEBAR_HEADER_HEIGHT = 44
 export const FADE_GRADIENT_HEIGHT = 32

@@ -2,7 +2,6 @@ import type { MouseEvent } from 'react'
 import { useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { UNSUPPORTED } from '@tetherto/pearpass-lib-constants'
 import {
   useInvite,
   useVault,
@@ -22,7 +21,7 @@ import {
   EditOutlined,
   LockFilled,
   MoreVert,
-  PersonAdd
+  PersonAddAlt
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { createStyles, VAULT_ACTIONS_MENU_WIDTH } from './VaultSelector.styles'
@@ -222,19 +221,17 @@ const VaultRow = ({
       onClick={stopPropagation}
       data-testid={`vault-row-actions-${vault.id}`}
     >
-      {!UNSUPPORTED ? null : (
-        <Button
-          variant="tertiary"
-          size="small"
-          data-testid={`vault-row-invite-${vault.id}`}
-          aria-label={t`Invite to vault`}
-          onClick={() => onInvite(vault)}
-          style={actionButtonStyle}
-          iconBefore={
-            <PersonAdd width={16} height={16} color={iconPrimary.color} />
-          }
-        />
-      )}
+      <Button
+        variant="tertiary"
+        size="small"
+        data-testid={`vault-row-invite-${vault.id}`}
+        aria-label={t`Invite to vault`}
+        onClick={() => onInvite(vault)}
+        style={actionButtonStyle}
+        iconBefore={
+          <PersonAddAlt width={16} height={16} color={iconPrimary.color} />
+        }
+      />
       <ContextMenu
         open={menuOpen}
         onOpenChange={setMenuOpen}

@@ -2,7 +2,7 @@ import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
 export const HEADER_MIN_HEIGHT = 44
-export const SORT_MENU_WIDTH = 240
+export const SORT_MENU_WIDTH = 260
 
 export const createStyles = (colors: ThemeColors) => ({
   container: {

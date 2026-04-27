@@ -19,6 +19,11 @@ exports[`FolderDropdown renders with correct custom folders 1`] = `
         No Folder
       </button>
       <button
+        data-testid="item-Finance"
+      >
+        Finance
+      </button>
+      <button
         data-testid="item-Personal"
       >
         Personal
@@ -27,11 +32,6 @@ exports[`FolderDropdown renders with correct custom folders 1`] = `
         data-testid="item-Work"
       >
         Work
-      </button>
-      <button
-        data-testid="item-Finance"
-      >
-        Finance
       </button>
     </div>
   </div>

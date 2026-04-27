@@ -7,6 +7,7 @@ import { ButtonFolder } from '../../components/ButtonFolder'
 import { ButtonSingleInput } from '../../components/ButtonSingleInput'
 import { useModal } from '../../context/ModalContext'
 import { NewFolderIcon } from '../../icons/NewFolderIcon'
+import { sortByName } from '../../utils/sortByName'
 import { CreateFolderModalContent } from '../CreateFolderModalContent'
 import { ModalContent } from '../ModalContent'
 
@@ -30,7 +31,9 @@ export const MoveFolderModalContent = ({ records, onCompleted }) => {
     const excludedFolder = records?.length === 1 ? records[0].folder : null
     const customFolders = Object.values(folders?.customFolders ?? {})
 
-    return customFolders.filter((folder) => folder.name !== excludedFolder)
+    return sortByName(
+      customFolders.filter((folder) => folder.name !== excludedFolder)
+    )
   }, [folders, records])
 
   const handleMove = async (folderName) => {

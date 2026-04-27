@@ -1,5 +1,4 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
-import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
 export const createStyles = (colors: ThemeColors) => ({
   wrapper: {
@@ -10,8 +9,7 @@ export const createStyles = (colors: ThemeColors) => ({
     minHeight: 0,
     backgroundColor: colors.colorSurfacePrimary,
     border: `1px solid ${colors.colorBorderPrimary}`,
-    borderTopLeftRadius: rawTokens.radius8,
-    borderTopRightRadius: rawTokens.radius8,
+    borderRadius: 6,
     overflow: 'hidden' as const
   },
 

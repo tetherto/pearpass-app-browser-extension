@@ -35,7 +35,7 @@ export const createStyles = (colors: ThemeColors) => ({
   },
 
   vaultRow: {
-    minHeight: '44px',
+    minHeight: '58px',
     gap: `${rawTokens.spacing8}px`,
     paddingInline: `${rawTokens.spacing8}px`
   },

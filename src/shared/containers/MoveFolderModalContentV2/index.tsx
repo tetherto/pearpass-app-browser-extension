@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { generateAvatarInitials } from '@tetherto/pear-apps-utils-avatar-initials'
@@ -9,7 +9,7 @@ import {
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
-import { Folder, Layers, StarBorder } from '@tetherto/pearpass-lib-ui-kit/icons'
+import { Folder } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { useFolders, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { RecordAvatar } from '../../components/RecordAvatar'
@@ -17,9 +17,7 @@ import { RECORD_COLOR_BY_TYPE } from '../../constants/recordColorByType'
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useModal } from '../../context/ModalContext'
 import { logger } from '../../utils/logger'
-
-const CHIP_ID_ALL = '__all__'
-const CHIP_ID_FAVORITES = '__favorites__'
+import { sortByName } from '../../utils/sortByName'
 
 export type MoveFolderRecord = {
   id: string
@@ -40,17 +38,10 @@ export type MoveFolderModalContentV2Props = {
   onCompleted?: () => void
 }
 
-type IconComponent = React.ComponentType<{ color?: string }>
-
-type ChipOption =
-  | { kind: 'all'; id: typeof CHIP_ID_ALL; label: string; Icon: IconComponent }
-  | {
-      kind: 'favorites'
-      id: typeof CHIP_ID_FAVORITES
-      label: string
-      Icon: IconComponent
-    }
-  | { kind: 'custom'; id: string; label: string; Icon: IconComponent }
+type FolderOption = {
+  id: string
+  label: string
+}
 
 function getRecordSubtitle(record: MoveFolderRecord): string {
   if (record.type === 'login' || record.type === 'identity') {
@@ -72,94 +63,69 @@ export const MoveFolderModalContentV2 = ({
   const { closeModal } = useModal()
   const { isLoading, setIsLoading } = useLoadingContext()
   const { data: folders, isLoading: isLoadingFolders } = useFolders()
-  const { updateFolder, updateFavoriteState, updateRecords } = useRecords({
-    onCompleted: closeModal
-  })
+  const { updateFolder } = useRecords({ onCompleted: closeModal })
 
-  const [selectedId, setSelectedId] = useState<string>(CHIP_ID_ALL)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
-
-  // Redirect Dialog's initial focus away from the X close button (which would
-  // otherwise draw a green focus-visible ring on mount) to the default-selected
-  // chip, which is a more logical keyboard entry point for a radio group.
-  const initialFocusRef = useRef<HTMLDivElement>(null)
 
   const iconColor = theme.colors.colorTextPrimary
 
-  const chipOptions = useMemo<ChipOption[]>(() => {
-    const customFolders = Object.values(folders?.customFolders ?? {}) as Array<{
-      name: string
-    }>
-    const sorted = [...customFolders].sort((a, b) =>
-      a.name.localeCompare(b.name)
+  const folderOptions = useMemo<FolderOption[]>(() => {
+    const customFolders = Object.values(
+      (folders?.customFolders ?? {}) as Record<string, { name: string }>
     )
-    const custom: ChipOption[] = sorted.map((f) => ({
-      kind: 'custom',
-      id: f.name,
-      label: f.name,
-      Icon: Folder as IconComponent
+    return sortByName(customFolders).map(({ name }) => ({
+      id: name,
+      label: name
     }))
-    return [
-      {
-        kind: 'all',
-        id: CHIP_ID_ALL,
-        label: t`All Items`,
-        Icon: Layers as IconComponent
-      },
-      {
-        kind: 'favorites',
-        id: CHIP_ID_FAVORITES,
-        label: t`Favorites`,
-        Icon: StarBorder as IconComponent
-      },
-      ...custom
-    ]
   }, [folders])
 
-  const selectedChip = useMemo(
-    () => chipOptions.find((c) => c.id === selectedId) ?? chipOptions[0],
-    [chipOptions, selectedId]
+  const recordIdsKey = useMemo(
+    () =>
+      records
+        .map((r) => r.id)
+        .sort()
+        .join(','),
+    [records]
+  )
+  const folderListKey = useMemo(
+    () => folderOptions.map((f) => f.id).join(','),
+    [folderOptions]
   )
 
-  // Disable submit when every record already satisfies the chosen destination.
-  const atDestination = useMemo(() => {
-    if (records.length === 0 || !selectedChip) return true
-    switch (selectedChip.kind) {
-      case 'all':
-        return records.every((r) => !r.folder)
-      case 'favorites':
-        return records.every((r) => r.isFavorite === true)
-      case 'custom':
-        return records.every((r) => r.folder === selectedChip.id)
-      default:
-        return true
-    }
-  }, [records, selectedChip])
+  useEffect(() => {
+    setSelectedId(null)
+    setSubmitError(null)
+  }, [recordIdsKey, folderListKey])
+
+  const atDestination =
+    !!selectedId &&
+    records.length > 0 &&
+    records.every((r) => r.folder === selectedId)
 
   const isLoadingAny = isLoading || isLoadingFolders
-  const canSubmit = !isLoadingAny && !atDestination
+  const canSubmit = !isLoadingAny && !!selectedId && !atDestination
+
+  const isSingle = records.length === 1
+  const dialogTitle = isSingle
+    ? t`Move 1 item`
+    : t`Move ${records.length} items`
+  const submitLabel = isSingle ? t`Move item` : t`Move items`
+  const selectedItemsLabel = isSingle ? t`Selected Item` : t`Selected Items`
+  const destinationHintLabel = isSingle
+    ? t`Choose the destination folder of this item`
+    : t`Choose the destination folder of these items`
 
   const handleMove = useCallback(async () => {
-    if (!canSubmit || !selectedChip) return
+    if (!canSubmit || !selectedId) return
 
     try {
       setIsLoading(true)
       setSubmitError(null)
-
-      const ids = records.map((r) => r.id)
-
-      switch (selectedChip.kind) {
-        case 'all':
-          await updateRecords(records.map((r) => ({ ...r, folder: null })))
-          break
-        case 'favorites':
-          await updateFavoriteState(ids, true)
-          break
-        case 'custom':
-          await updateFolder(ids, selectedChip.id)
-          break
-      }
-
+      await updateFolder(
+        records.map((r) => r.id),
+        selectedId
+      )
       onCompleted?.()
       closeModal()
     } catch (error) {
@@ -173,20 +139,15 @@ export const MoveFolderModalContentV2 = ({
     closeModal,
     onCompleted,
     records,
-    selectedChip,
+    selectedId,
     setIsLoading,
-    updateFavoriteState,
-    updateFolder,
-    updateRecords
+    updateFolder
   ])
-
-  const [previewRecord] = records
 
   return (
     <Dialog
-      title={t`Move to another Folder`}
+      title={dialogTitle}
       onClose={closeModal}
-      initialFocusRef={initialFocusRef}
       testID="move-folder-v2-dialog"
       closeButtonTestID="move-folder-v2-close"
       footer={
@@ -209,12 +170,12 @@ export const MoveFolderModalContentV2 = ({
             }}
             data-testid="move-folder-v2-submit"
           >
-            {t`Move Item`}
+            {submitLabel}
           </Button>
         </div>
       }
     >
-      <div className="flex flex-col items-start gap-[var(--spacing8)] self-stretch p-[var(--spacing16)]">
+      <div className="flex min-h-0 flex-1 flex-col items-start gap-[var(--spacing12)] self-stretch">
         {submitError ? (
           <AlertMessage
             variant="error"
@@ -225,73 +186,79 @@ export const MoveFolderModalContentV2 = ({
           />
         ) : null}
 
-        {previewRecord ? (
+        <div className="shrink-0">
+          <Text variant="caption" color={theme.colors.colorTextSecondary}>
+            {selectedItemsLabel}
+          </Text>
+        </div>
+
+        {records.length > 0 ? (
           <div
-            className="flex items-start gap-[var(--spacing12)] rounded-[var(--radius8)] p-[var(--spacing12)]"
-            data-testid="move-folder-v2-preview"
+            className="flex min-h-0 w-full flex-1 flex-col gap-[var(--spacing4)] overflow-y-auto"
+            data-testid="move-folder-v2-items"
           >
-            <RecordAvatar
-              websiteDomain={previewRecord.data?.websites?.[0] ?? ''}
-              initials={generateAvatarInitials(previewRecord.data?.title ?? '')}
-              isFavorite={!!previewRecord.isFavorite}
-              color={
-                RECORD_COLOR_BY_TYPE[
-                  previewRecord.type as keyof typeof RECORD_COLOR_BY_TYPE
-                ] ?? RECORD_COLOR_BY_TYPE.custom
-              }
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-              <Text variant="bodyEmphasized">
-                {previewRecord.data?.title ?? ''}
-              </Text>
-              <Text variant="body" color={theme.colors.colorTextSecondary}>
-                {getRecordSubtitle(previewRecord)}
-              </Text>
-            </div>
+            {records.map((record, index) => {
+              const subtitle = getRecordSubtitle(record)
+              const titleText = record.data?.title ?? ''
+              return (
+                <div
+                  key={record.id}
+                  className="flex items-center gap-[var(--spacing12)] p-[var(--spacing12)]"
+                  data-testid={`move-folder-v2-item-${index}`}
+                >
+                  <RecordAvatar
+                    websiteDomain={record.data?.websites?.[0] ?? ''}
+                    initials={generateAvatarInitials(record.data?.title ?? '')}
+                    isFavorite={!!record.isFavorite}
+                    color={
+                      RECORD_COLOR_BY_TYPE[
+                        record.type as keyof typeof RECORD_COLOR_BY_TYPE
+                      ] ?? RECORD_COLOR_BY_TYPE.custom
+                    }
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                    <Text variant="bodyEmphasized">{titleText}</Text>
+                    {subtitle ? (
+                      <Text
+                        variant="caption"
+                        color={theme.colors.colorTextSecondary}
+                      >
+                        {subtitle}
+                      </Text>
+                    ) : null}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         ) : null}
 
+        <div className="shrink-0">
+          <Text variant="caption" color={theme.colors.colorTextSecondary}>
+            {destinationHintLabel}
+          </Text>
+        </div>
+
         <div
-          className="flex flex-wrap gap-[var(--spacing8)] self-stretch"
-          role="radiogroup"
-          aria-label={t`Destination`}
+          className="flex max-h-[100px] shrink-0 flex-wrap gap-[var(--spacing12)] self-stretch overflow-y-auto"
           data-testid="move-folder-v2-chips"
         >
-          {chipOptions.map((chip) => {
-            const ChipIcon = chip.Icon
-            const isSelected = chip.id === selectedId
-            const chipClasses = [
-              'flex cursor-pointer items-center gap-[var(--spacing4)] rounded-[var(--radius8)] border border-[var(--color-border-secondary)] p-[var(--spacing12)]',
-              isSelected
-                ? 'bg-[var(--color-surface-elevated-on-interaction)]'
-                : ''
-            ]
-              .filter(Boolean)
-              .join(' ')
-
-            const handleSelect = () => setSelectedId(chip.id)
-            const handleKey = (e: React.KeyboardEvent) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                handleSelect()
-              }
-            }
-
+          {folderOptions.map(({ id, label }) => {
+            const selected = id === selectedId
             return (
-              <div
-                key={chip.id}
-                ref={isSelected ? initialFocusRef : undefined}
-                role="radio"
-                tabIndex={0}
-                aria-checked={isSelected}
-                data-testid={`move-folder-v2-chip-${chip.id}`}
-                onClick={handleSelect}
-                onKeyDown={handleKey}
-                className={chipClasses}
+              <Button
+                key={id}
+                variant="secondary"
+                size="small"
+                pressed={selected}
+                iconBefore={<Folder color={iconColor} />}
+                data-testid={`move-folder-v2-chip-${id}`}
+                onClick={() =>
+                  setSelectedId((prev) => (prev === id ? null : id))
+                }
               >
-                <ChipIcon color={iconColor} />
-                <Text variant="bodyEmphasized">{chip.label}</Text>
-              </div>
+                {label}
+              </Button>
             )
           })}
         </div>

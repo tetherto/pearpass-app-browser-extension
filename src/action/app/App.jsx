@@ -21,14 +21,21 @@ export const App = () => {
     ? 'bg-background flex flex-col'
     : 'bg-black-mode1 flex items-center'
 
+  const containerStyle = {
+    height: `${windowSize.height}px`,
+    width: `${windowSize.width}px`,
+    ...(isV2()
+      ? {
+          padding: '4px',
+          border: '1px solid #3D403F',
+          borderRadius: '8px',
+          boxSizing: 'border-box'
+        }
+      : {})
+  }
+
   return (
-    <div
-      className={containerClassName}
-      style={{
-        height: `${windowSize.height}px`,
-        width: `${windowSize.width}px`
-      }}
-    >
+    <div className={containerClassName} style={containerStyle}>
       {isLoading ? (
         <FadeInWrapper>
           <WelcomePageWrapper />

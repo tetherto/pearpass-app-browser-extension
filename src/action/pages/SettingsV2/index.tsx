@@ -116,7 +116,7 @@ export const SettingsV2 = () => {
   }
 
   return (
-    <div className="bg-background flex h-full w-full flex-col gap-[10px] p-[4px]">
+    <div className="bg-background flex h-full w-full flex-col gap-[10px]">
       <header className="flex h-[64px] flex-none items-center gap-[16px] px-[16px] py-[12px]">
         <Button
           variant="tertiary"
@@ -133,7 +133,7 @@ export const SettingsV2 = () => {
         </Text>
       </header>
 
-      <div className="bg-surface-primary border-border-primary flex min-h-0 flex-1 overflow-hidden rounded-[8px] border">
+      <div className="bg-surface-primary border-border-primary flex min-h-0 flex-1 overflow-hidden rounded-[6px] border">
         <nav
           aria-label={t`Settings sections`}
           className="border-border-primary flex h-full w-[210px] flex-none flex-col gap-[8px] overflow-y-auto border-r p-[12px]"
