@@ -13,6 +13,7 @@ import { secureChannelMessages } from '../../../shared/services/messageBridge'
 import { isV2 } from '../../../shared/utils/designVersion'
 import { logger } from '../../../shared/utils/logger'
 import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent'
+import { DesktopConnectionModalContentV2 } from '../../containers/Modal/DesktopConnectionModalContent/DesktopConnectionModalContentV2'
 import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequiredModalContent'
 import { PairingRequiredModalContentV2 } from '../../containers/Modal/PairingRequiredModalContent/PairingRequiredModalContentV2'
 
@@ -77,12 +78,22 @@ export const useBlockingState = () => {
   const showConnectionModal = useCallback(
     (onRetry) => {
       closeAllModals()
-      setModal(
+      const content = isV2() ? (
+        <DesktopConnectionModalContentV2
+          onRetry={onRetry}
+          onClose={closeAllModals}
+        />
+      ) : (
         <DesktopConnectionModalContent
           onRetry={onRetry}
           onClose={closeAllModals}
-        />,
-        { fullScreen: true, hasOverlay: false, closeable: false }
+        />
+      )
+      setModal(
+        content,
+        isV2()
+          ? { fullScreen: false, closeable: true }
+          : { fullScreen: true, hasOverlay: false, closeable: false }
       )
     },
     [closeAllModals, setModal]
