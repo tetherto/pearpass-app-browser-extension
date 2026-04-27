@@ -25,6 +25,7 @@ export const AboutContent = () => {
   const { setToast } = useToast()
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const productName = chrome.runtime.getManifest().name
 
   const handleReportProblem = async () => {
     if (!message?.length || isLoading) {
@@ -94,7 +95,7 @@ export const AboutContent = () => {
         </form>
       </CardSingleSetting>
 
-      <CardSingleSetting title={t`PearPass version`}>
+      <CardSingleSetting title={t`${productName} version`}>
         <p className="font-inter text-grey100-mode1 mb-2 text-[14px] leading-normal">
           {t`Here you can find all the info about your app.`}
         </p>
