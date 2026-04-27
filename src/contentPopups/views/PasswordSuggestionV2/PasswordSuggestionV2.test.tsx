@@ -5,6 +5,18 @@ import '@testing-library/jest-dom'
 
 import { PasswordSuggestionV2 } from './index'
 
+jest.mock('@lingui/react', () => ({
+  Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useLingui: () => ({
+    i18n: {
+      _: (msg: string | { message?: string }) =>
+        typeof msg === 'string'
+          ? msg
+          : (msg?.message ?? 'Open password generator')
+    }
+  })
+}))
+
 jest.mock('@lingui/react/macro', () => ({
   Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }))

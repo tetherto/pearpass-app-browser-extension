@@ -135,7 +135,7 @@ export const PasswordGeneratorV2 = () => {
   }, [generated, mode])
 
   const indicatorVariant: PasswordIndicatorVariant =
-    STRENGTH_TO_INDICATOR[(strength as { type: string }).type] ?? 'vulnerable'
+    STRENGTH_TO_INDICATOR[strength.type] ?? 'vulnerable'
 
   const onPasswordInsert = (value: string) => {
     window.parent.postMessage(

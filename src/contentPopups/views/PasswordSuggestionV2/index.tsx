@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
+import { useLingui } from '@lingui/react'
 import { useVault } from '@tetherto/pearpass-lib-vault'
 import { generatePassword } from '@tetherto/pearpass-utils-password-generator'
 import { Text, useTheme } from '@tetherto/pearpass-lib-ui-kit'
@@ -13,6 +15,7 @@ import { closeIframe } from '../../iframeApi/closeIframe'
 export const PasswordSuggestionV2 = () => {
   const popupRef = useRef<HTMLDivElement>(null)
   const { state: routerState, navigate } = useRouter()
+  const { i18n } = useLingui()
   const { theme } = useTheme()
   const { refetch: refetchVault } = useVault()
   const { filteredRecords, isInitialized, isLoading } = useFilteredRecords()
@@ -129,16 +132,28 @@ export const PasswordSuggestionV2 = () => {
         <div
           className="flex shrink-0 cursor-pointer items-center gap-[var(--spacing12)]"
           data-testid="passwordsuggestionv2-refresh"
+          aria-label={i18n._(t`Open password generator`)}
+          role="button"
+          tabIndex={0}
           onClick={(e) => {
             e.stopPropagation()
             onGeneratePassword()
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              e.stopPropagation()
+              onGeneratePassword()
+            }
+          }}
         >
-          <SyncLock
-            color={theme.colors.colorTextPrimary}
-            width={16}
-            height={16}
-          />
+          <span className="inline-flex" aria-hidden>
+            <SyncLock
+              color={theme.colors.colorTextPrimary}
+              width={16}
+              height={16}
+            />
+          </span>
         </div>
       </div>
     </div>
