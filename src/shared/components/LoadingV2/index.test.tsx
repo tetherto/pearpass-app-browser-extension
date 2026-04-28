@@ -24,16 +24,7 @@ jest.mock('@lingui/react', () => ({
     children?: React.ReactNode
     message?: string
     id?: string
-  }) => <>{children ?? message ?? id}</>,
-  useLingui: () => ({
-    i18n: {
-      _: (msg: string | { message?: string } | null | undefined): string => {
-        if (msg == null) return ''
-        if (typeof msg === 'string') return msg
-        return msg.message ?? ''
-      }
-    }
-  })
+  }) => <>{children ?? message ?? id}</>
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => {
