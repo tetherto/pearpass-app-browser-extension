@@ -27,9 +27,9 @@ import {
 import { createStyles, VAULT_ACTIONS_MENU_WIDTH } from './VaultSelector.styles'
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useModal } from '../../context/ModalContext'
-import { useRouter } from '../../context/RouterContext'
 import { sortByName } from '../../utils/sortByName'
 import { CreateOrEditVaultModalContentV2 } from '../CreateOrEditVaultModalContentV2'
+import { ShareVaultModalContentV2 } from '../ShareVaultModalContentV2'
 import { VaultPasswordFormModalContent } from '../VaultPasswordFormModalContent'
 
 type VaultSelectorProps = {
@@ -41,7 +41,6 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
   const styles = createStyles(theme.colors)
   const { setIsLoading } = useLoadingContext()
   const { setModal, closeModal } = useModal()
-  const { navigate } = useRouter()
 
   const { data: vaultsData } = useVaults()
   const {
@@ -68,9 +67,8 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
         setIsLoading(false)
       }
     }
-    closeModal()
     onClose?.()
-    navigate('addDevice', { params: {} })
+    setModal(<ShareVaultModalContentV2 />)
   }
 
   const switchVault = async (

@@ -5,6 +5,12 @@ declare module '@tetherto/pear-apps-utils-validator'
 declare module '@tetherto/pear-apps-utils-avatar-initials' {
   export function generateAvatarInitials(text?: string): string
 }
+declare module '@tetherto/pear-apps-utils-qr' {
+  export function generateQRCodeSVG(
+    data: string,
+    options?: { type?: string; margin?: number }
+  ): Promise<string>
+}
 declare module '@tetherto/pearpass-lib-vault' {
   export interface Vault {
     id: string
