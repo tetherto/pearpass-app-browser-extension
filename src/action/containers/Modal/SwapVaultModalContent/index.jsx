@@ -8,6 +8,7 @@ import { Vault } from '../../../../shared/components/Vault'
 import { ModalContent } from '../../../../shared/containers/ModalContent'
 import { useModal } from '../../../../shared/context/ModalContext'
 import { logger } from '../../../../shared/utils/logger'
+import { sortByName } from '../../../../shared/utils/sortByName'
 import { VaultPasswordForm } from '../../VaultPasswordForm'
 
 export const SwapVaultModalContent = () => {
@@ -23,7 +24,10 @@ export const SwapVaultModalContent = () => {
   } = useVault()
 
   const vaults = useMemo(
-    () => (vaultsData || []).filter((vault) => vault.id !== vaultData?.id),
+    () =>
+      sortByName(
+        (vaultsData || []).filter((vault) => vault.id !== vaultData?.id)
+      ),
     [vaultsData, vaultData?.id]
   )
 

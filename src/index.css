@@ -40,6 +40,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  background: var(--color-background);
+  overscroll-behavior: none;
+}
+
 [data-theme] {
   display: contents !important;
 }

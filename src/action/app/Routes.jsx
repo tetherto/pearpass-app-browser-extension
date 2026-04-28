@@ -21,6 +21,7 @@ import { CreatePasskey } from '../pages/CreatePasskey'
 import { NonSecureWarning } from '../pages/NonSecureWarning'
 import { RecordDetails } from '../pages/RecordDetails'
 import { RecordList } from '../pages/RecordList'
+import { RecordListV2 } from '../pages/RecordListV2'
 import { SelectPasskey } from '../pages/SelectPasskey'
 import { Settings } from '../pages/Settings'
 import { SettingsV2 } from '../pages/SettingsV2'
@@ -70,7 +71,7 @@ export const Routes = () => {
       case 'vault':
         return (
           <FadeInWrapper key="vault">
-            <RecordList />
+            {isV2() ? <RecordListV2 /> : <RecordList />}
           </FadeInWrapper>
         )
       case 'authenticator':

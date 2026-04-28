@@ -52,10 +52,7 @@ export const MasterPasswordPrompt = ({
   )
 
   return (
-    <div
-      className="bg-surface-primary flex h-full w-full items-center justify-center overflow-hidden"
-      style={{ minHeight: '100vh', minWidth: '100vw' }}
-    >
+    <div className="bg-surface-primary flex h-full w-full items-center justify-center overflow-hidden">
       <form
         onSubmit={handleSubmit}
         className="flex w-full max-w-[500px] flex-col gap-[var(--spacing24)]"

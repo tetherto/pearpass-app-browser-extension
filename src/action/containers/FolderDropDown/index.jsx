@@ -5,6 +5,7 @@ import { useFolders } from '@tetherto/pearpass-lib-vault'
 
 import { MenuDropdown } from '../../../shared/components/MenuDropdown'
 import { FolderIcon } from '../../../shared/icons/FolderIcon'
+import { sortByName } from '../../../shared/utils/sortByName'
 
 const NO_FOLDER = 'no-folder'
 const ALL = 'all'
@@ -30,9 +31,9 @@ export const FolderDropdown = ({
   const { data: folders } = useFolders()
 
   const customFolders = useMemo(() => {
-    const mappedFolders = Object.values(folders?.customFolders ?? {}).map(
-      (folder) => ({ name: folder.name, icon: FolderIcon })
-    )
+    const mappedFolders = sortByName(
+      Object.values(folders?.customFolders ?? {})
+    ).map((folder) => ({ name: folder.name, icon: FolderIcon }))
 
     if (selectedFolder) {
       if (type === 'select') {

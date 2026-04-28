@@ -10,6 +10,7 @@ import { AutoLockProvider } from '../hooks/useAutoLockPreferences'
 import { messages } from '../locales/en/messages.mjs'
 import { createClient } from '../shared/client'
 import { AppWithBlockingState } from '../shared/containers/AppWithBlockingState'
+import { AppHeaderContextProvider } from '../shared/context/AppHeaderContext'
 import { LoadingProvider } from '../shared/context/LoadingContext'
 import { ModalProvider } from '../shared/context/ModalContext'
 import { RouterProvider } from '../shared/context/RouterContext'
@@ -39,7 +40,9 @@ createRoot(document.getElementById('root')).render(
               <RouterProvider>
                 <ModalProvider>
                   <AutoLockProvider>
-                    <AppWithBlockingState />
+                    <AppHeaderContextProvider>
+                      <AppWithBlockingState />
+                    </AppHeaderContextProvider>
                   </AutoLockProvider>
                 </ModalProvider>
               </RouterProvider>
