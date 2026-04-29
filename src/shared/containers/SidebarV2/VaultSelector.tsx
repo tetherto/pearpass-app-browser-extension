@@ -28,26 +28,19 @@ import { createStyles, VAULT_ACTIONS_MENU_WIDTH } from './VaultSelector.styles'
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useModal } from '../../context/ModalContext'
 import { sortByName } from '../../utils/sortByName'
+import { useVaultSwitch } from '../../hooks/useVaultSwitch'
 import { CreateOrEditVaultModalContentV2 } from '../CreateOrEditVaultModalContentV2'
 import { ShareVaultModalContentV2 } from '../ShareVaultModalContentV2'
-import { VaultPasswordFormModalContent } from '../VaultPasswordFormModalContent'
 
-type VaultSelectorProps = {
-  onClose?: () => void
-}
-
-export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
+export const VaultSelector = () => {
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
   const { setIsLoading } = useLoadingContext()
   const { setModal, closeModal } = useModal()
 
   const { data: vaultsData } = useVaults()
-  const {
-    data: activeVault,
-    isVaultProtected,
-    refetch: refetchVault
-  } = useVault()
+  const { data: activeVault } = useVault()
+  const { switchVault } = useVaultSwitch()
   const { data: inviteData, createInvite } = useInvite()
 
   const vaults = useMemo<Vault[]>(
@@ -67,48 +60,7 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
         setIsLoading(false)
       }
     }
-    onClose?.()
     setModal(<ShareVaultModalContentV2 />)
-  }
-
-  const switchVault = async (
-    vault: Vault,
-    onSuccess: () => void | Promise<void>
-  ) => {
-    setIsLoading(true)
-
-    try {
-      if (vault.id === activeVault?.id) {
-        await onSuccess()
-        return
-      }
-
-      const isProtected = await isVaultProtected(vault.id)
-
-      if (isProtected) {
-        setModal(
-          <VaultPasswordFormModalContent
-            vault={vault}
-            onSubmit={async (password: string) => {
-              setIsLoading(true)
-              try {
-                await refetchVault(vault.id, { password })
-                closeModal()
-                await onSuccess()
-              } finally {
-                setIsLoading(false)
-              }
-            }}
-          />
-        )
-        return
-      }
-
-      await refetchVault(vault.id)
-      await onSuccess()
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   const handleCreate = () => {
@@ -121,23 +73,23 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps) => {
   }
 
   const handleVaultClick = (vault: Vault) => {
-    void switchVault(vault, () => onClose?.())
+    if (vault.id !== activeVault?.id) {
+      void switchVault(vault)
+    }
   }
 
   const handleInvite = (vault: Vault) => {
-    void switchVault(vault, () => openInviteFlow(vault))
+    void openInviteFlow(vault)
   }
 
   const handleRename = (vault: Vault) => {
-    void switchVault(vault, () => {
-      setModal(
-        <CreateOrEditVaultModalContentV2
-          vault={vault}
-          onClose={closeModal}
-          onSuccess={closeModal}
-        />
-      )
-    })
+    setModal(
+      <CreateOrEditVaultModalContentV2
+        vault={vault}
+        onClose={closeModal}
+        onSuccess={closeModal}
+      />
+    )
   }
 
   return (
@@ -269,7 +221,7 @@ const VaultRow = ({
       style={styles.vaultRow as React.ComponentProps<typeof ListItem>['style']}
       testID={`vault-row-${vault.id}`}
       onClick={() => onSelect(vault)}
-      rightElement={rightElement}
+      rightElement={isActive ? rightElement : undefined}
     />
   )
 }

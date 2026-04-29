@@ -239,9 +239,7 @@ export const SidebarV2 = () => {
 
       <div style={styles.scrollContainer}>
         <div style={styles.scrollArea}>
-          {isVaultSelectorOpen && (
-            <VaultSelector onClose={() => setIsVaultSelectorOpen(false)} />
-          )}
+          {isVaultSelectorOpen && <VaultSelector />}
 
           {!isVaultSelectorOpen && (
             <>

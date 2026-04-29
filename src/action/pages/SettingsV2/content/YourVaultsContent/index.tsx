@@ -31,6 +31,7 @@ import { CreateOrEditVaultModalContentV2 } from '../../../../../shared/container
 import { PairedDevicesModalContent } from '../../../../../shared/containers/PairedDevicesModalContent'
 import { useModal } from '../../../../../shared/context/ModalContext'
 import { sortByName } from '../../../../../shared/utils/sortByName'
+import { useVaultSwitch } from '../../../../../shared/hooks/useVaultSwitch'
 
 const VAULT_ICON_BG = { backgroundColor: 'rgba(176, 217, 68, 0.18)' }
 
@@ -40,7 +41,7 @@ export const YourVaultsContent = () => {
     closeModal: () => Promise<void>
   }
   const { theme } = useTheme()
-
+  const { switchVault } = useVaultSwitch()
   const { data: vault } = useVault()
   const { data: allVaults } = useVaults()
 
@@ -114,7 +115,7 @@ export const YourVaultsContent = () => {
           as="h1"
           testID="settings-vault"
           title={t`Your Vaults`}
-          subtitle={t`Manage your vaults, control access permissions, and take protective measures if needed.`}
+          subtitle={t`Manage your vaults. Select the vault you want to apply changes to.`}
         />
       </div>
 
@@ -222,7 +223,9 @@ export const YourVaultsContent = () => {
               <ListItem
                 testID={`settings-other-vault-${v.name}-${index}`}
                 title={v.name}
+                onClick={() => void switchVault(v)}
                 showDivider={index == otherVaults.length - 1}
+                withRoundedBorders={false}
                 icon={
                   <div
                     className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-[8px]"
