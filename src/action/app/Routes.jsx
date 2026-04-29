@@ -18,11 +18,14 @@ import { isV2 } from '../../shared/utils/designVersion'
 import { AddDevice } from '../pages/AddDevice'
 import { AuthenticatorView } from '../pages/AuthenticatorView'
 import { CreatePasskey } from '../pages/CreatePasskey'
+import { CreatePasskeyV2 } from '../pages/CreatePasskey/CreatePasskeyV2'
 import { NonSecureWarning } from '../pages/NonSecureWarning'
+import { PasskeyLoginCreate } from '../pages/PasskeyLoginCreate'
 import { RecordDetails } from '../pages/RecordDetails'
 import { RecordList } from '../pages/RecordList'
 import { RecordListV2 } from '../pages/RecordListV2'
 import { SelectPasskey } from '../pages/SelectPasskey'
+import { SelectPasskeyV2 } from '../pages/SelectPasskey/SelectPasskeyV2'
 import { Settings } from '../pages/Settings'
 import { SettingsV2 } from '../pages/SettingsV2'
 import { WelcomePage } from '../pages/WelcomePage'
@@ -102,13 +105,19 @@ export const Routes = () => {
       case 'getPasskey':
         return (
           <FadeInWrapper key="getPasskey">
-            <SelectPasskey />
+            {isV2() ? <SelectPasskeyV2 /> : <SelectPasskey />}
           </FadeInWrapper>
         )
       case 'createPasskey':
         return (
           <FadeInWrapper key="createPasskey">
-            <CreatePasskey />
+            {isV2() ? <CreatePasskeyV2 /> : <CreatePasskey />}
+          </FadeInWrapper>
+        )
+      case 'passkeyLoginCreate':
+        return (
+          <FadeInWrapper key="passkeyLoginCreate">
+            <PasskeyLoginCreate />
           </FadeInWrapper>
         )
       default:
