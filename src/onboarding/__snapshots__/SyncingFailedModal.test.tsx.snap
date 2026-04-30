@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SyncingFailedModal matches snapshot with all props supplied 1`] = `
+<div>
+  <div
+    class="bg-surface-primary flex w-full max-w-[500px] flex-col gap-[var(--spacing24)] rounded-[var(--radius8)] p-[var(--spacing24)]"
+    data-testid="syncing-failed-modal"
+  >
+    <div
+      class="flex flex-col items-center gap-[var(--spacing8)] text-center"
+    >
+      <h2>
+        Syncing Failed
+      </h2>
+      <p>
+        Ensure the PearPass desktop app is open and Browser Sync is enabled.
+      </p>
+      <p
+        data-testid="syncing-failed-modal-error-detail"
+      >
+        Pair code already used
+      </p>
+    </div>
+    <div
+      class="flex w-full items-center justify-end gap-[var(--spacing8)]"
+    >
+      <button
+        data-testid="syncing-failed-modal-cancel"
+      >
+        Re-enter code
+      </button>
+      <button
+        data-testid="syncing-failed-modal-retry"
+      >
+        Sync Again
+      </button>
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NonSecureWarningV2 matches snapshot 1`] = `
+<div>
+  <div
+    data-close-on-outside-click="false"
+    data-testid="non-secure-warning"
+  >
+    <header>
+      Extension disabled on this site
+    </header>
+    <button
+      aria-label="close"
+      data-testid="non-secure-warning-close"
+      type="button"
+    />
+    <div>
+      <p>
+        For your security, the extension is disabled on non-secure (HTTP) websites by default. If you trust this site, you can enable the extension for this website only.
+      </p>
+    </div>
+    <footer>
+      <div
+        class="flex w-full items-center justify-end gap-[var(--spacing8)]"
+      >
+        <button
+          data-testid="non-secure-warning-discard"
+        >
+          Discard
+        </button>
+        <button
+          data-testid="non-secure-warning-enable"
+        >
+          Enable browser extension
+        </button>
+      </div>
+    </footer>
+  </div>
+</div>
+`;

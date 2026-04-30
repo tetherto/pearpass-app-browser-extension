@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DesktopConnectionModalContentV2 matches snapshot 1`] = `
+<div>
+  <div
+    data-close-on-outside-click="false"
+    data-testid="desktop-connection-modal"
+  >
+    <header>
+      Desktop app required
+    </header>
+    <button
+      aria-label="close"
+      data-testid="desktop-connection-modal-close"
+      type="button"
+    />
+    <div>
+      <p>
+        The browser extension needs the PearPass desktop app to be open and running to access your secure vaults.
+      </p>
+    </div>
+    <footer>
+      <div
+        class="flex w-full items-center justify-end gap-[var(--spacing8)]"
+      >
+        <button
+          data-testid="desktop-connection-modal-discard"
+        >
+          Discard
+        </button>
+        <button
+          data-testid="desktop-connection-modal-retry"
+        >
+          Sync again
+        </button>
+      </div>
+    </footer>
+  </div>
+</div>
+`;

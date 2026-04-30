@@ -6,11 +6,11 @@ import {
   Title,
   Text,
   InputField,
-  AlertMessage,
   Panel,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { ONBOARDING_ICON_SIZE } from './constants'
+import { SyncingFailedModal } from './SyncingFailedModal'
 import { secureChannelMessages } from '../shared/services/messageBridge'
 import { pendingPairingStore } from '../shared/services/pendingPairingStore'
 import {
@@ -28,30 +28,53 @@ export const Step2Dialog = ({ onNext }: Step2Props) => {
   const accentColor = theme.colors.colorLinkText
 
   const [code, setCode] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [syncErrorMessage, setSyncErrorMessage] = useState<string | null>(null)
+
+  const extractErrorMessage = (err: unknown): string => {
+    if (typeof err === 'string') return err
+    if (err && typeof err === 'object' && 'message' in err) {
+      const msg = (err as { message?: unknown }).message
+      if (typeof msg === 'string' && msg.length > 0) return msg
+    }
+    return t`Failed to get identity. Please try again.`
+  }
 
   const handleConnect = async () => {
     const trimmed = code.trim()
+    if (!trimmed) return
     try {
       const res = await secureChannelMessages.getIdentity(trimmed)
       if (res?.success) {
         await pendingPairingStore.set(trimmed)
+        setSyncErrorMessage(null)
         onNext()
       } else {
         await pendingPairingStore.clear()
-        setError(t`Failed to get identity. Please try again.`)
+        const upstreamError =
+          res && typeof res === 'object' && 'error' in res
+            ? (res as { error?: unknown }).error
+            : undefined
+        setSyncErrorMessage(
+          typeof upstreamError === 'string' && upstreamError.length > 0
+            ? upstreamError
+            : t`Failed to get identity. Please try again.`
+        )
       }
     } catch (err: unknown) {
       console.error('Failed to get identity:', err)
       await pendingPairingStore.clear()
-      let errorMessage = t`An unknown error occurred`
-      if (typeof err === 'string') {
-        errorMessage = err
-      } else if (err && typeof err === 'object' && 'message' in err) {
-        errorMessage = (err as Error).message
-      }
-      setError(errorMessage)
+      setSyncErrorMessage(extractErrorMessage(err))
     }
+  }
+
+  if (syncErrorMessage !== null) {
+    return (
+      <SyncingFailedModal
+        onRetry={handleConnect}
+        onCancel={() => setSyncErrorMessage(null)}
+        errorMessage={syncErrorMessage}
+      />
+    )
   }
 
   return (
@@ -153,19 +176,9 @@ export const Step2Dialog = ({ onNext }: Step2Props) => {
             placeholder={t`Enter Your Pair Code`}
             onChange={(e) => {
               setCode(e.target.value)
-              setError(null)
             }}
             testID="onboarding-step2-code-input"
           />
-          {error && (
-            <AlertMessage
-              variant="error"
-              size="small"
-              title={t`Error`}
-              description={error}
-              testID="onboarding-step2-error"
-            />
-          )}
         </div>
       </div>
     </Panel>
