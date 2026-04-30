@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useRecords,
@@ -50,6 +50,7 @@ export const PasskeyContainerV2 = ({
   const { refetch: refetchUserData } = useUserData()
 
   const hasInitialized = useRef(false)
+  const [isVaultChanging, setIsVaultChanging] = useState(false)
 
   const vaults = useMemo<Vault[]>(() => vaultsData ?? [], [vaultsData])
 
@@ -63,12 +64,15 @@ export const PasskeyContainerV2 = ({
             vault={vault}
             onSubmit={async (password: string) => {
               try {
+                setIsVaultChanging(true)
                 await refetchVault(vault.id, { password })
                 closeModal()
                 await Promise.all([refetchUserData(), refetchVaults()])
                 onVaultChange?.()
               } catch (error) {
                 logger.error('Failed to switch to protected vault:', error)
+              } finally {
+                setIsVaultChanging(false)
               }
             }}
           />
@@ -76,19 +80,16 @@ export const PasskeyContainerV2 = ({
         return
       }
 
+      setIsVaultChanging(true)
       await refetchVault(vault.id)
       await Promise.all([refetchUserData(), refetchVaults()])
       onVaultChange?.()
     } catch (error) {
       logger.error('Failed to switch vault:', error)
+    } finally {
+      setIsVaultChanging(false)
     }
   }
-
-  const { isVaultChanging } = (() => {
-    // isVaultChanging is tracked via useGlobalLoading indirectly through the modal flow
-    // We surface it via the dropdown disabled state when a modal is open
-    return { isVaultChanging: false }
-  })()
 
   useGlobalLoading({ isLoading: isVaultChanging })
 
@@ -169,6 +170,7 @@ export const PasskeyContainerV2 = ({
           vaults={vaults}
           activeVault={vaultData ?? null}
           onSelect={handleVaultSelect}
+          disabled={isVaultChanging}
         />
 
         <div className="flex flex-1 flex-col overflow-auto">{children}</div>

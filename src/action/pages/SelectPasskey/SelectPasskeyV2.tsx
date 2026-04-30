@@ -68,12 +68,15 @@ export const SelectPasskeyV2 = () => {
   }
 
   const handleCancel = () => {
-    chrome.tabs.sendMessage(parseInt(tabId), {
-      type: CONTENT_MESSAGE_TYPES.GOT_PASSKEY,
-      requestId,
-      credential: null
-    })
-    window.close()
+    chrome.tabs
+      .sendMessage(parseInt(tabId), {
+        type: CONTENT_MESSAGE_TYPES.GOT_PASSKEY,
+        requestId,
+        credential: null
+      })
+      .finally(() => {
+        window.close()
+      })
   }
 
   const handleGetHardwarePasskey = () => {

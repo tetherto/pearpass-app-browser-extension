@@ -49,7 +49,10 @@ export const App = () => {
     const el = containerRef.current
     if (!el || typeof ResizeObserver === 'undefined') return
 
+    let cancelled = false
+
     chrome.windows.getCurrent?.((currentWindow) => {
+      if (cancelled) return
       if (chrome.runtime.lastError || currentWindow?.type !== 'popup') return
 
       observerRef.current?.disconnect()
@@ -79,6 +82,7 @@ export const App = () => {
     })
 
     return () => {
+      cancelled = true
       observerRef.current?.disconnect()
       observerRef.current = null
     }
