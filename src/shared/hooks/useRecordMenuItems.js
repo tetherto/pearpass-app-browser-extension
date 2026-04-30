@@ -1,8 +1,10 @@
 import { t } from '@lingui/core/macro'
+import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
 import { RECORD_COLOR_BY_TYPE } from '../../shared/constants/recordColorByType'
 import { RECORD_ICON_BY_TYPE } from '../../shared/constants/recordIconByType'
+import { isV2 } from '../utils/designVersion'
 
 /**
  * @returns {{
@@ -67,6 +69,16 @@ export const useRecordMenuItems = () => {
 
   const popupItems = [
     ...defaultItems,
+    ...(isV2() && AUTHENTICATOR_ENABLED
+      ? [
+          {
+            name: t`Authenticator`,
+            type: 'authenticator',
+            icon: RECORD_ICON_BY_TYPE.login,
+            color: RECORD_COLOR_BY_TYPE.login
+          }
+        ]
+      : []),
     {
       name: t`Password`,
       type: 'password'

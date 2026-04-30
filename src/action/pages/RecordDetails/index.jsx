@@ -19,6 +19,7 @@ import { FolderIcon } from '../../../shared/icons/FolderIcon'
 import { KebabMenuIcon } from '../../../shared/icons/KebabMenuIcon'
 import { StarIcon } from '../../../shared/icons/StarIcon'
 import { RecordDetailsContent } from '../../containers/RecordDetails/RecordDetailsContent'
+import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 
 export const RecordDetails = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -37,9 +38,13 @@ export const RecordDetails = () => {
     onClose: () => setIsOpen(false)
   })
 
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
+
   const handleEdit = () => {
-    navigate('createOrEditCategory', {
-      params: { recordId: record?.id, source: params.source }
+    handleCreateOrEditRecord({
+      recordType: record?.type,
+      initialRecord: record,
+      source: params.source
     })
   }
 

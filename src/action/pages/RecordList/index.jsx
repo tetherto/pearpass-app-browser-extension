@@ -26,10 +26,12 @@ import { MultiSelectionIcon } from '../../../shared/icons/MultiSelectionIcon'
 import { TimeIcon } from '../../../shared/icons/TimeIcon'
 import { XIcon } from '../../../shared/icons/XIcon'
 import { LogoLock } from '../../../shared/svgs/logoLock'
+import { isV2 } from '../../../shared/utils/designVersion'
 import { isFavorite } from '../../../shared/utils/isFavorite'
 import { EmptyCollectionView } from '../../containers/EmptyCollectionView'
 import { RecordListContainer } from '../../containers/RecordListContainer'
 import { SyncData } from '../../containers/SyncData'
+import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 
 const SORT_BY_TYPE = {
   recent: {
@@ -60,6 +62,7 @@ export const RecordList = () => {
   const { popupItems, menuItems } = useRecordMenuItems()
   const { setModal, closeModal } = useModal()
   const { setToast } = useToast()
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
 
   const { copyToClipboard } = useCopyToClipboard({
     onCopy: () => {
@@ -220,6 +223,10 @@ export const RecordList = () => {
               menuItems={popupItems}
               onClick={(item) => {
                 if (item.type === 'password') {
+                  if (isV2()) {
+                    handleCreateOrEditRecord({ recordType: 'password' })
+                    return
+                  }
                   setModal(
                     <PasswordGeneratorModalContent
                       actionLabel={t`Copy and close`}
@@ -233,9 +240,7 @@ export const RecordList = () => {
                   return
                 }
 
-                navigate('createOrEditCategory', {
-                  params: { recordType: item.type }
-                })
+                handleCreateOrEditRecord({ recordType: item.type })
               }}
             />
           </Menu>

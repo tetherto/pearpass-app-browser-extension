@@ -60,6 +60,15 @@ if (!global.crypto.subtle) {
   }
 }
 
+// jsdom doesn't implement ResizeObserver; provide a no-op so hooks that use it can mount.
+if (typeof global.ResizeObserver === 'undefined') {
+  global.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+
 // Mock chrome for tests
 if (typeof global.chrome === 'undefined') {
   const makeStorageArea = () => {

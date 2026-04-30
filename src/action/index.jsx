@@ -10,16 +10,26 @@ import { AutoLockProvider } from '../hooks/useAutoLockPreferences'
 import { messages } from '../locales/en/messages.mjs'
 import { createClient } from '../shared/client'
 import { AppWithBlockingState } from '../shared/containers/AppWithBlockingState'
+import { AppHeaderContextProvider } from '../shared/context/AppHeaderContext'
 import { LoadingProvider } from '../shared/context/LoadingContext'
 import { ModalProvider } from '../shared/context/ModalContext'
 import { RouterProvider } from '../shared/context/RouterContext'
 import { ToastProvider } from '../shared/context/ToastContext'
+import { getLocaleFromStorage } from '../shared/utils/localeStorage'
 import { logger } from '../shared/utils/logger'
 import '../index.css'
 import '../strict.css'
 
 i18n.load('en', messages)
 i18n.activate('en')
+
+getLocaleFromStorage()
+  .then((stored) => {
+    if (stored && stored !== i18n.locale) i18n.activate(stored)
+  })
+  .catch((error) => {
+    logger.error('Failed to load persisted locale:', error)
+  })
 
 createClient()
   .then(() => {
@@ -39,7 +49,9 @@ createRoot(document.getElementById('root')).render(
               <RouterProvider>
                 <ModalProvider>
                   <AutoLockProvider>
-                    <AppWithBlockingState />
+                    <AppHeaderContextProvider>
+                      <AppWithBlockingState />
+                    </AppHeaderContextProvider>
                   </AutoLockProvider>
                 </ModalProvider>
               </RouterProvider>

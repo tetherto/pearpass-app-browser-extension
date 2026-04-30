@@ -6,8 +6,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 const mockCloseModal = jest.fn()
 const mockSetIsLoading = jest.fn()
 const mockUpdateFolder = jest.fn(async () => undefined)
-const mockUpdateFavoriteState = jest.fn(async () => undefined)
-const mockUpdateRecords = jest.fn(async () => undefined)
 
 jest.mock('../../context/ModalContext', () => ({
   __esModule: true,
@@ -25,9 +23,7 @@ jest.mock('../../context/LoadingContext', () => ({
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
   __esModule: true,
   useRecords: () => ({
-    updateFolder: mockUpdateFolder,
-    updateFavoriteState: mockUpdateFavoriteState,
-    updateRecords: mockUpdateRecords
+    updateFolder: mockUpdateFolder
   }),
   useFolders: () => ({
     isLoading: false,
@@ -60,9 +56,7 @@ jest.mock('../../components/RecordAvatar', () => ({
 
 jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   __esModule: true,
-  Folder: () => <span data-testid="icon-folder" />,
-  Layers: () => <span data-testid="icon-layers" />,
-  StarBorder: () => <span data-testid="icon-star" />
+  Folder: () => <span data-testid="icon-folder" />
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
@@ -85,17 +79,20 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     children,
     onClick,
     disabled,
+    pressed,
     'data-testid': testID
   }: {
     children?: React.ReactNode
     onClick?: () => void
     disabled?: boolean
+    pressed?: boolean
     'data-testid'?: string
   }) => (
     <button
       data-testid={testID}
       onClick={onClick}
       disabled={disabled}
+      aria-pressed={pressed ? 'true' : 'false'}
       type="button"
     >
       {children}
@@ -129,10 +126,19 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     theme: {
       colors: {
         colorTextPrimary: '#fff',
-        colorTextSecondary: '#888'
+        colorTextSecondary: '#888',
+        colorSurfacePrimary: '#000',
+        colorBorderPrimary: '#222'
       }
     }
-  })
+  }),
+  rawTokens: {
+    spacing4: 4,
+    spacing8: 8,
+    spacing12: 12,
+    spacing16: 16,
+    spacing24: 24
+  }
 }))
 
 import { MoveFolderModalContentV2 } from './index'
@@ -155,24 +161,51 @@ describe('MoveFolderModalContentV2', () => {
     jest.clearAllMocks()
   })
 
-  it('renders the Figma dialog title', () => {
+  it('renders the count-based title for a single record', () => {
     render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
 
     expect(screen.getByTestId('move-folder-v2-dialog')).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: 'Move to another Folder' })
+      screen.getByRole('heading', { name: 'Move 1 item' })
     ).toBeInTheDocument()
   })
 
-  it('renders the record preview (title + login username)', () => {
-    render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
+  it('renders the count-based title for multiple records', () => {
+    render(
+      <MoveFolderModalContentV2
+        records={[
+          buildLoginRecord(),
+          buildLoginRecord({ id: 'rec-2', data: { title: 'Netflix' } })
+        ]}
+      />
+    )
 
-    const preview = screen.getByTestId('move-folder-v2-preview')
-    expect(preview).toHaveTextContent('LinkedIn')
-    expect(preview).toHaveTextContent('alex.k@example.com')
+    expect(
+      screen.getByRole('heading', { name: 'Move 2 items' })
+    ).toBeInTheDocument()
   })
 
-  it('renders All Items, Favorites, and custom folders sorted alphabetically', () => {
+  it('renders all selected records (not just a preview)', () => {
+    render(
+      <MoveFolderModalContentV2
+        records={[
+          buildLoginRecord(),
+          buildLoginRecord({
+            id: 'rec-2',
+            data: { title: 'Netflix', username: 'simon@example.com' }
+          })
+        ]}
+      />
+    )
+
+    const list = screen.getByTestId('move-folder-v2-items')
+    expect(list).toHaveTextContent('LinkedIn')
+    expect(list).toHaveTextContent('alex.k@example.com')
+    expect(list).toHaveTextContent('Netflix')
+    expect(list).toHaveTextContent('simon@example.com')
+  })
+
+  it('renders only custom folders sorted alphabetically (no All Items / Favorites)', () => {
     render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
 
     const chips = screen.getByTestId('move-folder-v2-chips')
@@ -182,20 +215,18 @@ describe('MoveFolderModalContentV2', () => {
     const ids = Array.from(chipEls).map((el) => el.getAttribute('data-testid'))
 
     expect(ids).toEqual([
-      'move-folder-v2-chip-__all__',
-      'move-folder-v2-chip-__favorites__',
       'move-folder-v2-chip-Personal',
       'move-folder-v2-chip-Zeta'
     ])
   })
 
-  it('disables Move Item when the record is already at the default (All Items)', () => {
+  it('disables Move when no destination is selected', () => {
     render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
 
     expect(screen.getByTestId('move-folder-v2-submit')).toBeDisabled()
   })
 
-  it('enables Move Item once a different destination is picked', () => {
+  it('enables Move once a folder is picked', () => {
     render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
 
     fireEvent.click(screen.getByTestId('move-folder-v2-chip-Personal'))
@@ -203,7 +234,28 @@ describe('MoveFolderModalContentV2', () => {
     expect(screen.getByTestId('move-folder-v2-submit')).not.toBeDisabled()
   })
 
-  it('moving to a custom folder calls updateFolder with ids and name', async () => {
+  it('toggling the same folder deselects it and disables submit again', () => {
+    render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
+
+    fireEvent.click(screen.getByTestId('move-folder-v2-chip-Personal'))
+    fireEvent.click(screen.getByTestId('move-folder-v2-chip-Personal'))
+
+    expect(screen.getByTestId('move-folder-v2-submit')).toBeDisabled()
+  })
+
+  it('disables Move when every record is already in the chosen folder', () => {
+    render(
+      <MoveFolderModalContentV2
+        records={[buildLoginRecord({ folder: 'Personal' })]}
+      />
+    )
+
+    fireEvent.click(screen.getByTestId('move-folder-v2-chip-Personal'))
+
+    expect(screen.getByTestId('move-folder-v2-submit')).toBeDisabled()
+  })
+
+  it('moving to a custom folder calls updateFolder with ids and folder name', async () => {
     render(
       <MoveFolderModalContentV2
         records={[buildLoginRecord({ folder: null })]}
@@ -217,68 +269,16 @@ describe('MoveFolderModalContentV2', () => {
     await waitFor(() => {
       expect(mockUpdateFolder).toHaveBeenCalledWith(['rec-1'], 'Personal')
     })
-    expect(mockUpdateFavoriteState).not.toHaveBeenCalled()
-    expect(mockUpdateRecords).not.toHaveBeenCalled()
     expect(mockCloseModal).toHaveBeenCalled()
   })
 
-  it('moving to Favorites toggles favorite without touching the folder (option c)', async () => {
-    render(
-      <MoveFolderModalContentV2
-        records={[buildLoginRecord({ folder: 'Personal', isFavorite: false })]}
-      />
-    )
-
-    fireEvent.click(screen.getByTestId('move-folder-v2-chip-__favorites__'))
-    fireEvent.click(screen.getByTestId('move-folder-v2-submit'))
-
-    await waitFor(() => {
-      expect(mockUpdateFavoriteState).toHaveBeenCalledWith(['rec-1'], true)
-    })
-    expect(mockUpdateFolder).not.toHaveBeenCalled()
-    expect(mockUpdateRecords).not.toHaveBeenCalled()
-  })
-
-  it('moving to All Items clears the folder via updateRecords', async () => {
-    render(
-      <MoveFolderModalContentV2
-        records={[buildLoginRecord({ folder: 'Personal' })]}
-      />
-    )
-
-    // All Items is the default; the record has a folder so submit is enabled.
-    fireEvent.click(screen.getByTestId('move-folder-v2-submit'))
-
-    await waitFor(() => {
-      expect(mockUpdateRecords).toHaveBeenCalledWith([
-        expect.objectContaining({ id: 'rec-1', folder: null })
-      ])
-    })
-    expect(mockUpdateFolder).not.toHaveBeenCalled()
-    expect(mockUpdateFavoriteState).not.toHaveBeenCalled()
-  })
-
-  it('Discard closes the modal without calling any vault API', () => {
+  it('Discard closes the modal without calling the vault API', () => {
     render(<MoveFolderModalContentV2 records={[buildLoginRecord()]} />)
 
     fireEvent.click(screen.getByTestId('move-folder-v2-discard'))
 
     expect(mockCloseModal).toHaveBeenCalled()
     expect(mockUpdateFolder).not.toHaveBeenCalled()
-    expect(mockUpdateFavoriteState).not.toHaveBeenCalled()
-    expect(mockUpdateRecords).not.toHaveBeenCalled()
-  })
-
-  it('disables Favorites when the record is already a favorite', () => {
-    render(
-      <MoveFolderModalContentV2
-        records={[buildLoginRecord({ isFavorite: true, folder: 'Personal' })]}
-      />
-    )
-
-    fireEvent.click(screen.getByTestId('move-folder-v2-chip-__favorites__'))
-
-    expect(screen.getByTestId('move-folder-v2-submit')).toBeDisabled()
   })
 
   it('shows the error alert when the vault API throws', async () => {

@@ -15,6 +15,8 @@ import { VaultActionsPopupContent } from '../../components/VaultActionsPopupCont
 import { NAVIGATION_ROUTES } from '../../constants/navigation'
 import { ConfirmationModalContent } from '../../containers/ConfirmationModalContent'
 import { CreateFolderModalContent } from '../../containers/CreateFolderModalContent'
+import { CreateFolderModalContentV2 } from '../../containers/CreateFolderModalContentV2'
+import { DeleteFolderModalContent } from '../../containers/DeleteFolderModalContent'
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useModal } from '../../context/ModalContext'
 import { useRouter } from '../../context/RouterContext'
@@ -26,6 +28,7 @@ import { LockIcon } from '../../icons/LockIcon'
 import { SettingsIcon } from '../../icons/SettingsIcon'
 import { StarIcon } from '../../icons/StarIcon'
 import { UserSecurityIcon } from '../../icons/UserSecurityIcon'
+import { isV2 } from '../../utils/designVersion'
 import { sortByName } from '../../utils/sortByName'
 import { DropdownSwapVault } from '../DropdownSwapVault'
 import { SidebarDropdown } from '../SidebarDropdown'
@@ -145,28 +148,56 @@ export const Sidebar = ({ isOpen, onClose, width = '280px' }) => {
       name: t`Delete Folder`,
       icon: DeleteIcon,
       onClick: (folder) => {
-        setModal(
-          <ConfirmationModalContent
-            title={t`Are you sure to delete this Folder?`}
-            text={t`This action will permanently delete the folder and all items contained within it. Are you sure you want to proceed?`}
-            primaryLabel={t`No`}
-            secondaryLabel={t`Yes`}
-            secondaryAction={() => {
-              deleteFolder(folder.id)
-              closeModal()
-            }}
-            primaryAction={closeModal}
-          />
-        )
+        if (isV2()) {
+          const folderRecords = data?.customFolders?.[folder.id]?.records ?? []
+          const count = folderRecords.filter((r) => !!r.data && !!r.type).length
+          if (count === 0) {
+            void deleteFolder(folder.id)
+            if (state.folder === folder.id) {
+              navigate('vault', { state: { recordType: 'all' } })
+            }
+            return
+          }
+          setModal(
+            <DeleteFolderModalContent
+              folderName={folder.id}
+              count={count}
+              onClose={closeModal}
+            />
+          )
+        } else {
+          setModal(
+            <ConfirmationModalContent
+              title={t`Are you sure to delete this Folder?`}
+              text={t`This action will permanently delete the folder and all items contained within it. Are you sure you want to proceed?`}
+              primaryLabel={t`No`}
+              secondaryLabel={t`Yes`}
+              secondaryAction={() => {
+                deleteFolder(folder.id)
+                closeModal()
+              }}
+              primaryAction={closeModal}
+            />
+          )
+        }
       }
     },
     {
       name: t`Rename Folder`,
       icon: BrushIcon,
       onClick: (folder) => {
-        setModal(
-          <CreateFolderModalContent initialValues={{ title: folder.id }} />
-        )
+        if (isV2()) {
+          setModal(
+            <CreateFolderModalContentV2
+              initialValues={{ title: folder.id }}
+              onClose={closeModal}
+            />
+          )
+        } else {
+          setModal(
+            <CreateFolderModalContent initialValues={{ title: folder.id }} />
+          )
+        }
       }
     }
   ]
