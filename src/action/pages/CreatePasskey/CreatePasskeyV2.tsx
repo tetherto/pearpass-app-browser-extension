@@ -13,7 +13,7 @@ import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
 import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
-import { ReplacePasskeyModalContent } from '../../../shared/containers/ReplacePasskeyModalContent'
+import { ReplacePasskeyModalContentV2 } from '../../../shared/containers/ReplacePasskeyModalContent/ReplacePasskeyModalContentV2'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
@@ -115,7 +115,7 @@ export const CreatePasskeyV2 = () => {
 
     if (record.data?.credential) {
       setModal(
-        <ReplacePasskeyModalContent
+        <ReplacePasskeyModalContentV2
           onConfirm={async () => {
             try {
               await saveToExistingRecord(record)
@@ -187,7 +187,7 @@ export const CreatePasskeyV2 = () => {
         <div className="flex flex-1 flex-col">
           <div className="flex flex-1 flex-col overflow-auto">
             <div className="border-border-primary flex flex-col rounded-[var(--radius16)] border">
-              <div className="border-border-primary border-b p-[4px]">
+              <div className="border-border-primary border-b p-[var(--spacing4)]">
                 {recordsFiltered.map((record) => (
                   <ListItem
                     icon={<RecordItemIcon record={record} />}
@@ -208,7 +208,7 @@ export const CreatePasskeyV2 = () => {
                   />
                 ))}
               </div>
-              <div className="p-[4px]">
+              <div className="p-[var(--spacing4)]">
                 <Button
                   variant="tertiaryAccent"
                   size="small"
@@ -223,15 +223,15 @@ export const CreatePasskeyV2 = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-between gap-[24px]">
-          <div className="flex flex-1 flex-col items-center justify-center gap-[6px] text-center">
+        <div className="flex flex-1 flex-col items-center justify-between gap-[var(--spacing24)]">
+          <div className="flex flex-1 flex-col items-center justify-center gap-[var(--spacing6)] text-center">
             <Title as="h2">{t`No Matching Login Found`}</Title>
             <Text color={theme.colors.colorTextSecondary}>
               {t`No matching login found. Add a new login to store this passkey.`}
             </Text>
           </div>
 
-          <div className="flex w-full flex-col gap-[12px]">
+          <div className="flex w-full flex-col gap-[var(--spacing12)]">
             <Button
               variant="primary"
               size="small"

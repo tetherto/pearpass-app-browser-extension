@@ -115,7 +115,7 @@ export const PasskeyLoginCreate = () => {
         {/* Scrollable content area */}
         <div className="border-border-primary flex flex-1 flex-col gap-[var(--spacing8)] overflow-auto rounded-[var(--radius16)] border">
           {/* Record icon + site name row */}
-          <div className="border-border-primary flex items-center gap-[var(--spacing8)] border-b p-[12px]">
+          <div className="border-border-primary flex items-center gap-[var(--spacing8)] border-b p-[var(--spacing12)]">
             <RecordItemIcon
               record={{
                 type: RECORD_TYPES.LOGIN,

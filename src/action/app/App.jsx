@@ -57,20 +57,31 @@ export const App = () => {
 
       observerRef.current?.disconnect()
 
+      const computeClampedHeight = (rawContentHeight) => {
+        const contentHeight = Math.ceil(rawContentHeight)
+        if (!contentHeight) return null
+        const frameHeight = Math.max(0, window.outerHeight - window.innerHeight)
+        return Math.min(
+          DYNAMIC_WINDOW_MAX_HEIGHT + frameHeight,
+          contentHeight + frameHeight
+        )
+      }
+
+      // Immediate first sync — don't wait for the async ResizeObserver to fire
+      // (during which the OS shows the window at its default opening size).
+      const initialHeight = computeClampedHeight(
+        el.getBoundingClientRect().height
+      )
+      if (initialHeight) {
+        chrome.windows.update?.(currentWindow.id, { height: initialHeight })
+      }
+
       const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
           const blockSize =
             entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height
-          const contentHeight = Math.ceil(blockSize)
-          if (!contentHeight) return
-          const frameHeight = Math.max(
-            0,
-            window.outerHeight - window.innerHeight
-          )
-          const clampedHeight = Math.min(
-            DYNAMIC_WINDOW_MAX_HEIGHT + frameHeight,
-            contentHeight + frameHeight
-          )
+          const clampedHeight = computeClampedHeight(blockSize)
+          if (clampedHeight === null) continue
           chrome.windows.update?.(currentWindow.id, {
             height: clampedHeight
           })

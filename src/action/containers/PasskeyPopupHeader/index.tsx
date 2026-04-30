@@ -12,7 +12,7 @@ export const PasskeyPopupHeader = ({
 }: PasskeyPopupHeaderProps) => {
   const { theme } = useTheme()
   return (
-    <div className="flex items-center justify-between px-[12px] py-[10px]">
+    <div className="flex items-center justify-between px-[var(--spacing12)] py-[var(--spacing10)]">
       <PearpassLogo
         width={20}
         height={20}

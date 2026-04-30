@@ -9,6 +9,7 @@ import {
   Title,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
+import { Add } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
 import { useRouter } from '../../../shared/context/RouterContext'
@@ -30,7 +31,7 @@ type PasskeyRecord = {
 }
 
 export const SelectPasskeyV2 = () => {
-  const { state: routerState } = useRouter()
+  const { state: routerState, navigate } = useRouter()
   const { data: records } = useRecords()
   const { theme } = useTheme()
 
@@ -79,15 +80,15 @@ export const SelectPasskeyV2 = () => {
       })
   }
 
-  const handleGetHardwarePasskey = () => {
+  const handleAddNewLogin = () => {
     chrome.tabs
       .sendMessage(parseInt(tabId), {
-        type: CONTENT_MESSAGE_TYPES.GET_THIRD_PARTY_KEY,
-        requestId
+        type: CONTENT_MESSAGE_TYPES.GOT_PASSKEY,
+        requestId,
+        credential: null
       })
-      .finally(() => {
-        window.close()
-      })
+      .catch(() => {})
+    navigate('createPasskey', { state: routerState })
   }
 
   const recordsFiltered = useMemo(
@@ -106,7 +107,7 @@ export const SelectPasskeyV2 = () => {
     <PasskeyContainerV2 title={t`Use Passkey`} onClose={handleCancel}>
       {hasRecords ? (
         <div className="flex flex-1 flex-col overflow-auto">
-          <div className="border-border-primary flex flex-col rounded-[var(--radius16)] border p-[4px]">
+          <div className="border-border-primary flex flex-col rounded-[var(--radius16)] border p-[var(--spacing4)]">
             {recordsFiltered.map((record) => (
               <ListItem
                 icon={<RecordItemIcon record={record} />}
@@ -129,22 +130,23 @@ export const SelectPasskeyV2 = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-between gap-[16px]">
-          <div className="flex flex-1 flex-col items-center justify-center gap-[8px] text-center">
+        <div className="flex flex-1 flex-col items-center justify-between gap-[var(--spacing16)]">
+          <div className="flex flex-1 flex-col items-center justify-center gap-[var(--spacing8)] text-center">
             <Title as="h2">{t`No Passkey Found`}</Title>
             <Text variant="body" color={theme.colors.colorTextSecondary}>
               {t`No Passkey found for this website. Try using device or hardware key`}
             </Text>
           </div>
 
-          <div className="flex w-full flex-col gap-[8px] pb-[4px]">
+          <div className="flex w-full flex-col gap-[var(--spacing8)] pb-[var(--spacing4)]">
             <Button
               variant="primary"
               size="medium"
-              data-testid="passkey-use-device-btn"
-              onClick={handleGetHardwarePasskey}
+              data-testid="passkey-add-new-login-btn"
+              onClick={handleAddNewLogin}
+              iconBefore={<Add />}
             >
-              {t`Use Device or Hardware Key`}
+              {t`Add New Login`}
             </Button>
             <Button
               variant="secondary"

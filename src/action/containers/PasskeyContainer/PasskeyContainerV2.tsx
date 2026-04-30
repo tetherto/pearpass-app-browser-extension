@@ -15,7 +15,8 @@ import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { VaultPasswordFormModalContent } from '../../../shared/containers/VaultPasswordFormModalContent'
 import { logger } from '../../../shared/utils/logger'
-import { shouldRequireVerification } from '../../../shared/utils/passkeyVerificationPreference'
+import { PASSKEY_VERIFICATION_OPTIONS } from '../../../shared/constants/storage'
+import { getPasskeyVerificationPreference } from '../../../shared/utils/passkeyVerificationPreference'
 
 type PasskeyContainerV2Props = {
   title: string
@@ -100,21 +101,20 @@ export const PasskeyContainerV2 = ({
 
     const refreshData = async () => {
       const currentUserData = await refetchUserData()
-      let publicKey
-      try {
-        publicKey = JSON.parse(serializedPublicKey ?? '')
-      } catch {
-        // not parseable, proceed without publicKey
-      }
 
       if (cancelled) return
 
-      const requiresVerification = shouldRequireVerification(publicKey)
+      // Once the vault is unlocked we treat the active session as user
+      // verification. The "ALWAYS" preference opts back into a forced
+      // re-prompt for users who want strict mode.
+      const forceReVerify =
+        getPasskeyVerificationPreference() ===
+        PASSKEY_VERIFICATION_OPTIONS.ALWAYS
 
       const needsAuth =
         !currentUserData?.isLoggedIn ||
         !currentUserData?.isVaultOpen ||
-        (requiresVerification && !routerState?.isVerified)
+        (forceReVerify && !routerState?.isVerified)
 
       if (needsAuth) {
         const passkeyParams = {
@@ -128,7 +128,7 @@ export const PasskeyContainerV2 = ({
         }
 
         const stateToUse =
-          requiresVerification && !routerState?.isVerified
+          forceReVerify && !routerState?.isVerified
             ? 'masterPassword'
             : !currentUserData?.isLoggedIn
               ? 'masterPassword'
@@ -165,7 +165,7 @@ export const PasskeyContainerV2 = ({
     <div className="bg-background flex w-full flex-col">
       <PasskeyPopupHeader title={title} onClose={onClose} />
 
-      <div className="border-border-primary bg-surface-primary flex flex-1 flex-col gap-[24px] overflow-hidden rounded-[var(--radius16)] border p-[12px]">
+      <div className="border-border-primary bg-surface-primary flex flex-1 flex-col gap-[var(--spacing24)] overflow-hidden rounded-[var(--radius16)] border p-[var(--spacing12)]">
         <VaultSwitcherDropdown
           vaults={vaults}
           activeVault={vaultData ?? null}
