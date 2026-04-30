@@ -647,7 +647,10 @@ const openPasskeyWindow = (queryParams = new URLSearchParams()) => {
 
   chrome.windows.create({
     focused: true,
-    height: passkeyWindowSize.height,
+    height:
+      passkeyWindowSize.height ??
+      passkeyWindowSize.initialHeight ??
+      passkeyWindowSize.minHeight,
     width: passkeyWindowSize.width,
     url: runtime.getURL(`index.html#/${page}?${queryParams.toString()}`),
     type: 'popup'

@@ -1,1 +1,5 @@
-export const PASSKEY_PAGES = ['getPasskey', 'createPasskey']
+export const PASSKEY_PAGES = [
+  'getPasskey',
+  'createPasskey',
+  'passkeyLoginCreate'
+]
