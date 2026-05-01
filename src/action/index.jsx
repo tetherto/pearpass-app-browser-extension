@@ -47,13 +47,13 @@ createRoot(document.getElementById('root')).render(
           <VaultProvider>
             <I18nProvider i18n={i18n}>
               <RouterProvider>
-                <ModalProvider>
-                  <AutoLockProvider>
+                <AutoLockProvider>
+                  <ModalProvider>
                     <AppHeaderContextProvider>
                       <AppWithBlockingState />
                     </AppHeaderContextProvider>
-                  </AutoLockProvider>
-                </ModalProvider>
+                  </ModalProvider>
+                </AutoLockProvider>
               </RouterProvider>
             </I18nProvider>
           </VaultProvider>
