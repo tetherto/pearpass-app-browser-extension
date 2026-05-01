@@ -161,7 +161,13 @@ export const RecordListV2 = () => {
             />
           )}
 
-          {!hasRecords && !searchValue && <EmptyCollectionViewV2 />}
+          {!hasRecords && !searchValue && (
+            <EmptyCollectionViewV2
+              recordType={routerState?.recordType ?? 'all'}
+              selectedFolder={selectedFolder}
+              isFavoritesView={isFavoritesView}
+            />
+          )}
           {!hasRecords && !!searchValue && <EmptyResultsViewV2 />}
         </>
       }
