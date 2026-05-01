@@ -253,7 +253,29 @@ describe('ReportAProblemContent', () => {
     expect(mockLoggerError).toHaveBeenCalled()
   })
 
-  it('shows error toast when both senders fail', async () => {
+  it('shows offline toast (not "Feedback sent") when senders resolve with false while navigator lies about being online', async () => {
+    // Repro of the reported bug: WiFi is off but navigator.onLine still
+    // returns true, so the upfront check passes. The senders catch the
+    // network error internally and resolve with `false`.
+    mockSendSlackFeedback.mockResolvedValueOnce(false)
+    mockSendGoogleFormFeedback.mockResolvedValueOnce(false)
+    mockIsOnline.mockReturnValue(true)
+
+    render(<ReportAProblemContent />)
+
+    fireEvent.change(screen.getByTestId('settings-report-a-problem-message'), {
+      target: { value: 'submitted while offline' }
+    })
+    fireEvent.submit(screen.getByTestId('settings-report-a-problem-form'))
+    await flushAsync()
+
+    expect(mockSetToast).not.toHaveBeenCalledWith({ message: 'Feedback sent' })
+    expect(mockSetToast).toHaveBeenCalledWith({
+      message: 'You are offline, please check your internet connection'
+    })
+  })
+
+  it('shows offline toast when both senders fail', async () => {
     mockSendSlackFeedback.mockRejectedValueOnce(new Error('slack fail'))
     mockSendGoogleFormFeedback.mockRejectedValueOnce(new Error('google fail'))
 
@@ -266,7 +288,7 @@ describe('ReportAProblemContent', () => {
     await flushAsync()
 
     expect(mockSetToast).toHaveBeenCalledWith({
-      message: 'Something went wrong, please try again'
+      message: 'You are offline, please check your internet connection'
     })
     expect(mockLoggerError).toHaveBeenCalledTimes(2)
   })
