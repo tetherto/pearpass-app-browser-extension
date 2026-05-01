@@ -95,18 +95,22 @@ export const ReportAProblemContent = () => {
           )
         }
 
+        // The senders catch network errors internally and resolve with `false`.
+        // Treat any explicit `false` as failure so we don't show "Feedback sent"
+        // when the request actually failed (e.g. while offline).
         return (
-          slackResult.status === 'fulfilled' ||
-          googleResult.status === 'fulfilled'
+          (slackResult.status === 'fulfilled' && slackResult.value !== false) ||
+          (googleResult.status === 'fulfilled' && googleResult.value !== false)
         )
       }
 
       const anySucceeded = await Promise.race([
         sendBoth(),
         new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            if (!isOnline()) reject(new Error(OFFLINE_TIMEOUT))
-          }, OFFLINE_TIMEOUT_MS)
+          setTimeout(
+            () => reject(new Error(OFFLINE_TIMEOUT)),
+            OFFLINE_TIMEOUT_MS
+          )
         })
       ])
 
@@ -114,7 +118,13 @@ export const ReportAProblemContent = () => {
         setMessage('')
         setToast({ message: t`Feedback sent` })
       } else {
-        setToast({ message: t`Something went wrong, please try again` })
+        // navigator.onLine is unreliable (it can report `true` while offline),
+        // so we don't re-check it here. For a feedback POST, "all senders
+        // failed" is overwhelmingly a connectivity problem — surface that
+        // rather than a generic "Something went wrong".
+        setToast({
+          message: t`You are offline, please check your internet connection`
+        })
       }
     } catch (error) {
       if (error instanceof Error && error.message === OFFLINE_TIMEOUT) {

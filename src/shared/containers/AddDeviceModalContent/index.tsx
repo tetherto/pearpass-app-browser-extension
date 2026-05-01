@@ -11,7 +11,7 @@ import {
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { ContentCopy } from '@tetherto/pearpass-lib-ui-kit/icons'
-import { useInvite } from '@tetherto/pearpass-lib-vault'
+import { useInvite, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { useAutoLockPreferences } from '../../../hooks/useAutoLockPreferences'
 import { useModal } from '../../context/ModalContext'
@@ -24,6 +24,7 @@ export const AddDeviceModalContent = () => {
 
   const [qrSvg, setQrSvg] = useState('')
   const { createInvite, deleteInvite, data } = useInvite()
+  const { data: activeVault } = useVault()
   const { setShouldBypassAutoLock } = useAutoLockPreferences() as {
     setShouldBypassAutoLock: (v: boolean) => void
   }
@@ -63,9 +64,11 @@ export const AddDeviceModalContent = () => {
 
   const displayLink = isCopied ? t`Copied!` : (data?.publicKey ?? '')
 
+  const vaultName = activeVault?.name ?? t`Vault`
+
   return (
     <Dialog
-      title={t`Share Personal Vault`}
+      title={t`Share ${vaultName}`}
       onClose={closeModal}
       testID="add-device-dialog"
       closeButtonTestID="add-device-close"

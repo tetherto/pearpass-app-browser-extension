@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 import { useFolders, useRecords } from '@tetherto/pearpass-lib-vault'
 
 import { EmptyCollectionViewV2 } from '../../containers/EmptyCollectionViewV2'
 import { EmptyResultsViewV2 } from '../../containers/EmptyResultsViewV2'
 import { MainViewHeader } from '../../containers/MainViewHeader'
 import { MultiSelectActionsBar } from '../../containers/MultiSelectActionsBar'
+import { RecordDetailsV2 } from '../../containers/RecordDetails/RecordDetailsV2'
 import { RecordListViewV2 } from '../../containers/RecordListView'
 import {
   SORT_BY_TYPE,
@@ -31,9 +33,11 @@ export const RecordListV2 = () => {
   const { setModal, isOpen: isModalOpen } = useModal()
   const { searchValue } = useAppHeaderContext()
 
+  const { theme } = useTheme()
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEYS.LAST_UPDATED_NEWEST)
   const [isMultiSelectOn, setIsMultiSelectOn] = useState(false)
   const [selectedRecords, setSelectedRecords] = useState<string[]>([])
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null)
 
   const isFavoritesView = isFavorite(routerState?.folder ?? '')
   const selectedFolder =
@@ -71,7 +75,18 @@ export const RecordListV2 = () => {
 
   useEffect(() => {
     setIsMultiSelectOn(false)
+    setSelectedRecordId(null)
   }, [routerState?.folder, routerState?.recordType, searchValue])
+
+  useEffect(() => {
+    if (isMultiSelectOn) setSelectedRecordId(null)
+  }, [isMultiSelectOn])
+
+  useEffect(() => {
+    if (!selectedRecordId) return
+    const stillExists = records?.some((r) => r.id === selectedRecordId)
+    if (!stillExists) setSelectedRecordId(null)
+  }, [records, selectedRecordId])
 
   const selectedRecordObjects = useMemo<VaultRecord[]>(() => {
     if (!records?.length || !selectedRecords.length) return []
@@ -128,48 +143,103 @@ export const RecordListV2 = () => {
   }
 
   const hasRecords = !!records?.length
+  const hasDetailsPane = !!selectedRecordId && !isMultiSelectOn
+
+  const listPane = (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minWidth: 0,
+        minHeight: 0
+      }}
+    >
+      <MainViewHeader
+        sortKey={sortKey}
+        setSortKey={setSortKey}
+        isMultiSelectOn={isMultiSelectOn}
+        setIsMultiSelectOn={setIsMultiSelectOn}
+      />
+
+      {isMultiSelectOn && (
+        <MultiSelectActionsBar
+          selectedCount={selectedCount}
+          allSelectedFavorited={allSelectedFavorited}
+          canMove={hasCustomFolders}
+          onMove={handleMove}
+          onToggleFavorite={handleToggleFavorite}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {hasRecords && (
+        <RecordListViewV2
+          sections={sections}
+          isMultiSelectOn={isMultiSelectOn}
+          selectedRecords={selectedRecords}
+          setSelectedRecords={setSelectedRecords}
+          setIsMultiSelectOn={setIsMultiSelectOn}
+          selectedRecordId={selectedRecordId ?? undefined}
+          onSelectRecord={(record) =>
+            setSelectedRecordId((current) =>
+              current === record.id ? null : record.id
+            )
+          }
+        />
+      )}
+
+      {!hasRecords && !searchValue && (
+        <EmptyCollectionViewV2
+          recordType={routerState?.recordType ?? 'all'}
+          selectedFolder={selectedFolder}
+          isFavoritesView={isFavoritesView}
+        />
+      )}
+      {!hasRecords && !!searchValue && <EmptyResultsViewV2 />}
+    </div>
+  )
 
   return (
     <LayoutWithSidebar
       mainView={
-        <>
-          <MainViewHeader
-            sortKey={sortKey}
-            setSortKey={setSortKey}
-            isMultiSelectOn={isMultiSelectOn}
-            setIsMultiSelectOn={setIsMultiSelectOn}
-          />
-
-          {isMultiSelectOn && (
-            <MultiSelectActionsBar
-              selectedCount={selectedCount}
-              allSelectedFavorited={allSelectedFavorited}
-              canMove={hasCustomFolders}
-              onMove={handleMove}
-              onToggleFavorite={handleToggleFavorite}
-              onDelete={handleDelete}
+        hasDetailsPane ? (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              flex: 1,
+              minHeight: 0
+            }}
+          >
+            {listPane}
+            <div
+              style={{
+                width: '1px',
+                backgroundColor: theme.colors.colorBorderPrimary,
+                flexShrink: 0
+              }}
+              role="separator"
+              aria-hidden="true"
             />
-          )}
-
-          {hasRecords && (
-            <RecordListViewV2
-              sections={sections}
-              isMultiSelectOn={isMultiSelectOn}
-              selectedRecords={selectedRecords}
-              setSelectedRecords={setSelectedRecords}
-              setIsMultiSelectOn={setIsMultiSelectOn}
-            />
-          )}
-
-          {!hasRecords && !searchValue && (
-            <EmptyCollectionViewV2
-              recordType={routerState?.recordType ?? 'all'}
-              selectedFolder={selectedFolder}
-              isFavoritesView={isFavoritesView}
-            />
-          )}
-          {!hasRecords && !!searchValue && <EmptyResultsViewV2 />}
-        </>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minWidth: 0,
+                minHeight: 0
+              }}
+            >
+              <RecordDetailsV2
+                recordId={selectedRecordId ?? undefined}
+                onClose={() => setSelectedRecordId(null)}
+              />
+            </div>
+          </div>
+        ) : (
+          listPane
+        )
       }
     />
   )

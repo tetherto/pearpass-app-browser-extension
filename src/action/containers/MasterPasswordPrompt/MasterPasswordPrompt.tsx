@@ -55,7 +55,7 @@ export const MasterPasswordPrompt = ({
     <div className="bg-surface-primary flex h-full w-full items-center justify-center overflow-hidden">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-[500px] flex-col gap-[var(--spacing24)]"
+        className="flex w-full max-w-[500px] flex-col gap-[var(--spacing24)] p-[12px]"
       >
         <header className="flex flex-col items-center gap-[var(--spacing6)] text-center">
           <Title as="h1">

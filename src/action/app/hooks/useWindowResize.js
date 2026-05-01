@@ -39,44 +39,38 @@ const resizeWindow = (
   const frameWidth = window.outerWidth - window.innerWidth
   const frameHeight = window.outerHeight - window.innerHeight
 
-  // Inner width/height should never exceed target — clamp frame offsets to minimum 0
   const safeFrameWidth = Math.max(0, frameWidth)
   const safeFrameHeight = Math.max(0, frameHeight)
 
   const adjustedWidth = targetInnerWidth + safeFrameWidth
-  const adjustedHeight = targetInnerHeight + safeFrameHeight
 
-  chrome.windows.update(
-    windowId,
-    { width: adjustedWidth, height: adjustedHeight },
-    () => {
-      if (chrome.runtime.lastError) return
+  const sizeUpdate =
+    targetInnerHeight !== null && targetInnerHeight !== undefined
+      ? { width: adjustedWidth, height: targetInnerHeight + safeFrameHeight }
+      : { width: adjustedWidth }
 
-      // Wait 100ms after first update before checking if sizes are correct
-      // Theory: sometimes results come back too fast before the window
-      // has actually finished resizing
-      setTimeout(() => {
-        chrome.windows.get(windowId, () => {
-          if (chrome.runtime.lastError) return
+  chrome.windows.update(windowId, sizeUpdate, () => {
+    if (chrome.runtime.lastError) return
 
-          const newFrameWidth = window.outerWidth - window.innerWidth
-          const newFrameHeight = window.outerHeight - window.innerHeight
+    setTimeout(() => {
+      chrome.windows.get(windowId, () => {
+        if (chrome.runtime.lastError) return
 
-          // End condition: no frame offset remaining — window is correctly sized
-          if (newFrameWidth === 0 && newFrameHeight === 0) return
+        const newFrameWidth = window.outerWidth - window.innerWidth
+        const newFrameHeight = window.outerHeight - window.innerHeight
 
-          // Retry to compensate for remaining frame offset (certain edge cases require this)
-          resizeWindow(
-            windowId,
-            targetInnerWidth,
-            targetInnerHeight,
-            attempt + 1,
-            maxAttempts
-          )
-        })
-      }, 100)
-    }
-  )
+        if (newFrameWidth === 0 && newFrameHeight === 0) return
+
+        resizeWindow(
+          windowId,
+          targetInnerWidth,
+          targetInnerHeight,
+          attempt + 1,
+          maxAttempts
+        )
+      })
+    }, 100)
+  })
 }
 
 export const useWindowResize = () => {

@@ -30,6 +30,8 @@ type RecordListViewV2Props = {
     updater: string[] | ((prev: string[]) => string[])
   ) => void
   setIsMultiSelectOn?: (value: boolean) => void
+  selectedRecordId?: string
+  onSelectRecord?: (record: VaultRecord) => void
 }
 
 type ActiveContextMenu = {
@@ -63,7 +65,9 @@ export const RecordListViewV2 = ({
   isMultiSelectOn = false,
   selectedRecords = [],
   setSelectedRecords,
-  setIsMultiSelectOn
+  setIsMultiSelectOn,
+  selectedRecordId,
+  onSelectRecord
 }: RecordListViewV2Props) => {
   const { theme } = useTheme()
   const { navigate } = useRouter() as {
@@ -103,11 +107,15 @@ export const RecordListViewV2 = ({
         )
         return
       }
+      if (onSelectRecord) {
+        onSelectRecord(record)
+        return
+      }
       navigate('recordDetails', {
         params: { recordId: record.id }
       })
     },
-    [isMultiSelectOn, setSelectedRecords, navigate]
+    [isMultiSelectOn, setSelectedRecords, navigate, onSelectRecord]
   )
 
   const handleEnterMultiSelect = useCallback(
@@ -219,6 +227,9 @@ export const RecordListViewV2 = ({
                             subtitle={getRecordSubtitle(record) || undefined}
                             selectionMode={isMultiSelectOn ? 'multi' : 'none'}
                             isSelected={isSelected}
+                            selected={
+                              !isMultiSelectOn && selectedRecordId === record.id
+                            }
                             onSelect={() => handleRecordPress(record)}
                             onClick={() => handleRecordPress(record)}
                             testID={`record-list-item-${record.id}`}
