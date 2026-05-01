@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 import { Button, Text, Title, useTheme } from '@tetherto/pearpass-lib-ui-kit'
 import { Add, ImportExport } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { createStyles } from './EmptyCollectionViewV2.styles'
+import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useRecordMenuItemsV2 } from '../../../shared/hooks/useRecordMenuItemsV2'
 import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
@@ -30,14 +30,19 @@ export const EmptyCollectionViewV2 = ({
   }
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const { categoriesItems } = useRecordMenuItemsV2()
+  const { setIsAddMenuOpen } = useAppHeaderContext()
   const styles = createStyles()
 
-  const defaultAddRecordType =
-    recordType !== 'all' ? recordType : RECORD_TYPES.LOGIN
+  const isTypeAgnostic = recordType === 'all'
 
   const handleAddItem = () => {
+    if (isTypeAgnostic) {
+      setIsAddMenuOpen(true)
+      return
+    }
+
     handleCreateOrEditRecord({
-      recordType: defaultAddRecordType,
+      recordType,
       selectedFolder,
       isFavorite: isFavoritesView
     })
