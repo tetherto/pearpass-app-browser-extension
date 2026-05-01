@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro'
 import { useCountDown } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { generateQRCodeSVG } from '@tetherto/pear-apps-utils-qr'
 import {
+  AlertMessage,
   Button,
   Dialog,
   RingSpinner,
@@ -154,6 +155,13 @@ export const ShareVaultModalContentV2 = () => {
             </Button>
           </div>
         </div>
+        <AlertMessage
+          variant="info"
+          size="small"
+          title=""
+          description={t`Keep your vault private. Only pair with your own trusted devices. Pairing grants full access to your PearPass data.`}
+          testID="pairing-disclaimer"
+        />
       </div>
     </Dialog>
   )
