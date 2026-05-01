@@ -195,7 +195,7 @@ export const AppPreferencesContent = () => {
           {t`Autofill & Browsing`}
         </Text>
         <div className="bg-surface-primary border-border-primary flex flex-col rounded-[8px] border">
-          <div className="flex items-center justify-between gap-[12px] p-[12px]">
+          <div className="p-[12px]">
             <ToggleSwitch
               data-testid={TEST_IDS.autofillToggle}
               checked={isAutofillEnabled}
@@ -204,7 +204,7 @@ export const AppPreferencesContent = () => {
               description={t`Automatically fill usernames, passwords, and codes when you sign in`}
             />
           </div>
-          <div className="border-border-primary flex items-center justify-between gap-[12px] border-t p-[12px]">
+          <div className="border-border-primary border-t p-[12px]">
             <ToggleSwitch
               data-testid={TEST_IDS.allowHttpToggle}
               checked={isAllowHttpEnabled}
@@ -279,8 +279,8 @@ export const AppPreferencesContent = () => {
           <div
             className={
               BE_AUTO_LOCK_ENABLED
-                ? 'border-border-primary flex items-center justify-between gap-[12px] border-t p-[12px]'
-                : 'flex items-center justify-between gap-[12px] p-[12px]'
+                ? 'border-border-primary border-t p-[12px]'
+                : 'p-[12px]'
             }
           >
             <ToggleSwitch
@@ -292,7 +292,7 @@ export const AppPreferencesContent = () => {
             />
           </div>
 
-          <div className="border-border-primary flex items-center justify-between gap-[12px] border-t p-[12px]">
+          <div className="border-border-primary border-t p-[12px]">
             <ToggleSwitch
               data-testid={TEST_IDS.remindersToggle}
               checked={!isReminderDisabled}
