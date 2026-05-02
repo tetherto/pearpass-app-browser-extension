@@ -164,15 +164,24 @@ export const CreatePasskeyV2 = () => {
       return loginRecords
     }
 
-    const passkeyUsername = publicKeyData?.user?.name ?? ''
     const passkeyHostname = getHostname(publicKeyData?.rp?.id)
+    if (!passkeyHostname) return []
 
-    if (!passkeyUsername || !passkeyHostname) return []
+    const stripWww = (h: string) => h.replace(/^www\./i, '')
+    const target = stripWww(passkeyHostname)
 
     return loginRecords.filter((record) => {
-      if (record?.data?.username !== passkeyUsername) return false
       const websites = record?.data?.websites ?? []
-      return websites.some((w) => getHostname(w) === passkeyHostname)
+      return websites.some((w) => {
+        const recordHost = getHostname(w)
+        if (!recordHost) return false
+        const candidate = stripWww(recordHost)
+        return (
+          candidate === target ||
+          candidate.endsWith(`.${target}`) ||
+          target.endsWith(`.${candidate}`)
+        )
+      })
     })
   }, [records, serializedPublicKey])
 
@@ -196,12 +205,16 @@ export const CreatePasskeyV2 = () => {
                     title={record.data?.title ?? ''}
                     subtitle={getRecordSubtitle(record) || undefined}
                     testID={`record-list-item-${record.id}`}
+                    onClick={() => handleStoreHere(record)}
                     rightElement={
                       <Button
                         variant="tertiary"
                         size="small"
                         data-testid={`passkey-use-btn-${record.id}`}
-                        onClick={() => handleStoreHere(record)}
+                        onClick={(e) => {
+                          e?.stopPropagation?.()
+                          handleStoreHere(record)
+                        }}
                       >
                         {t`Store here`}
                       </Button>

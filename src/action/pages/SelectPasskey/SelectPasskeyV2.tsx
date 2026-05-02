@@ -108,17 +108,27 @@ export const SelectPasskeyV2 = () => {
     return getHostname(rpId) || getHostname(requestOrigin)
   }, [serializedPublicKey, requestOrigin])
 
-  const recordsFiltered = useMemo(
-    () =>
-      (records as PasskeyRecord[]).filter((record) => {
-        if (record.type !== RECORD_TYPES.LOGIN) return false
-        if (!record.data?.credential) return false
-        if (!targetHostname) return false
-        const websites = record.data?.websites ?? []
-        return websites.some((w) => getHostname(w) === targetHostname)
-      }),
-    [records, targetHostname]
-  )
+  const recordsFiltered = useMemo(() => {
+    if (!targetHostname) return [] as PasskeyRecord[]
+    const stripWww = (h: string) => h.replace(/^www\./i, '')
+    const target = stripWww(targetHostname)
+
+    return (records as PasskeyRecord[]).filter((record) => {
+      if (record.type !== RECORD_TYPES.LOGIN) return false
+      if (!record.data?.credential) return false
+      const websites = record.data?.websites ?? []
+      return websites.some((w) => {
+        const recordHost = getHostname(w)
+        if (!recordHost) return false
+        const candidate = stripWww(recordHost)
+        return (
+          candidate === target ||
+          candidate.endsWith(`.${target}`) ||
+          target.endsWith(`.${candidate}`)
+        )
+      })
+    })
+  }, [records, targetHostname])
 
   const hasRecords = recordsFiltered.length > 0
 
@@ -134,12 +144,16 @@ export const SelectPasskeyV2 = () => {
                 title={record.data?.title ?? ''}
                 subtitle={getRecordSubtitle(record) || undefined}
                 testID={`record-list-item-${record.id}`}
+                onClick={() => handleRecordSelect(record)}
                 rightElement={
                   <Button
                     variant="tertiary"
                     size="small"
                     data-testid={`passkey-use-btn-${record.id}`}
-                    onClick={() => handleRecordSelect(record)}
+                    onClick={(e) => {
+                      e?.stopPropagation?.()
+                      handleRecordSelect(record)
+                    }}
                   >
                     {t`Use`}
                   </Button>
