@@ -14,6 +14,7 @@ import { Add } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
+import { getHostname } from '../../../shared/utils/getHostname'
 import { logger } from '../../../shared/utils/logger'
 import { PasskeyContainerV2 } from '../../containers/PasskeyContainer/PasskeyContainerV2'
 import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
@@ -91,14 +92,32 @@ export const SelectPasskeyV2 = () => {
     navigate('createPasskey', { state: routerState })
   }
 
+  const targetHostname = useMemo(() => {
+    let rpId: string | undefined
+    if (serializedPublicKey) {
+      try {
+        const parsed = JSON.parse(serializedPublicKey) as {
+          rpId?: string
+          rp?: { id?: string }
+        }
+        rpId = parsed?.rpId ?? parsed?.rp?.id
+      } catch {
+        rpId = undefined
+      }
+    }
+    return getHostname(rpId) || getHostname(requestOrigin)
+  }, [serializedPublicKey, requestOrigin])
+
   const recordsFiltered = useMemo(
     () =>
       (records as PasskeyRecord[]).filter((record) => {
         if (record.type !== RECORD_TYPES.LOGIN) return false
         if (!record.data?.credential) return false
-        return true
+        if (!targetHostname) return false
+        const websites = record.data?.websites ?? []
+        return websites.some((w) => getHostname(w) === targetHostname)
       }),
-    [records]
+    [records, targetHostname]
   )
 
   const hasRecords = recordsFiltered.length > 0

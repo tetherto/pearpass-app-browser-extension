@@ -17,6 +17,7 @@ import { ReplacePasskeyModalContentV2 } from '../../../shared/containers/Replace
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
+import { getHostname } from '../../../shared/utils/getHostname'
 import { getRecordSubtitle } from '../../../shared/utils/getRecordSubtitle'
 import { logger } from '../../../shared/utils/logger'
 import { normalizeUrl } from '../../../shared/utils/normalizeUrl'
@@ -151,27 +152,27 @@ export const CreatePasskeyV2 = () => {
       (record) => (record as { type?: string })?.type === RECORD_TYPES.LOGIN
     )
 
-    let publicKeyData: { user?: { name?: string } } | null = null
-    if (serializedPublicKey) {
-      try {
-        publicKeyData = JSON.parse(serializedPublicKey)
-      } catch {
-        return loginRecords
-      }
+    if (!serializedPublicKey) return loginRecords
+
+    let publicKeyData: {
+      rp?: { id?: string }
+      user?: { name?: string }
+    } | null = null
+    try {
+      publicKeyData = JSON.parse(serializedPublicKey)
+    } catch {
+      return loginRecords
     }
 
-    if (!publicKeyData) return loginRecords
+    const passkeyUsername = publicKeyData?.user?.name ?? ''
+    const passkeyHostname = getHostname(publicKeyData?.rp?.id)
 
-    const passkeyUsername = publicKeyData.user?.name ?? ''
+    if (!passkeyUsername || !passkeyHostname) return []
 
     return loginRecords.filter((record) => {
-      const recordUsername = record?.data?.username ?? ''
-      const usernameMatches =
-        passkeyUsername && recordUsername
-          ? passkeyUsername === recordUsername
-          : false
-      const hasNoUsername = !recordUsername || recordUsername.trim() === ''
-      return usernameMatches || hasNoUsername
+      if (record?.data?.username !== passkeyUsername) return false
+      const websites = record?.data?.websites ?? []
+      return websites.some((w) => getHostname(w) === passkeyHostname)
     })
   }, [records, serializedPublicKey])
 
