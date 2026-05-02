@@ -14,6 +14,7 @@ import { Add } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
+import { getHostname } from '../../../shared/utils/getHostname'
 import { logger } from '../../../shared/utils/logger'
 import { PasskeyContainerV2 } from '../../containers/PasskeyContainer/PasskeyContainerV2'
 import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
@@ -91,15 +92,43 @@ export const SelectPasskeyV2 = () => {
     navigate('createPasskey', { state: routerState })
   }
 
-  const recordsFiltered = useMemo(
-    () =>
-      (records as PasskeyRecord[]).filter((record) => {
-        if (record.type !== RECORD_TYPES.LOGIN) return false
-        if (!record.data?.credential) return false
-        return true
-      }),
-    [records]
-  )
+  const targetHostname = useMemo(() => {
+    let rpId: string | undefined
+    if (serializedPublicKey) {
+      try {
+        const parsed = JSON.parse(serializedPublicKey) as {
+          rpId?: string
+          rp?: { id?: string }
+        }
+        rpId = parsed?.rpId ?? parsed?.rp?.id
+      } catch {
+        rpId = undefined
+      }
+    }
+    return getHostname(rpId) || getHostname(requestOrigin)
+  }, [serializedPublicKey, requestOrigin])
+
+  const recordsFiltered = useMemo(() => {
+    if (!targetHostname) return [] as PasskeyRecord[]
+    const stripWww = (h: string) => h.replace(/^www\./i, '')
+    const target = stripWww(targetHostname)
+
+    return (records as PasskeyRecord[]).filter((record) => {
+      if (record.type !== RECORD_TYPES.LOGIN) return false
+      if (!record.data?.credential) return false
+      const websites = record.data?.websites ?? []
+      return websites.some((w) => {
+        const recordHost = getHostname(w)
+        if (!recordHost) return false
+        const candidate = stripWww(recordHost)
+        return (
+          candidate === target ||
+          candidate.endsWith(`.${target}`) ||
+          target.endsWith(`.${candidate}`)
+        )
+      })
+    })
+  }, [records, targetHostname])
 
   const hasRecords = recordsFiltered.length > 0
 
@@ -115,12 +144,16 @@ export const SelectPasskeyV2 = () => {
                 title={record.data?.title ?? ''}
                 subtitle={getRecordSubtitle(record) || undefined}
                 testID={`record-list-item-${record.id}`}
+                onClick={() => handleRecordSelect(record)}
                 rightElement={
                   <Button
                     variant="tertiary"
                     size="small"
                     data-testid={`passkey-use-btn-${record.id}`}
-                    onClick={() => handleRecordSelect(record)}
+                    onClick={(e) => {
+                      e?.stopPropagation?.()
+                      handleRecordSelect(record)
+                    }}
                   >
                     {t`Use`}
                   </Button>
