@@ -3,10 +3,6 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-import { App } from './App'
-
-const mockIsV2 = jest.fn(() => false)
-
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   rawTokens: { radius8: 8 },
   useTheme: () => ({
@@ -19,7 +15,7 @@ jest.mock('../containers/AppHeaderContainer', () => ({
 }))
 
 jest.mock('../../shared/utils/designVersion', () => ({
-  isV2: () => mockIsV2()
+  isV2: jest.fn(() => false)
 }))
 
 jest.mock('./hooks/useRedirect', () => ({
@@ -56,10 +52,12 @@ jest.mock('./Loading', () => ({
   Loading: () => <div data-testid="loading" />
 }))
 
+const { App } = require('./App')
 const { useRedirect } = require('./hooks/useRedirect')
 const {
   useBlockingStateContext
 } = require('../../shared/context/BlockingStateContext')
+const { isV2: mockIsV2 } = require('../../shared/utils/designVersion')
 
 describe('App', () => {
   beforeEach(() => {

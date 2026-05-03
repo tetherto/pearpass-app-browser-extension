@@ -22,6 +22,9 @@ jest.mock('@lingui/react/macro', () => ({
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
+  useTheme: () => ({
+    theme: { colors: { colorTextSecondary: '#888888' } }
+  }),
   Title: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1>,
   Text: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
   Button: ({
