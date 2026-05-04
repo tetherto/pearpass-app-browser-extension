@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
@@ -9,9 +11,11 @@ import {
   InputField,
   MultiSlotInput,
   PasswordField,
+  type PasswordIndicatorVariant,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
+import { checkPasswordStrength } from '@tetherto/pearpass-utils-password-check'
 import {
   Add,
   SyncLock,
@@ -33,6 +37,12 @@ import { useCreateOrEditRecord } from '../../../../hooks/useCreateOrEditRecord'
 
 type Website = { website?: string; name?: string }
 type CustomField = { type: string; name: string; note?: string }
+
+const STRENGTH_MAP: Record<string, PasswordIndicatorVariant> = {
+  error: 'vulnerable',
+  warning: 'decent',
+  success: 'strong'
+}
 
 export type CreateOrEditLoginModalContentV2Props = {
   initialRecord?: {
@@ -156,6 +166,17 @@ export const CreateOrEditLoginModalContentV2 = ({
   const passwordField = register('password')
   const otpSecretField = register('otpSecret')
   const noteField = register('note')
+
+  const passwordIndicator = useMemo<
+    PasswordIndicatorVariant | undefined
+  >(() => {
+    const value = passwordField.value as string
+    if (!value?.length) return undefined
+    const result = checkPasswordStrength(value) as unknown as {
+      strengthType: string
+    }
+    return STRENGTH_MAP[result.strengthType]
+  }, [passwordField.value])
 
   const onSubmit = (formValues: Record<string, unknown>) => {
     const otpInput = ((formValues.otpSecret as string)?.trim() || undefined) as
@@ -286,6 +307,7 @@ export const CreateOrEditLoginModalContentV2 = ({
                   value={passwordField.value as string}
                   onChange={(e) => passwordField.onChange(e.target.value)}
                   error={passwordField.error || undefined}
+                  passwordIndicator={passwordIndicator}
                   testID="createoredit-login-v2-password"
                 />
               </MultiSlotInput>
