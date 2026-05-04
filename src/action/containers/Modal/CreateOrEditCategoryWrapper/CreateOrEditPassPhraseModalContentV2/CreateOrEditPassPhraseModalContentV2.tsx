@@ -19,6 +19,7 @@ import {
   useRecords
 } from '@tetherto/pearpass-lib-vault'
 
+import { FolderDropdownV2 } from '../../../FolderDropdownV2'
 import { PassPhraseV2 } from '../../../../../shared/containers/PassPhrase/PassPhraseV2'
 import { useGlobalLoading } from '../../../../../shared/context/LoadingContext'
 import { useModal } from '../../../../../shared/context/ModalContext'
@@ -96,7 +97,7 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
     folder: Validator.string()
   })
 
-  const { register, handleSubmit, registerArray, setValue } = useForm({
+  const { register, handleSubmit, registerArray, setValue, values } = useForm({
     initialValues: {
       title: initialRecord?.data?.title ?? '',
       passPhrase: initialRecord?.data?.passPhrase ?? '',
@@ -222,6 +223,14 @@ export const CreateOrEditPassPhraseModalContentV2 = ({
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
             {t`Additional`}
           </Text>
+
+          <FolderDropdownV2
+            selectedFolder={values?.folder as string | undefined}
+            onFolderSelect={(name) =>
+              setValue('folder', name === values.folder ? '' : name)
+            }
+            testIDPrefix="createoredit-passphrase-v2-folder"
+          />
 
           <MultiSlotInput testID="createoredit-passphrase-v2-comment-slot">
             <InputField

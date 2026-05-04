@@ -17,6 +17,7 @@ import {
   useRecords
 } from '@tetherto/pearpass-lib-vault'
 
+import { FolderDropdownV2 } from '../../../FolderDropdownV2'
 import { useGlobalLoading } from '../../../../../shared/context/LoadingContext'
 import { useModal } from '../../../../../shared/context/ModalContext'
 import { useToast } from '../../../../../shared/context/ToastContext'
@@ -84,7 +85,7 @@ export const CreateOrEditNoteModalContentV2 = ({
     folder: Validator.string()
   })
 
-  const { register, handleSubmit, registerArray } = useForm({
+  const { register, handleSubmit, registerArray, setValue, values } = useForm({
     initialValues: {
       title: initialRecord?.data?.title ?? '',
       note: initialRecord?.data?.note ?? '',
@@ -191,6 +192,14 @@ export const CreateOrEditNoteModalContentV2 = ({
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
             {t`Additional`}
           </Text>
+
+          <FolderDropdownV2
+            selectedFolder={values?.folder as string | undefined}
+            onFolderSelect={(name) =>
+              setValue('folder', name === values.folder ? '' : name)
+            }
+            testIDPrefix="createoredit-note-v2-folder"
+          />
 
           <MultiSlotInput
             testID="createoredit-note-v2-comments-slot"

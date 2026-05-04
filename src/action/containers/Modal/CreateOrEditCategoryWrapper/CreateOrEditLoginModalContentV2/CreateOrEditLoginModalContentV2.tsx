@@ -1,38 +1,29 @@
-import { useMemo } from 'react'
-
 import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
 import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import {
   Button,
-  ContextMenu,
   Dialog,
   Form,
   InputField,
   MultiSlotInput,
-  NavbarListItem,
   PasswordField,
-  SelectField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
   Add,
-  CreateNewFolder,
-  Folder,
-  KeyboardArrowBottom,
   SyncLock,
   TrashOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 import {
   RECORD_TYPES,
   useCreateRecord,
-  useFolders,
   useRecords
 } from '@tetherto/pearpass-lib-vault'
 
-import { CreateFolderModalContentV2 } from '../../../../../shared/containers/CreateFolderModalContentV2'
+import { FolderDropdownV2 } from '../../../FolderDropdownV2'
 import { useGlobalLoading } from '../../../../../shared/context/LoadingContext'
 import { useModal } from '../../../../../shared/context/ModalContext'
 import { useToast } from '../../../../../shared/context/ToastContext'
@@ -76,7 +67,7 @@ export const CreateOrEditLoginModalContentV2 = ({
   mode
 }: CreateOrEditLoginModalContentV2Props) => {
   const isAuthenticatorMode = mode === 'authenticator'
-  const { closeModal, setModal } = useModal()
+  const { closeModal } = useModal()
   const { setToast } = useToast()
   const { theme } = useTheme()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
@@ -96,14 +87,6 @@ export const CreateOrEditLoginModalContentV2 = ({
       setToast({ message: t`Record updated successfully`, icon: null })
     }
   })
-
-  const { data: folders } = useFolders()
-
-  const folderOptions = useMemo(() => {
-    const customFolders =
-      (folders?.customFolders as Record<string, { name: string }>) ?? {}
-    return Object.values(customFolders).map((f) => f.name)
-  }, [folders])
 
   const onError = (error: { message: string }) => {
     setToast({ message: error.message, icon: null })
@@ -214,55 +197,6 @@ export const CreateOrEditLoginModalContentV2 = ({
       setValue: (value: string) => setValue('password', value)
     })
   }
-
-  const handleFolderSelect = (name?: string) => {
-    if (!name) return
-    setValue('folder', name === values.folder ? '' : name)
-  }
-
-  const handleCreateFolder = () => {
-    setModal(
-      <CreateFolderModalContentV2
-        onClose={closeModal}
-        onCreate={(folderName: string) => handleFolderSelect(folderName)}
-      />
-    )
-  }
-
-  const folderSelectorContent = (
-    <>
-      {folderOptions.map((name) => (
-        <NavbarListItem
-          key={name}
-          icon={
-            <Folder
-              width={16}
-              height={16}
-              color={theme.colors.colorTextPrimary}
-            />
-          }
-          iconSize={16}
-          label={name}
-          selected={values?.folder === name}
-          onClick={() => handleFolderSelect(name)}
-          testID={`createoredit-login-v2-folder-option-${name}`}
-        />
-      ))}
-      <NavbarListItem
-        icon={
-          <CreateNewFolder
-            width={16}
-            height={16}
-            color={theme.colors.colorTextPrimary}
-          />
-        }
-        iconSize={16}
-        label={t`Add New Folder`}
-        onClick={handleCreateFolder}
-        testID="createoredit-login-v2-folder-create"
-      />
-    </>
-  )
 
   return (
     <Dialog
@@ -442,26 +376,13 @@ export const CreateOrEditLoginModalContentV2 = ({
                 )}
               </MultiSlotInput>
 
-              <ContextMenu
-                fullWidth
-                trigger={
-                  <MultiSlotInput testID="createoredit-login-v2-folder-slot">
-                    <SelectField
-                      label={t`Folder`}
-                      value={(values?.folder as string) ?? ''}
-                      placeholder={t`Choose Folder`}
-                      testID="createoredit-login-v2-folder"
-                      rightSlot={
-                        <KeyboardArrowBottom
-                          color={theme.colors.colorTextPrimary}
-                        />
-                      }
-                    />
-                  </MultiSlotInput>
+              <FolderDropdownV2
+                selectedFolder={values?.folder as string | undefined}
+                onFolderSelect={(name) =>
+                  setValue('folder', name === values.folder ? '' : name)
                 }
-              >
-                {folderSelectorContent}
-              </ContextMenu>
+                testIDPrefix="createoredit-login-v2-folder"
+              />
             </>
           ) : null}
 
