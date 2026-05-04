@@ -20,35 +20,7 @@ export const EnterMasterPasswordV2 = () => {
 
   const [error, setError] = useState<string>('')
 
-  const { initVaults, refetch: refetchVaults } = useVaults({
-    onInitialize: async () => {
-      const vaults = await refetchVaults()
-      const firstVault = sortByName(vaults)[0] as
-        | { id: string; name: string }
-        | undefined
-
-      if (!firstVault) {
-        navigate(currentPage, {
-          params: { state: NAVIGATION_ROUTES.VAULTS }
-        })
-        return
-      }
-
-      const protectedVault = await isVaultProtected(firstVault.id)
-      if (protectedVault) {
-        navigate(currentPage, {
-          params: {
-            state: NAVIGATION_ROUTES.VAULT_PASSWORD,
-            vaultId: firstVault.id
-          }
-        })
-        return
-      }
-
-      await refetchVault(firstVault.id)
-      navigateAfterVaultOpened()
-    }
-  })
+  const { initVaults, refetch: refetchVaults } = useVaults()
 
   const handleSubmit = useCallback(
     async (password: string) => {
@@ -75,6 +47,32 @@ export const EnterMasterPasswordV2 = () => {
 
         await logIn({ password })
         await initVaults({ password })
+
+        const vaults = await refetchVaults()
+        const firstVault = sortByName(vaults)[0] as
+          | { id: string; name: string }
+          | undefined
+
+        if (!firstVault) {
+          navigate(currentPage, {
+            params: { state: NAVIGATION_ROUTES.VAULTS }
+          })
+          return
+        }
+
+        const protectedVault = await isVaultProtected(firstVault.id)
+        if (protectedVault) {
+          navigate(currentPage, {
+            params: {
+              state: NAVIGATION_ROUTES.VAULT_PASSWORD,
+              vaultId: firstVault.id
+            }
+          })
+          return
+        }
+
+        await refetchVault(firstVault.id)
+        navigateAfterVaultOpened()
       } catch (submitError) {
         const status = await refreshMasterPasswordStatus()
         const { isLocked, remainingAttempts } = status || {}
@@ -94,7 +92,17 @@ export const EnterMasterPasswordV2 = () => {
         logger.error('Error unlocking PearPass:', submitError)
       }
     },
-    [logIn, initVaults, refreshMasterPasswordStatus, navigate]
+    [
+      logIn,
+      initVaults,
+      refetchVaults,
+      isVaultProtected,
+      refetchVault,
+      navigateAfterVaultOpened,
+      refreshMasterPasswordStatus,
+      navigate,
+      currentPage
+    ]
   )
 
   return (
