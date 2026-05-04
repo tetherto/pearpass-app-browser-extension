@@ -207,18 +207,47 @@ describe('VaultSelector', () => {
     expect(mockSwitchVault).not.toHaveBeenCalled()
   })
 
+  it('calls onClose when selecting any vault', () => {
+    const onClose = jest.fn()
+    render(<VaultSelector onClose={onClose} />)
+
+    fireEvent.click(screen.getByTestId(`vault-row-${vaultAlpha.id}`))
+    expect(onClose).toHaveBeenCalledTimes(1)
+
+    fireEvent.click(screen.getByTestId(`vault-row-${vaultBeta.id}`))
+    expect(onClose).toHaveBeenCalledTimes(2)
+  })
+
   it('opens create vault modal when create is clicked', () => {
     render(<VaultSelector />)
 
     fireEvent.click(screen.getByTestId('vault-selector-create'))
 
     expect(mockSetModal).toHaveBeenCalledTimes(1)
-    const modal = mockSetModal.mock.calls[0][0] as React.ReactElement
+    const modal = mockSetModal.mock.calls[0][0] as React.ReactElement<{
+      onClose: () => void
+      onSuccess: () => void
+    }>
     expect(modal.type).toBe(CreateOrEditVaultModalContentV2)
     expect(modal.props).toMatchObject({
-      onClose: mockCloseModal,
-      onSuccess: mockCloseModal
+      onClose: mockCloseModal
     })
+    expect(typeof modal.props.onSuccess).toBe('function')
+  })
+
+  it('closes the modal and calls onClose when create vault succeeds', () => {
+    const onClose = jest.fn()
+    render(<VaultSelector onClose={onClose} />)
+
+    fireEvent.click(screen.getByTestId('vault-selector-create'))
+
+    const modal = mockSetModal.mock.calls[0][0] as React.ReactElement<{
+      onSuccess: () => void
+    }>
+    modal.props.onSuccess()
+
+    expect(mockCloseModal).toHaveBeenCalledTimes(1)
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('opens rename modal with the selected vault', () => {
