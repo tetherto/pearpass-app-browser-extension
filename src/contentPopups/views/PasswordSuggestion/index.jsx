@@ -12,6 +12,7 @@ import { KeyIcon } from '../../../shared/icons/KeyIcon'
 import { PasswordIcon } from '../../../shared/icons/PasswordIcon'
 import { useFilteredRecords } from '../../hooks/useFilteredRecords'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const PasswordSuggestion = () => {
   const popupRef = useRef(null)
@@ -23,6 +24,10 @@ export const PasswordSuggestion = () => {
   const { filteredRecords, isInitialized, isLoading } = useFilteredRecords()
 
   const password = useMemo(() => generatePassword(24), [])
+
+  const isReady = isInitialized && !isLoading
+  const hasMatchingRecords = !!filteredRecords?.length
+  const shouldShowSuggestion = isReady && !hasMatchingRecords
 
   const onPasswordInsert = (value) => {
     window.parent.postMessage(
@@ -45,31 +50,35 @@ export const PasswordSuggestion = () => {
   }
 
   useEffect(() => {
-    window.parent.postMessage(
-      {
-        type: 'setStyles',
-        data: {
-          iframeId: routerState?.iframeId,
-          iframeType: routerState?.iframeType,
-          style: {
-            width: `${popupRef.current?.offsetWidth}px`,
-            height: `${popupRef.current?.offsetHeight}px`,
-            borderRadius: '12px'
-          }
-        }
-      },
-      '*'
-    )
+    refetchVault()
+  }, [])
 
-    if (filteredRecords?.length && !isLoading && isInitialized) {
+  useEffect(() => {
+    if (isReady && hasMatchingRecords) {
       closeIframe({
         iframeId: routerState?.iframeId,
         iframeType: routerState?.iframeType
       })
     }
+  }, [isReady, hasMatchingRecords])
 
-    refetchVault()
-  }, [filteredRecords?.length])
+  useEffect(() => {
+    if (!shouldShowSuggestion) return
+
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: `${popupRef.current?.offsetWidth}px`,
+        height: `${popupRef.current?.offsetHeight}px`,
+        borderRadius: '12px'
+      }
+    })
+  }, [shouldShowSuggestion])
+
+  if (!shouldShowSuggestion) {
+    return null
+  }
 
   return (
     <PopupCard

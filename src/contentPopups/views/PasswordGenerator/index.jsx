@@ -7,6 +7,7 @@ import { PopupCard } from '../../../shared/components/PopupCard'
 import { PasswordGeneratorModalContent } from '../../../shared/containers/PasswordGeneratorModalContent'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const PasswordGenerator = () => {
   const popupRef = useRef(null)
@@ -37,21 +38,15 @@ export const PasswordGenerator = () => {
   }
 
   useEffect(() => {
-    window.parent.postMessage(
-      {
-        type: 'setStyles',
-        data: {
-          iframeId: routerState?.iframeId,
-          iframeType: routerState?.iframeType,
-          style: {
-            width: `${popupRef.current?.offsetWidth}px`,
-            height: `${popupRef.current?.offsetHeight}px`,
-            borderRadius: '12px'
-          }
-        }
-      },
-      '*'
-    )
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: `${popupRef.current?.offsetWidth}px`,
+        height: `${popupRef.current?.offsetHeight}px`,
+        borderRadius: '12px'
+      }
+    })
 
     refetchVault()
   }, [recordsData?.length])

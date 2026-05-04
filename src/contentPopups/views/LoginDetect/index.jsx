@@ -20,6 +20,7 @@ import { UserIcon } from '../../../shared/icons/UserIcon'
 import { extractNameFromDomain } from '../../../shared/utils/extractNameFromDomain'
 import { CardButtons } from '../../containers/CardButtons'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const LoginDetect = () => {
   const { state: routerState } = useRouter()
@@ -99,21 +100,15 @@ export const LoginDetect = () => {
   }
 
   useEffect(() => {
-    window.parent.postMessage(
-      {
-        type: 'setStyles',
-        data: {
-          iframeId: routerState?.iframeId,
-          iframeType: routerState?.iframeType,
-          style: {
-            width: `${popupRef.current?.offsetWidth}px`,
-            height: `${popupRef.current?.offsetHeight}px`,
-            borderRadius: '12px'
-          }
-        }
-      },
-      '*'
-    )
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: `${popupRef.current?.offsetWidth}px`,
+        height: `${popupRef.current?.offsetHeight}px`,
+        borderRadius: '12px'
+      }
+    })
 
     refetchVault()
   }, [!!existingRecord])

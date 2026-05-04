@@ -7,6 +7,7 @@ import { useRecords, useVault } from '@tetherto/pearpass-lib-vault'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { PasswordGeneratorV2 as PasswordGeneratorV2Body } from '../../../shared/containers/PasswordGeneratorV2'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const PasswordGeneratorV2 = () => {
   const popupRef = useRef<HTMLDivElement>(null)
@@ -46,21 +47,15 @@ export const PasswordGeneratorV2 = () => {
 
   useLayoutEffect(() => {
     const el = popupRef.current
-    window.parent.postMessage(
-      {
-        type: 'setStyles',
-        data: {
-          iframeId: routerState?.iframeId,
-          iframeType: routerState?.iframeType,
-          style: {
-            width: `${el?.offsetWidth ?? 440}px`,
-            height: `${el?.offsetHeight ?? 280}px`,
-            borderRadius: '12px'
-          }
-        }
-      },
-      '*'
-    )
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: `${el?.offsetWidth ?? 440}px`,
+        height: `${el?.offsetHeight ?? 280}px`,
+        borderRadius: '12px'
+      }
+    })
   }, [generated, routerState?.iframeId, routerState?.iframeType])
 
   useEffect(() => {
