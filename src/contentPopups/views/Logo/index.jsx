@@ -6,6 +6,7 @@ import { useRouter } from '../../../shared/context/RouterContext'
 import { LogoLock } from '../../../shared/svgs/logoLock'
 import { useFilteredRecords } from '../../hooks/useFilteredRecords'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const Logo = () => {
   const { state: routerState } = useRouter()
@@ -15,6 +16,8 @@ export const Logo = () => {
   const { filteredRecords, isInitialized, isLoading } = useFilteredRecords()
 
   const count = filteredRecords?.length || 0
+  const isReady = isInitialized && !isLoading
+  const shouldShowLogo = isReady && count > 0
 
   const handleClick = () => {
     window.parent.postMessage(
@@ -30,17 +33,33 @@ export const Logo = () => {
   }
 
   useEffect(() => {
-    if (!filteredRecords?.length && !isLoading && isInitialized) {
+    refetchVault()
+  }, [])
+
+  useEffect(() => {
+    if (isReady && !count) {
       closeIframe({
         iframeId: routerState?.iframeId,
         iframeType: routerState?.iframeType
       })
     }
+  }, [isReady, count])
 
-    refetchVault()
-  }, [filteredRecords?.length, isInitialized])
+  useEffect(() => {
+    if (!shouldShowLogo) return
 
-  if (isLoading || !isInitialized || !count) {
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: '30px',
+        height: '30px',
+        borderRadius: '50%'
+      }
+    })
+  }, [shouldShowLogo])
+
+  if (!shouldShowLogo) {
     return null
   }
 

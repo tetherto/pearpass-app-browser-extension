@@ -10,6 +10,7 @@ import { UserKeyIcon } from '../../../shared/icons/UserKeyIcon'
 import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
 import { logger } from '../../../shared/utils/logger'
 import { useFilteredRecords } from '../../hooks/useFilteredRecords'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const Autofill = () => {
   const popupRef = useRef(null)
@@ -85,21 +86,15 @@ export const Autofill = () => {
     requestAnimationFrame(() => {
       if (!popupRef.current) return
 
-      window.parent.postMessage(
-        {
-          type: 'setStyles',
-          data: {
-            iframeId: routerState?.iframeId,
-            iframeType: routerState?.iframeType,
-            style: {
-              width: `${popupRef.current.offsetWidth}px`,
-              height: `${popupRef.current.offsetHeight}px`,
-              borderRadius: '12px'
-            }
-          }
-        },
-        '*'
-      )
+      setIframeStyles({
+        iframeId: routerState?.iframeId,
+        iframeType: routerState?.iframeType,
+        style: {
+          width: `${popupRef.current.offsetWidth}px`,
+          height: `${popupRef.current.offsetHeight}px`,
+          borderRadius: '12px'
+        }
+      })
     })
   }, [
     routerState?.iframeId,

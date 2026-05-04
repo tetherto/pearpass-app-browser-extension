@@ -175,8 +175,8 @@ function handlePasswordSuggestionPopup(event) {
     styles: {
       top: `${rect.top + rect.height + 5}px`,
       left: `${rect.left + rect.width / 2}px`,
-      width: '300px',
-      height: '55px',
+      width: '0px',
+      height: '0px',
       borderRadius: '12px'
     }
   })
@@ -510,8 +510,8 @@ function showLogoForField(field) {
     styles: {
       top: `${rect.top + (rect.height - LOGO_SIZE) / 2}px`,
       left: `${rect.left + rect.width - LOGO_SIZE - LOGO_PADDING}px`,
-      width: `${LOGO_SIZE}px`,
-      height: `${LOGO_SIZE}px`,
+      width: '0px',
+      height: '0px',
       borderRadius: '50%'
     }
   })
