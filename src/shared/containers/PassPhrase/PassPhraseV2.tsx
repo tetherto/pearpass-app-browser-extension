@@ -11,6 +11,7 @@ import {
   FieldError,
   InputField,
   Radio,
+  Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { ContentCopy, ContentPaste } from '@tetherto/pearpass-lib-ui-kit/icons'
@@ -152,6 +153,24 @@ export const PassPhraseV2 = ({
       >
         {!isCreateOrEdit ? (
           <div className="flex flex-col gap-[var(--spacing12)] p-[var(--spacing12)]">
+            <div className="flex items-center justify-between">
+              <Text variant="caption">{t`Recovery Phrase`}</Text>
+              <Button
+                variant="tertiary"
+                size="small"
+                type="button"
+                aria-label={t`Copy recovery phrase`}
+                iconBefore={
+                  <ContentCopy
+                    width={16}
+                    height={16}
+                    color={theme.colors.colorTextPrimary}
+                  />
+                }
+                onClick={() => copyToClipboard(value)}
+                data-testid="passphrase-details-copy"
+              />
+            </div>
             <div className="grid grid-cols-3 gap-[var(--spacing12)]">
               {detailWords.map((word, inputIndex) => (
                 <InputField
