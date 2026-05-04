@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react'
 
+import { t } from '@lingui/core/macro'
 import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
+import { Check } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { MESSAGES } from '../../background/constants'
 import { LOCAL_STORAGE_KEYS } from '../constants/storage'
+import { useToast } from '../context/ToastContext'
 import { isCopyToClipboardEnabled as getIsCopyToClipboardEnabled } from '../utils/isCopyToClipboardEnabled'
 import { logger } from '../utils/logger'
 
@@ -22,6 +25,8 @@ const { SCHEDULE_CLIPBOARD_CLEAR } = MESSAGES
 export const useCopyToClipboard = ({ onCopy } = {}) => {
   const [isCopied, setIsCopied] = useState(false)
   const timeoutRef = useRef()
+  const toastCtx = useToast()
+  const setToast = toastCtx?.setToast
   const [isCopyToClipboardEnabled, setIsCopyToClipboardEnabled] = useState(
     getIsCopyToClipboardEnabled()
   )
@@ -52,7 +57,11 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
       () => {
         setIsCopied(true)
 
-        onCopy?.()
+        if (onCopy) {
+          onCopy()
+        } else {
+          setToast?.({ message: t`Copied to clipboard`, icon: Check })
+        }
 
         try {
           if (typeof chrome !== 'undefined') {
