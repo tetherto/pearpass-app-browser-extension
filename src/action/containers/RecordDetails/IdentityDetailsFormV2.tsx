@@ -3,7 +3,12 @@ import { useEffect, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { DATE_FORMAT } from '@tetherto/pearpass-lib-constants'
-import { InputField, MultiSlotInput, Text } from '@tetherto/pearpass-lib-ui-kit'
+import {
+  InputField,
+  MultiSlotInput,
+  PasswordField,
+  Text
+} from '@tetherto/pearpass-lib-ui-kit'
 
 import { useCopyToClipboard } from '../../../shared/hooks/useCopyToClipboard'
 import { toReadOnlyFieldProps } from './utils'
@@ -165,11 +170,8 @@ export const IdentityDetailsFormV2 = ({
     !!v.drivingLicenseExpiryDate?.length ||
     !!v.drivingLicenseIssuingCountry?.length
 
-  const commentValues: string[] = [
-    ...(v.note?.length ? [v.note] : []),
-    ...(v.customFields ?? []).map((field) => field.note ?? '').filter(Boolean)
-  ]
-  const hasComments = commentValues.length > 0
+  const hasNote = !!v.note?.length
+  const hasCustomFields = !!v.customFields?.length
 
   return (
     <div className="flex w-full flex-col gap-[var(--spacing8)]">
@@ -527,25 +529,42 @@ export const IdentityDetailsFormV2 = ({
         </div>
       )}
 
-      {hasComments && (
+      {(hasNote || hasCustomFields) && (
         <div className="flex flex-col gap-[var(--spacing12)]">
           <Text variant="caption">{t`Additional`}</Text>
 
-          <MultiSlotInput testID="comments-multi-slot-input">
-            {commentValues.map((comment, index) => (
+          {hasNote && (
+            <MultiSlotInput testID="comments-multi-slot-input">
               <InputField
-                key={`comment-${index}`}
                 label={t`Comment`}
-                value={comment}
+                value={v.note}
                 placeholder={t`Enter Comment`}
                 readOnly
                 copyable
                 onCopy={copyToClipboard}
                 isGrouped
-                testID={`comments-multi-slot-input-slot-${index}`}
+                testID="comments-multi-slot-input-slot-0"
               />
-            ))}
-          </MultiSlotInput>
+            </MultiSlotInput>
+          )}
+
+          {hasCustomFields && (
+            <MultiSlotInput testID="hidden-messages-multi-slot-input">
+              {(v.customFields as CustomField[]).map((field, index) => (
+                <PasswordField
+                  key={`${field.type}-${index}`}
+                  label={t`Hidden Message`}
+                  value={field.note ?? ''}
+                  placeholder={t`Enter Hidden Message`}
+                  readOnly
+                  copyable
+                  onCopy={copyToClipboard}
+                  isGrouped
+                  testID={`hidden-messages-multi-slot-input-slot-${index}`}
+                />
+              ))}
+            </MultiSlotInput>
+          )}
         </div>
       )}
     </div>
