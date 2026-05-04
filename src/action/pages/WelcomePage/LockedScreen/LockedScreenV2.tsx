@@ -63,6 +63,9 @@ export const LockedScreenV2 = () => {
     (masterPasswordStatus?.lockoutRemainingMs ?? 0) / 1000
   )
 
+  const lockoutMinutes =
+    !isLoading && initialSeconds > 0 ? Math.ceil(initialSeconds / 60) : null
+
   return (
     <div
       className="bg-surface-primary flex h-full w-full overflow-hidden"
@@ -90,7 +93,9 @@ export const LockedScreenV2 = () => {
             color={theme.colors.colorTextSecondary}
             data-testid="locked-screen-desc-line2-v2"
           >
-            <Trans>For your security, access is temporarily locked.</Trans>
+            {lockoutMinutes
+              ? t`For your security, access is locked for ${lockoutMinutes} ${lockoutMinutes === 1 ? 'minute' : 'minutes'}.`
+              : t`For your security, access is temporarily locked.`}
           </Text>
         </div>
 
