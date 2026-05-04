@@ -36,6 +36,11 @@ jest.mock('../containers/ConfirmationModalContent', () => ({
   ConfirmationModalContent: 'ConfirmationModalContent'
 }))
 
+jest.mock('../containers/DeleteRecordsModalContentV2', () => ({
+  __esModule: true,
+  DeleteRecordsModalContentV2: 'DeleteRecordsModalContentV2'
+}))
+
 const mockHandleCreateOrEditRecord = jest.fn()
 
 jest.mock('../../action/hooks/useCreateOrEditRecord', () => ({
@@ -174,7 +179,29 @@ describe('useRecordActionItems', () => {
     )
 
     result.current.actions[4].click()
-    expect(mockSetModal).toHaveBeenCalled()
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const [element] = mockSetModal.mock.calls[0]
+    expect(element.type).toBe('ConfirmationModalContent')
+    expect(mockOnClose).toHaveBeenCalled()
+  })
+
+  test('delete action opens the V2 modal when isV2() is true', () => {
+    mockIsV2.mockReturnValue(true)
+
+    const { result } = renderHook(() =>
+      useRecordActionItems({
+        record: mockRecord,
+        onSelect: mockOnSelect,
+        onClose: mockOnClose
+      })
+    )
+
+    result.current.actions[4].click()
+
+    expect(mockSetModal).toHaveBeenCalledTimes(1)
+    const [element] = mockSetModal.mock.calls[0]
+    expect(element.type).toBe('DeleteRecordsModalContentV2')
+    expect(element.props.records).toEqual([mockRecord])
     expect(mockOnClose).toHaveBeenCalled()
   })
 

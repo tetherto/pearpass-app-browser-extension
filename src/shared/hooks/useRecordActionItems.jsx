@@ -8,6 +8,7 @@ import { useModal } from '../../shared/context/ModalContext'
 import { useRouter } from '../../shared/context/RouterContext'
 import { isV2 } from '../../shared/utils/designVersion'
 import { ConfirmationModalContent } from '../containers/ConfirmationModalContent'
+import { DeleteRecordsModalContentV2 } from '../containers/DeleteRecordsModalContentV2'
 import { MoveFolderModalContent } from '../containers/MoveFolderModalContent'
 import { MoveFolderModalContentV2 } from '../containers/MoveFolderModalContentV2'
 
@@ -74,14 +75,18 @@ export const useRecordActionItems = ({
 
   const handleDelete = () => {
     setModal(
-      <ConfirmationModalContent
-        title={t`Are you sure to delete this item?`}
-        text={t`This is permanent and cannot be undone`}
-        primaryLabel={t`No`}
-        secondaryLabel={t`Yes`}
-        secondaryAction={handleDeleteConfirm}
-        primaryAction={closeModal}
-      />
+      isV2() ? (
+        <DeleteRecordsModalContentV2 records={[record]} />
+      ) : (
+        <ConfirmationModalContent
+          title={t`Are you sure to delete this item?`}
+          text={t`This is permanent and cannot be undone`}
+          primaryLabel={t`No`}
+          secondaryLabel={t`Yes`}
+          secondaryAction={handleDeleteConfirm}
+          primaryAction={closeModal}
+        />
+      )
     )
     onClose?.()
   }
