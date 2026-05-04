@@ -247,7 +247,9 @@ export const CreateOrEditIdentityModalContentV2 = ({
             variant="primary"
             size="small"
             type="button"
-            disabled={isLoading}
+            disabled={
+              isLoading || (!isEdit && !(values?.title as string)?.trim())
+            }
             isLoading={isLoading}
             onClick={() => handleSubmit(onSubmit)()}
             data-testid="createoredit-identity-v2-save"

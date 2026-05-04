@@ -187,7 +187,9 @@ export const CreateOrEditCreditCardModalContentV2 = ({
             variant="primary"
             size="small"
             type="button"
-            disabled={isLoading}
+            disabled={
+              isLoading || (!isEdit && !(values?.title as string)?.trim())
+            }
             isLoading={isLoading}
             onClick={() => handleSubmit(onSubmit)()}
             data-testid="createoredit-creditcard-v2-save"
