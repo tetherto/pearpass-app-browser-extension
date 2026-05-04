@@ -11,6 +11,7 @@ import { Key, SyncLock } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { useFilteredRecords } from '../../hooks/useFilteredRecords'
 import { closeIframe } from '../../iframeApi/closeIframe'
+import { setIframeStyles } from '../../iframeApi/setIframeStyles'
 
 export const PasswordSuggestionV2 = () => {
   const popupRef = useRef<HTMLDivElement>(null)
@@ -21,6 +22,10 @@ export const PasswordSuggestionV2 = () => {
   const { filteredRecords, isInitialized, isLoading } = useFilteredRecords()
 
   const [password] = useState(() => generatePassword(24))
+
+  const isReady = isInitialized && !isLoading
+  const hasMatchingRecords = !!filteredRecords?.length
+  const shouldShowSuggestion = isReady && !hasMatchingRecords
 
   const onPasswordInsert = (value: string) => {
     window.parent.postMessage(
@@ -37,31 +42,31 @@ export const PasswordSuggestionV2 = () => {
   }
 
   useEffect(() => {
-    window.parent.postMessage(
-      {
-        type: 'setStyles',
-        data: {
-          iframeId: routerState?.iframeId,
-          iframeType: routerState?.iframeType,
-          style: {
-            width: `${popupRef.current?.offsetWidth}px`,
-            height: `${popupRef.current?.offsetHeight}px`,
-            borderRadius: '12px'
-          }
-        }
-      },
-      '*'
-    )
+    refetchVault()
+  }, [])
 
-    if (filteredRecords?.length && !isLoading && isInitialized) {
+  useEffect(() => {
+    if (isReady && hasMatchingRecords) {
       closeIframe({
         iframeId: routerState?.iframeId,
         iframeType: routerState?.iframeType
       })
     }
+  }, [isReady, hasMatchingRecords])
 
-    refetchVault()
-  }, [filteredRecords?.length])
+  useEffect(() => {
+    if (!shouldShowSuggestion) return
+
+    setIframeStyles({
+      iframeId: routerState?.iframeId,
+      iframeType: routerState?.iframeType,
+      style: {
+        width: `${popupRef.current?.offsetWidth}px`,
+        height: `${popupRef.current?.offsetHeight}px`,
+        borderRadius: '12px'
+      }
+    })
+  }, [shouldShowSuggestion])
 
   const onGeneratePassword = () => {
     navigate('passwordGenerator', {
@@ -72,6 +77,11 @@ export const PasswordSuggestionV2 = () => {
       state: Record<string, unknown>
     })
   }
+
+  if (!shouldShowSuggestion) {
+    return null
+  }
+
   return (
     <div
       ref={popupRef}
