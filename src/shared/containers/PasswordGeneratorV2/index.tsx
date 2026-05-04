@@ -43,33 +43,21 @@ const renderHighlightedPassword = (
 
     if (/^\d+$/.test(part)) {
       return (
-        <Text
-          key={`${part}-${index}`}
-          color={primaryColor}
-          variant="bodyEmphasized"
-        >
+        <span key={`${part}-${index}`} style={{ color: primaryColor }}>
           {part}
-        </Text>
+        </span>
       )
     }
 
     if (/[^a-zA-Z\d\s]/.test(part)) {
       return (
-        <Text
-          key={`${part}-${index}`}
-          color={secondaryColor}
-          variant="bodyEmphasized"
-        >
+        <span key={`${part}-${index}`} style={{ color: secondaryColor }}>
           {part}
-        </Text>
+        </span>
       )
     }
 
-    return (
-      <Text key={`${part}-${index}`} variant="bodyEmphasized">
-        {part}
-      </Text>
-    )
+    return <span key={`${part}-${index}`}>{part}</span>
   })
 }
 
