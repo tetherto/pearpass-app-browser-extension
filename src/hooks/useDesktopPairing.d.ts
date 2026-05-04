@@ -14,6 +14,8 @@ export interface UseDesktopPairingReturn {
   fetchIdentity: () => Promise<void>
   completePairing: (password: string) => Promise<void>
   error: string | null
+  passwordError: string | null
+  clearPasswordError: () => void
   hydrated: boolean
 }
 

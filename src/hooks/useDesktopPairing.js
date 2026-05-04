@@ -53,7 +53,12 @@ export const useDesktopPairing = ({
   const [identity, setIdentity] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [passwordError, setPasswordError] = useState(null)
   const [hydrated, setHydrated] = useState(false)
+
+  const clearPasswordError = () => {
+    if (passwordError) setPasswordError(null)
+  }
 
   useEffect(() => {
     if (!hydrateFromStore) {
@@ -234,6 +239,7 @@ export const useDesktopPairing = ({
     }
 
     setLoading(true)
+    setPasswordError(null)
     try {
       const validatedIdentity = await revalidateIdentity()
       if (!validatedIdentity) return
@@ -244,11 +250,16 @@ export const useDesktopPairing = ({
       await finalizePairing(validatedIdentity, password)
     } catch (error) {
       logger.error('Failed to complete pairing:', error)
-      const message =
+      const isPairingFailed =
         error.message === PAIRING_ERROR_MESSAGES.PAIRING_FAILED
-          ? t(PAIRING_ERROR_MESSAGES.PAIRING_FAILED)
-          : t(PAIRING_ERROR_MESSAGES.INVALID_PASSWORD)
-      setToast({ message })
+      const message = isPairingFailed
+        ? t`Pairing failed`
+        : t`Invalid master password. Please try again.`
+      if (isPairingFailed) {
+        setToast({ message })
+      } else {
+        setPasswordError(message)
+      }
     } finally {
       setLoading(false)
     }
@@ -260,6 +271,8 @@ export const useDesktopPairing = ({
     identity,
     loading,
     error,
+    passwordError,
+    clearPasswordError,
     hydrated,
     fetchIdentity,
     completePairing
