@@ -194,7 +194,7 @@ export const CreateOrEditWifiModalContentV2 = ({
             testID="createoredit-wifi-v2-credentials-slot"
             actions={
               <Button
-                variant="tertiary"
+                variant="tertiaryAccent"
                 size="small"
                 type="button"
                 iconBefore={<SyncLock width={16} height={16} />}

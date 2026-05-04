@@ -42,7 +42,7 @@ export const OtpCodeFieldV2 = ({
         rightSlot={
           type === OTP_TYPE.HOTP && generateNext ? (
             <Button
-              variant="tertiary"
+              variant="tertiaryAccent"
               size="small"
               type="button"
               aria-label={t`Generate next code`}

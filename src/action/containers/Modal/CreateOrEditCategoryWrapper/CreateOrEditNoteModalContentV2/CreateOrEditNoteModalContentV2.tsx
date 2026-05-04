@@ -7,6 +7,7 @@ import {
   Form,
   InputField,
   MultiSlotInput,
+  PasswordField,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
@@ -202,7 +203,7 @@ export const CreateOrEditNoteModalContentV2 = ({
           />
 
           <MultiSlotInput
-            testID="createoredit-note-v2-comments-slot"
+            testID="createoredit-note-v2-hiddenmessage-slot"
             actions={
               <Button
                 variant="tertiaryAccent"
@@ -210,9 +211,9 @@ export const CreateOrEditNoteModalContentV2 = ({
                 type="button"
                 iconBefore={<Add width={16} height={16} />}
                 onClick={() => addCustomField({ type: 'note', note: '' })}
-                data-testid="createoredit-note-v2-add-comment"
+                data-testid="createoredit-note-v2-add-hiddenmessage"
               >
-                {t`Add Another Comment`}
+                {t`Add Another Message`}
               </Button>
             }
           >
@@ -221,14 +222,14 @@ export const CreateOrEditNoteModalContentV2 = ({
               const canRemove =
                 (customFieldsList as Array<{ id: string }>).length > 1
               return (
-                <InputField
+                <PasswordField
                   key={field.id}
-                  label={t`Comment`}
-                  placeholder={t`Enter Comment`}
+                  label={t`Hidden Message`}
+                  placeholder={t`Enter Hidden Message`}
                   value={fieldReg.value as string}
                   onChange={(e) => fieldReg.onChange(e.target.value)}
                   error={fieldReg.error || undefined}
-                  testID={`createoredit-note-v2-comment-${index}`}
+                  testID={`createoredit-note-v2-hiddenmessage-${index}`}
                   rightSlot={
                     canRemove ? (
                       <Button
@@ -244,7 +245,7 @@ export const CreateOrEditNoteModalContentV2 = ({
                           />
                         }
                         onClick={() => removeCustomFieldItem(index)}
-                        data-testid={`createoredit-note-v2-remove-comment-${index}`}
+                        data-testid={`createoredit-note-v2-remove-hiddenmessage-${index}`}
                       />
                     ) : undefined
                   }

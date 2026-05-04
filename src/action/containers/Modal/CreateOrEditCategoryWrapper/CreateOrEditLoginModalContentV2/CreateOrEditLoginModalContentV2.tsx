@@ -282,7 +282,7 @@ export const CreateOrEditLoginModalContentV2 = ({
                 testID="createoredit-login-v2-credentials-slot"
                 actions={
                   <Button
-                    variant="tertiary"
+                    variant="tertiaryAccent"
                     size="small"
                     type="button"
                     iconBefore={<SyncLock width={16} height={16} />}
@@ -376,7 +376,7 @@ export const CreateOrEditLoginModalContentV2 = ({
                         rightSlot={
                           index > 0 ? (
                             <Button
-                              variant="tertiary"
+                              variant="tertiaryAccent"
                               size="small"
                               type="button"
                               aria-label={t`Remove website`}
@@ -458,7 +458,7 @@ export const CreateOrEditLoginModalContentV2 = ({
                       rightSlot={
                         canRemove ? (
                           <Button
-                            variant="tertiary"
+                            variant="tertiaryAccent"
                             size="small"
                             type="button"
                             aria-label={t`Remove`}
