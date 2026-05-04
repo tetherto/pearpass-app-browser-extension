@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 
+import { useCreateOrEditRecord } from '../../action/hooks/useCreateOrEditRecord'
 import { useModal } from '../../shared/context/ModalContext'
 import { useRouter } from '../../shared/context/RouterContext'
 import { isV2 } from '../../shared/utils/designVersion'
@@ -15,6 +16,7 @@ import { MoveFolderModalContentV2 } from '../containers/MoveFolderModalContentV2
  *  excludeTypes?: Array<string>
  *  record: {
  *    id: string
+ *    type?: string
  *    isFavorite?: boolean
  *  }
  *  onSelect?: () => void
@@ -38,6 +40,7 @@ export const useRecordActionItems = ({
   const { setModal, closeModal } = useModal()
   const { params, navigate } = useRouter()
   const { deleteRecords, updateFavoriteState, data: records } = useRecords()
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const pendingDeleteId = useRef(null)
 
   // Close modal only if record was successfully deleted
@@ -104,6 +107,15 @@ export const useRecordActionItems = ({
     onClose?.()
   }
 
+  const handleEdit = () => {
+    handleCreateOrEditRecord({
+      recordType: record?.type,
+      initialRecord: record,
+      source: params?.source
+    })
+    onClose?.()
+  }
+
   const defaultActions = [
     {
       name: t`Select element`,
@@ -114,6 +126,11 @@ export const useRecordActionItems = ({
       name: record?.isFavorite ? t`Remove from Favorites` : t`Mark as favorite`,
       type: 'favorite',
       click: handleFavoriteToggle
+    },
+    {
+      name: t`Edit`,
+      type: 'edit',
+      click: handleEdit
     },
     {
       name: t`Move to another folder`,

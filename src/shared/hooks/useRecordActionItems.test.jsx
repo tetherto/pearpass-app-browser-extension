@@ -36,6 +36,14 @@ jest.mock('../containers/ConfirmationModalContent', () => ({
   ConfirmationModalContent: 'ConfirmationModalContent'
 }))
 
+const mockHandleCreateOrEditRecord = jest.fn()
+
+jest.mock('../../action/hooks/useCreateOrEditRecord', () => ({
+  useCreateOrEditRecord: () => ({
+    handleCreateOrEditRecord: mockHandleCreateOrEditRecord
+  })
+}))
+
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useRecords: () => ({
     deleteRecords: mockDeleteRecord,
@@ -84,12 +92,13 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    expect(result.current.actions).toHaveLength(5)
+    expect(result.current.actions).toHaveLength(6)
     expect(result.current.actions[0].type).toBe('select')
     expect(result.current.actions[1].type).toBe('favorite')
-    expect(result.current.actions[2].type).toBe('move')
-    expect(result.current.actions[3].type).toBe('delete')
-    expect(result.current.actions[4].type).toBe('autofill')
+    expect(result.current.actions[2].type).toBe('edit')
+    expect(result.current.actions[3].type).toBe('move')
+    expect(result.current.actions[4].type).toBe('delete')
+    expect(result.current.actions[5].type).toBe('autofill')
   })
 
   test('filters actions based on excludeTypes', () => {
@@ -102,10 +111,11 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    expect(result.current.actions).toHaveLength(3)
+    expect(result.current.actions).toHaveLength(4)
     expect(result.current.actions[0].type).toBe('select')
     expect(result.current.actions[1].type).toBe('favorite')
-    expect(result.current.actions[2].type).toBe('autofill')
+    expect(result.current.actions[2].type).toBe('edit')
+    expect(result.current.actions[3].type).toBe('autofill')
   })
 
   test('handles select action', () => {
@@ -136,6 +146,24 @@ describe('useRecordActionItems', () => {
     expect(mockOnClose).toHaveBeenCalled()
   })
 
+  test('handles edit action', () => {
+    const { result } = renderHook(() =>
+      useRecordActionItems({
+        record: mockRecord,
+        onSelect: mockOnSelect,
+        onClose: mockOnClose
+      })
+    )
+
+    result.current.actions[2].click()
+    expect(mockHandleCreateOrEditRecord).toHaveBeenCalledWith({
+      recordType: mockRecord.type,
+      initialRecord: mockRecord,
+      source: undefined
+    })
+    expect(mockOnClose).toHaveBeenCalled()
+  })
+
   test('handles delete action', () => {
     const { result } = renderHook(() =>
       useRecordActionItems({
@@ -145,7 +173,7 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[3].click()
+    result.current.actions[4].click()
     expect(mockSetModal).toHaveBeenCalled()
     expect(mockOnClose).toHaveBeenCalled()
   })
@@ -165,7 +193,7 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[3].click()
+    result.current.actions[4].click()
 
     expect(mockSetModal).toHaveBeenCalled()
   })
@@ -179,7 +207,7 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[2].click()
+    result.current.actions[3].click()
 
     expect(mockSetModal).toHaveBeenCalledTimes(1)
     const [element, params] = mockSetModal.mock.calls[0]
@@ -199,7 +227,7 @@ describe('useRecordActionItems', () => {
       })
     )
 
-    result.current.actions[2].click()
+    result.current.actions[3].click()
 
     expect(mockSetModal).toHaveBeenCalledTimes(1)
     const [element, params] = mockSetModal.mock.calls[0]

@@ -35,7 +35,7 @@ export const RecordDetails = () => {
   const { updateFavoriteState } = useRecords()
 
   const { actions } = useRecordActionItems({
-    excludeTypes: ['select', 'pin'],
+    excludeTypes: ['select', 'pin', 'edit'],
     record: record,
     onClose: () => setIsOpen(false)
   })
