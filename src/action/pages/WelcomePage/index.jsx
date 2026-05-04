@@ -3,6 +3,7 @@ import { EnterMasterPassword } from './EnterMasterPassword'
 import { EnterMasterPasswordV2 } from './EnterMasterPassword/EnterMasterPasswordV2'
 import { LoadVault } from './LoadVault'
 import { LockedScreen } from './LockedScreen'
+import { LockedScreenV2 } from './LockedScreen/LockedScreenV2'
 import { SelectOrLoadVault } from './SelectOrLoadVault'
 import { UnlockVault } from './UnlockVault'
 import { WelcomePageWrapper } from '../../../shared/components/WelcomePageWrapper'
@@ -15,6 +16,10 @@ export const WelcomePage = () => {
 
   if (params.state === NAVIGATION_ROUTES.MASTER_PASSWORD && isV2()) {
     return <EnterMasterPasswordV2 />
+  }
+
+  if (params.state === NAVIGATION_ROUTES.SCREEN_LOCKED && isV2()) {
+    return <LockedScreenV2 />
   }
 
   const page = renderPage(params.state)
