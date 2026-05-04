@@ -55,6 +55,8 @@ export const PairingRequiredModalContentV2 = ({
     identity,
     loading,
     error,
+    passwordError,
+    clearPasswordError,
     hydrated,
     fetchIdentity,
     completePairing
@@ -132,6 +134,8 @@ export const PairingRequiredModalContentV2 = ({
   return (
     <MasterPasswordPrompt
       onSubmit={(password) => completePairing(password)}
+      error={passwordError ?? undefined}
+      onPasswordChange={clearPasswordError}
       testID="pairing-password-input"
     />
   )
