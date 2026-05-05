@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import {
+  InputField,
   MultiSlotInput,
   PasswordField,
   Text,
@@ -22,6 +23,7 @@ type CustomRecord = {
   folder?: string
   data?: {
     title?: string
+    note?: string
     customFields?: CustomField[]
   }
 }
@@ -32,6 +34,7 @@ interface Props {
 }
 
 type FormValues = {
+  note: string
   customFields: CustomField[]
   folder?: string
 }
@@ -45,6 +48,7 @@ export const CustomDetailsFormV2 = ({
 
   const initialValues = useMemo<FormValues>(
     () => ({
+      note: initialRecord?.data?.note ?? '',
       customFields: initialRecord?.data?.customFields ?? [],
       folder: selectedFolder ?? initialRecord?.folder
     }),
@@ -59,8 +63,9 @@ export const CustomDetailsFormV2 = ({
 
   const formValues = values as FormValues
   const hasCustomFields = !!formValues.customFields?.length
+  const hasNote = !!formValues.note?.length
 
-  if (!hasCustomFields) return null
+  if (!hasCustomFields && !hasNote) return null
 
   return (
     <div className="flex w-full flex-col gap-[var(--spacing8)]">
@@ -69,21 +74,38 @@ export const CustomDetailsFormV2 = ({
           {t`Additional`}
         </Text>
 
-        <MultiSlotInput testID="hidden-messages-multi-slot-input">
-          {formValues.customFields.map((field, index) => (
-            <PasswordField
-              key={`${field.type}-${index}`}
-              label={t`Hidden Message`}
-              value={field.note ?? ''}
-              placeholder={t`Enter Hidden Message`}
+        {hasNote && (
+          <MultiSlotInput testID="comments-multi-slot-input">
+            <InputField
+              label={t`Comment`}
+              value={formValues.note}
+              placeholder={t`Enter Comment`}
               readOnly
               copyable
               onCopy={copyToClipboard}
               isGrouped
-              testID={`hidden-messages-multi-slot-input-slot-${index}`}
+              testID="comments-multi-slot-input-slot-0"
             />
-          ))}
-        </MultiSlotInput>
+          </MultiSlotInput>
+        )}
+
+        {hasCustomFields && (
+          <MultiSlotInput testID="hidden-messages-multi-slot-input">
+            {formValues.customFields.map((field, index) => (
+              <PasswordField
+                key={`${field.type}-${index}`}
+                label={t`Hidden Message`}
+                value={field.note ?? ''}
+                placeholder={t`Enter Hidden Message`}
+                readOnly
+                copyable
+                onCopy={copyToClipboard}
+                isGrouped
+                testID={`hidden-messages-multi-slot-input-slot-${index}`}
+              />
+            ))}
+          </MultiSlotInput>
+        )}
       </div>
     </div>
   )
