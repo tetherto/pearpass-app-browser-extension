@@ -236,7 +236,7 @@ declare module '@tetherto/pearpass-lib-vault' {
   }
 
   export function useCreateFolder(options?: {
-    onCompleted?: (payload: string) => void
+    onCompleted?: (payload: { folder: string }) => void
     onError?: (error: string) => void
   }): UseCreateFolderResult
 
