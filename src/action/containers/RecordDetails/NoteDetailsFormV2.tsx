@@ -73,8 +73,8 @@ export const NoteDetailsFormV2 = ({ initialRecord, selectedFolder }: Props) => {
 
           <MultiSlotInput testID="note-multi-slot-input">
             <InputField
-              label={t`Comment`}
-              placeholder={t`Enter Comment`}
+              label={t`Note`}
+              placeholder={t`Enter Note`}
               readOnly
               copyable
               onCopy={copyToClipboard}
