@@ -14,6 +14,7 @@ import { useActiveTabSecureProtocol } from '../../shared/hooks/useActiveTabSecur
 import { useAllowHttpEnabled } from '../../shared/hooks/useAllowHttpEnabled'
 import { LockIcon } from '../../shared/icons/LockIcon'
 import { CreateOrEditCategory } from '../../shared/pages/CreateOrEditCategory'
+import { CreateOrEditCategoryV2 } from '../../shared/pages/CreateOrEditCategory/CreateOrEditCategoryV2'
 import { isV2 } from '../../shared/utils/designVersion'
 import { AddDevice } from '../pages/AddDevice'
 import { AuthenticatorView } from '../pages/AuthenticatorView'
@@ -69,7 +70,7 @@ export const Routes = () => {
       case 'createOrEditCategory':
         return (
           <FadeInWrapper key="createOrEditCategory">
-            <CreateOrEditCategory />
+            {isV2() ? <CreateOrEditCategoryV2 /> : <CreateOrEditCategory />}
           </FadeInWrapper>
         )
       case 'vault':

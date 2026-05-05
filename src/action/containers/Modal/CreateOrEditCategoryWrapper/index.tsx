@@ -16,6 +16,9 @@ export type CreateOrEditCategoryWrapperProps = {
   selectedFolder?: string
   isFavorite?: boolean
   mode?: 'authenticator'
+  onSaved?: (savedRecordId?: string) => void
+  fullScreen?: boolean
+  onClose?: () => void
 }
 
 export const CreateOrEditCategoryWrapper = ({
@@ -23,7 +26,10 @@ export const CreateOrEditCategoryWrapper = ({
   initialRecord,
   selectedFolder,
   isFavorite,
-  mode
+  mode,
+  onSaved,
+  fullScreen,
+  onClose
 }: CreateOrEditCategoryWrapperProps) => {
   if (recordType === RECORD_TYPES.LOGIN) {
     return (
@@ -32,6 +38,9 @@ export const CreateOrEditCategoryWrapper = ({
         selectedFolder={selectedFolder}
         isFavorite={isFavorite}
         mode={mode}
+        onSaved={onSaved}
+        fullScreen={fullScreen}
+        onClose={onClose}
       />
     )
   }
