@@ -21,7 +21,8 @@ const PAIRING_ERROR_MESSAGES = {
   FAILED_TO_GET_IDENTITY:
     'Failed to get identity. Please ensure the desktop app is running.',
   PAIRING_FAILED: 'Pairing failed',
-  INVALID_PASSWORD: 'Invalid master password. Please try again.'
+  INVALID_PASSWORD:
+    'Invalid master password. Pairing was reset, returning to onboarding...'
 }
 
 /**
@@ -264,7 +265,7 @@ export const useDesktopPairing = ({
         error.message === PAIRING_ERROR_MESSAGES.PAIRING_FAILED
       const message = isPairingFailed
         ? t`Pairing failed`
-        : t`Invalid master password. Please try again.`
+        : t`Invalid master password. Pairing was reset, returning to onboarding...`
       if (isPairingFailed) {
         setToast({ message })
       } else {
