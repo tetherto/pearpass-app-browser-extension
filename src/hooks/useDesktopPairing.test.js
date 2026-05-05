@@ -5,10 +5,18 @@ import { useDesktopPairing, PAIRING_STEP } from './useDesktopPairing.js'
 import { AUTH_ERROR_PATTERNS } from '../shared/constants/auth'
 import { useToast } from '../shared/context/ToastContext'
 import { secureChannelMessages } from '../shared/services/messageBridge'
+import { pendingPairingStore } from '../shared/services/pendingPairingStore'
 
 jest.mock('@tetherto/pearpass-lib-vault')
 jest.mock('../shared/context/ToastContext')
 jest.mock('../shared/services/messageBridge')
+jest.mock('../shared/services/pendingPairingStore', () => ({
+  pendingPairingStore: {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    clear: jest.fn().mockResolvedValue(undefined)
+  }
+}))
 jest.mock('../shared/utils/logger')
 jest.mock('@lingui/core/macro', () => ({
   t: (str) => {
@@ -216,6 +224,7 @@ describe('usePairing', () => {
       expect(mockLogIn).toHaveBeenCalledWith({ password: 'wrong-password' })
       expect(secureChannelMessages.commitClientKeystore).not.toHaveBeenCalled()
       expect(secureChannelMessages.unpair).toHaveBeenCalled()
+      expect(pendingPairingStore.clear).toHaveBeenCalled()
       expect(mockOnPairSuccess).not.toHaveBeenCalled()
       expect(result.current.passwordError).toEqual(
         expect.stringContaining('Invalid master password')

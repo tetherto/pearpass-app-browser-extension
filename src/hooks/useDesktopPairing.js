@@ -215,12 +215,15 @@ export const useDesktopPairing = ({
 
     // Validate password via vault, then commit the keystore. Roll back on
     // failure so a wrong password never persists pairing state or keystore.
+    // Also drop the pending token: it has been consumed by confirmPair and
+    // the user must start again from the onboarding token-entry step.
     try {
       await logIn({ password })
       await initVaults({ password })
       await secureChannelMessages.commitClientKeystore()
     } catch (err) {
       await secureChannelMessages.unpair()
+      await pendingPairingStore.clear()
       throw err
     }
 
