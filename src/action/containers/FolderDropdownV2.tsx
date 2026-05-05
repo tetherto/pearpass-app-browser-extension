@@ -73,13 +73,11 @@ export const FolderDropdownV2 = ({
   }
 
   const handleCreateFolder = () => {
-    setIsOpen(false)
     setModal(
       <CreateFolderModalContentV2
         onClose={closeModal}
         onCreate={(folderName: string) => {
           onFolderSelect(folderName)
-          closeModal()
         }}
       />
     )
