@@ -80,7 +80,7 @@ export const AddDeviceModalContent = () => {
         <div className="bg-surface-primary border-border-primary box-border flex flex-col items-stretch rounded-[8px] border">
           <div className="mt-[24px] mb-[16px] flex items-center justify-center">
             <div
-              className="bg-surface-hover box-border flex h-[160px] w-[160px] items-center justify-center rounded-[8px] p-[10px]"
+              className="bg-text-primary box-border flex h-[160px] w-[160px] items-center justify-center rounded-[8px] p-[10px]"
               dangerouslySetInnerHTML={{ __html: qrSvg }}
             />
           </div>

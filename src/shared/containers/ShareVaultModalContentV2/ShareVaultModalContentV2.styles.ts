@@ -40,7 +40,7 @@ export const createStyles = (colors: ThemeColors) => ({
     height: 160,
     padding: rawTokens.spacing10,
     borderRadius: rawTokens.radius8,
-    backgroundColor: colors.colorSurfaceHover,
+    backgroundColor: colors.colorTextPrimary,
     boxSizing: 'border-box' as const,
     display: 'flex' as const,
     alignItems: 'center' as const,
