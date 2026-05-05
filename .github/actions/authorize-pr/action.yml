@@ -1,0 +1,41 @@
+name: Authorize PR
+description: >
+  Gate that limits PR CI runs to repository members and collaborators.
+  Used with pull_request_target so the gate cannot be bypassed by edits
+  in the PR head. Reads only the event payload — no token, no network call.
+
+outputs:
+  allowed:
+    description: true when the workflow is authorized to proceed
+    value: ${{ steps.check.outputs.allowed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check authorization
+      id: check
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        BASE_REPO: ${{ github.repository }}
+        AUTHOR_ASSOC: ${{ github.event.pull_request.author_association }}
+      run: |
+        set -euo pipefail
+
+        if [ "$EVENT" != "pull_request_target" ] && [ "$EVENT" != "pull_request" ]; then
+          echo "allowed=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [ "$HEAD_REPO" = "$BASE_REPO" ]; then
+          echo "allowed=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [[ "$AUTHOR_ASSOC" =~ ^(OWNER|MEMBER|COLLABORATOR)$ ]]; then
+          echo "allowed=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "allowed=false" >> "$GITHUB_OUTPUT"

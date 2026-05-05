@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: pr-ci-${{ github.event.pull_request.number }}
@@ -18,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
     outputs:
       allowed: ${{ steps.auth.outputs.allowed }}
 
@@ -29,8 +27,6 @@ jobs:
       - name: Authorize PR execution
         id: auth
         uses: ./.github/actions/authorize-pr
-        with:
-          github-token: ${{ github.token }}
 
       - name: Summarize skipped run
         if: steps.auth.outputs.allowed != 'true'
