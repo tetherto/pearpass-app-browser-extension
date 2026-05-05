@@ -40,7 +40,7 @@ export const SyncingFailedModal = ({
   return (
     <div
       data-testid={TEST_IDS.root}
-      className="bg-surface-primary flex w-full max-w-[500px] flex-col gap-[var(--spacing24)] rounded-[var(--radius8)] p-[var(--spacing24)]"
+      className="bg-surface-primary flex w-full flex-col gap-[var(--spacing24)] rounded-[var(--radius8)] p-[var(--spacing24)]"
     >
       <div className="flex flex-col items-center gap-[var(--spacing8)] text-center">
         <Title as="h2">
