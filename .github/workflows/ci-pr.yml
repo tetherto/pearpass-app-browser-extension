@@ -2,7 +2,7 @@ name: PR CI
 
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, labeled]
     branches: [main, dev]
 
 permissions:
@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
+      issues: write
     outputs:
       allowed: ${{ steps.auth.outputs.allowed }}
 
@@ -27,10 +29,13 @@ jobs:
       - name: Authorize PR execution
         id: auth
         uses: ./.github/actions/authorize-pr
+        with:
+          github-token: ${{ github.token }}
 
       - name: Summarize skipped run
         if: steps.auth.outputs.allowed != 'true'
-        run: echo "PR CI is limited to members and collaborators." >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "PR CI is limited to members, collaborators, or external PRs labeled 'verify' (re-review required after each push)." >> "$GITHUB_STEP_SUMMARY"
 
   ci:
     needs: authorize
