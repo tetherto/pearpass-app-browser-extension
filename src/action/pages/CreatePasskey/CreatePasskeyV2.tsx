@@ -167,10 +167,17 @@ export const CreatePasskeyV2 = () => {
     const passkeyHostname = getHostname(publicKeyData?.rp?.id)
     if (!passkeyHostname) return []
 
+    const passkeyUsername = (publicKeyData?.user?.name ?? '').trim()
+    if (!passkeyUsername) return []
+
     const stripWww = (h: string) => h.replace(/^www\./i, '')
     const target = stripWww(passkeyHostname)
 
     return loginRecords.filter((record) => {
+      const recordUsername = (record?.data?.username ?? '').trim()
+      const usernameMatches = recordUsername === passkeyUsername
+      if (!usernameMatches) return false
+
       const websites = record?.data?.websites ?? []
       return websites.some((w) => {
         const recordHost = getHostname(w)
