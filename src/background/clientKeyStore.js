@@ -13,6 +13,7 @@ const KEY_ID = 'client-ed25519'
 
 let inMemoryKeypair = null
 let pendingKeypair = null
+let pendingPersistRecord = null
 let unlocking = false
 
 const textEncoder = new TextEncoder()
@@ -219,16 +220,14 @@ const unlockKeypair = async (masterPassword) => {
   const record = await getKeyRecord(db)
 
   if (!record) {
-    // If we previously generated a pending keypair for pairing, persist that
-    // exact keypair so that the desktop's pinned client public key matches the
-    // private key we will use for signing.
+    // First-time pairing: build the encrypted record but hold it in memory.
+    // Caller must call commitPendingClientKeystore() after vault validation.
     let privateKey
     let publicKey
 
     if (pendingKeypair) {
       ;({ privateKey, publicKey } = pendingKeypair)
     } else {
-      // Generate new Ed25519 keypair
       privateKey = ed25519.utils.randomPrivateKey()
       publicKey = ed25519.getPublicKey(privateKey)
     }
@@ -238,7 +237,7 @@ const unlockKeypair = async (masterPassword) => {
       masterPassword
     )
 
-    const newRecord = {
+    pendingPersistRecord = {
       id: KEY_ID,
       publicKeyB64: base64Encode(publicKey),
       saltB64: base64Encode(salt),
@@ -246,8 +245,6 @@ const unlockKeypair = async (masterPassword) => {
       ciphertextB64: base64Encode(ciphertext),
       createdAt: new Date().toISOString()
     }
-
-    await putKeyRecord(db, newRecord)
 
     pendingKeypair = null
     inMemoryKeypair = { publicKey, privateKey }
@@ -264,6 +261,20 @@ const unlockKeypair = async (masterPassword) => {
     logger.log('[ClientKeyStore]', 'Failed to decrypt client keypair')
     throw new Error(AUTH_ERROR_PATTERNS.MASTER_PASSWORD_INVALID)
   }
+}
+
+/**
+ * Persist the pending keystore record from unlockKeypair's no-record branch.
+ * No-op if nothing is pending. Call only after the vault has accepted the
+ * master password, so an unverified password never lands on disk.
+ *
+ * @returns {Promise<void>}
+ */
+export const commitPendingClientKeystore = async () => {
+  if (!pendingPersistRecord) return
+  const db = await openDb()
+  await putKeyRecord(db, pendingPersistRecord)
+  pendingPersistRecord = null
 }
 
 /**
@@ -337,6 +348,8 @@ export const clearClientKeypair = async () => {
 
   secureZero(pendingKeypair?.privateKey)
   pendingKeypair = null
+
+  pendingPersistRecord = null
 
   // Reset unlocking flag to cancel any in-progress unlock
   unlocking = false

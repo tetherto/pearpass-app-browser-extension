@@ -9,6 +9,7 @@ export const SECURE_MESSAGE_TYPES = Object.freeze({
   PIN_IDENTITY: 'PIN_IDENTITY',
   UNPAIR: 'SECURE_CHANNEL_UNPAIR',
   UNLOCK_CLIENT_KEYSTORE: 'SECURE_CHANNEL_UNLOCK_CLIENT_KEYSTORE',
+  COMMIT_CLIENT_KEYSTORE: 'SECURE_CHANNEL_COMMIT_CLIENT_KEYSTORE',
   GET_BLOCKING_STATE: 'SECURE_CHANNEL_GET_BLOCKING_STATE'
 })
 
@@ -240,6 +241,12 @@ export const secureChannelMessages = {
       {
         masterPassword
       }
+    )
+  },
+
+  async commitClientKeystore() {
+    return messageBridge.sendMessage(
+      SECURE_MESSAGE_TYPES.COMMIT_CLIENT_KEYSTORE
     )
   },
 

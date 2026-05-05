@@ -213,9 +213,16 @@ export const useDesktopPairing = ({
       throw new Error(PAIRING_ERROR_MESSAGES.PAIRING_FAILED)
     }
 
-    // Validate password and initialize vaults
-    await logIn({ password })
-    await initVaults({ password })
+    // Validate password via vault, then commit the keystore. Roll back on
+    // failure so a wrong password never persists pairing state or keystore.
+    try {
+      await logIn({ password })
+      await initVaults({ password })
+      await secureChannelMessages.commitClientKeystore()
+    } catch (err) {
+      await secureChannelMessages.unpair()
+      throw err
+    }
 
     await pendingPairingStore.clear()
     setToast({ message: t`Paired successfully!` })
