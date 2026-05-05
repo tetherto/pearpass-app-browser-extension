@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useState } from 'react'
-
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 import { useCountDown } from '@tetherto/pear-apps-lib-ui-react-hooks'
@@ -36,35 +34,23 @@ export const LockedScreenV2 = () => {
     ) => void
   }
   const { theme } = useTheme()
-  const { refreshMasterPasswordStatus } = useUserData()
-  const [masterPasswordStatus, setMasterPasswordStatus] = useState<
-    { isLocked?: boolean; lockoutRemainingMs?: number } | undefined
-  >(undefined)
-  const [isLoading, setIsLoading] = useState(true)
+  const { masterPasswordStatus, refreshMasterPasswordStatus } = useUserData()
 
-  useEffect(() => {
-    void (async () => {
-      const status = await refreshMasterPasswordStatus()
-      setMasterPasswordStatus(status)
-      setIsLoading(false)
-    })()
-  }, [refreshMasterPasswordStatus])
-
-  const onFinish = useCallback(async () => {
+  const onFinish = async () => {
     const status = await refreshMasterPasswordStatus()
     if (!status?.isLocked) {
       navigate('welcome', {
         params: { state: NAVIGATION_ROUTES.MASTER_PASSWORD }
       })
     }
-  }, [navigate, refreshMasterPasswordStatus])
+  }
 
   const initialSeconds = Math.ceil(
     (masterPasswordStatus?.lockoutRemainingMs ?? 0) / 1000
   )
 
   const lockoutMinutes =
-    !isLoading && initialSeconds > 0 ? Math.ceil(initialSeconds / 60) : null
+    initialSeconds > 0 ? Math.ceil(initialSeconds / 60) : null
 
   return (
     <div
@@ -113,7 +99,7 @@ export const LockedScreenV2 = () => {
               <Trans>Try again in</Trans>
             </span>
           </div>
-          {!isLoading && initialSeconds > 0 ? (
+          {initialSeconds > 0 ? (
             <LockCountdown
               initialSeconds={initialSeconds}
               onFinish={onFinish}
