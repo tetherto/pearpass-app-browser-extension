@@ -18,7 +18,12 @@ export async function openOnboardingPage() {
 
   const isCurrentTabOnboarding = currentTab?.url?.includes('onboarding.html')
 
-  if (isCurrentTabOnboarding) return
+  if (isCurrentTabOnboarding) {
+    if (currentTab?.id !== undefined) {
+      await chrome.tabs.reload(currentTab.id)
+    }
+    return
+  }
 
   const allExtensionTabs = await chrome.tabs.query({
     url: chrome.runtime.getURL('*')
@@ -29,7 +34,10 @@ export async function openOnboardingPage() {
   )
 
   if (existingOnboardingTab) {
-    await chrome.tabs.update(existingOnboardingTab.id, { active: true })
+    if (existingOnboardingTab.id !== undefined) {
+      await chrome.tabs.reload(existingOnboardingTab.id)
+      await chrome.tabs.update(existingOnboardingTab.id, { active: true })
+    }
     if (existingOnboardingTab.windowId) {
       await chrome.windows.update(existingOnboardingTab.windowId, {
         focused: true
