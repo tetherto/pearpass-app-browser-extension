@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
@@ -8,9 +10,11 @@ import {
   InputField,
   MultiSlotInput,
   PasswordField,
+  type PasswordIndicatorVariant,
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
+import { checkPasswordStrength } from '@tetherto/pearpass-utils-password-check'
 import {
   Add,
   SyncLock,
@@ -29,6 +33,12 @@ import { useToast } from '../../../../../shared/context/ToastContext'
 import { useCreateOrEditRecord } from '../../../../hooks/useCreateOrEditRecord'
 
 type CustomField = { type: string; name?: string; note?: string }
+
+const STRENGTH_MAP: Record<string, PasswordIndicatorVariant> = {
+  error: 'vulnerable',
+  warning: 'decent',
+  success: 'strong'
+}
 
 export type CreateOrEditWifiModalContentV2Props = {
   initialRecord?: {
@@ -118,6 +128,18 @@ export const CreateOrEditWifiModalContentV2 = ({
   const titleField = register('title')
   const passwordField = register('password')
   const noteField = register('note')
+
+  const passwordIndicator = useMemo<
+    PasswordIndicatorVariant | undefined
+  >(() => {
+    const value = (values?.password as string) ?? ''
+    if (!value.length) return undefined
+    const result = checkPasswordStrength(value) as unknown as {
+      strengthType?: string
+    } | null
+    if (!result?.strengthType) return undefined
+    return STRENGTH_MAP[result.strengthType]
+  }, [values?.password])
 
   const onSubmit = (formValues: Record<string, unknown>) => {
     const data = {
@@ -224,6 +246,7 @@ export const CreateOrEditWifiModalContentV2 = ({
               value={passwordField.value as string}
               onChange={(e) => passwordField.onChange(e.target.value)}
               error={passwordField.error || undefined}
+              passwordIndicator={passwordIndicator}
               testID="createoredit-wifi-v2-password"
             />
           </MultiSlotInput>
