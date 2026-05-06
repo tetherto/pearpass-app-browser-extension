@@ -1,6 +1,9 @@
 import './nativeMessaging'
 
-import { ensureClientKeypairUnlocked } from './clientKeyStore'
+import {
+  ensureClientKeypairUnlocked,
+  commitPendingClientKeystore
+} from './clientKeyStore'
 import { MESSAGES, ALARMS } from './constants'
 import { secureChannel } from './secureChannel'
 import * as CredentialGenerator from './utils/credentialGenerator'
@@ -466,6 +469,22 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
             success: false,
             error: e?.message,
             code: ERROR_CODES.AUTHENTICATION_FAILED
+          })
+        }
+      })()
+      return true
+    }
+
+    case SECURE_MESSAGE_TYPES.COMMIT_CLIENT_KEYSTORE: {
+      void (async () => {
+        try {
+          await commitPendingClientKeystore()
+          sendResponse({ success: true })
+        } catch (e) {
+          sendResponse({
+            success: false,
+            error: e?.message,
+            code: ERROR_CODES.UNKNOWN
           })
         }
       })()

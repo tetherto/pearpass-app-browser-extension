@@ -36,7 +36,8 @@ const setupChromeMock = ({
           return Promise.resolve(allExtensionTabs)
         }),
       update: jest.fn().mockResolvedValue({}),
-      create: jest.fn().mockResolvedValue({})
+      create: jest.fn().mockResolvedValue({}),
+      reload: jest.fn().mockResolvedValue(undefined)
     },
     windows: {
       update: jest.fn().mockResolvedValue({})
@@ -49,19 +50,20 @@ describe('openOnboardingPage', () => {
     jest.clearAllMocks()
   })
 
-  it('does nothing when current tab is already onboarding', async () => {
+  it('reloads the current tab when it is already onboarding', async () => {
     setupChromeMock({
-      currentTab: { url: ONBOARDING_URL },
+      currentTab: { id: 7, url: ONBOARDING_URL },
       allExtensionTabs: []
     })
 
     await openOnboardingPage()
 
+    expect(chrome.tabs.reload).toHaveBeenCalledWith(7)
     expect(chrome.tabs.create).not.toHaveBeenCalled()
     expect(chrome.tabs.update).not.toHaveBeenCalled()
   })
 
-  it('focuses existing onboarding tab when one already exists', async () => {
+  it('reloads and focuses an existing onboarding tab in another window', async () => {
     const existingTab = { id: 42, url: ONBOARDING_URL, windowId: 99 }
 
     setupChromeMock({
@@ -71,6 +73,7 @@ describe('openOnboardingPage', () => {
 
     await openOnboardingPage()
 
+    expect(chrome.tabs.reload).toHaveBeenCalledWith(42)
     expect(chrome.tabs.update).toHaveBeenCalledWith(42, { active: true })
     expect(chrome.windows.update).toHaveBeenCalledWith(99, { focused: true })
     expect(chrome.tabs.create).not.toHaveBeenCalled()
@@ -86,9 +89,10 @@ describe('openOnboardingPage', () => {
 
     expect(chrome.tabs.create).toHaveBeenCalledWith({ url: ONBOARDING_URL })
     expect(chrome.tabs.update).not.toHaveBeenCalled()
+    expect(chrome.tabs.reload).not.toHaveBeenCalled()
   })
 
-  it('focuses existing tab but skips window focus when windowId is missing', async () => {
+  it('reloads and focuses existing tab but skips window focus when windowId is missing', async () => {
     const existingTab = { id: 42, url: ONBOARDING_URL }
 
     setupChromeMock({
@@ -98,6 +102,7 @@ describe('openOnboardingPage', () => {
 
     await openOnboardingPage()
 
+    expect(chrome.tabs.reload).toHaveBeenCalledWith(42)
     expect(chrome.tabs.update).toHaveBeenCalledWith(42, { active: true })
     expect(chrome.windows.update).not.toHaveBeenCalled()
   })

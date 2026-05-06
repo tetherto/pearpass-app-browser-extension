@@ -150,6 +150,9 @@ describe('useDesktopPairing — storage behavior', () => {
         success: true
       })
       secureChannelMessages.pinIdentity.mockResolvedValue({ success: true })
+      secureChannelMessages.commitClientKeystore.mockResolvedValue({
+        success: true
+      })
 
       const { result, cleanup } = renderHook(() => useDesktopPairing(props))
 

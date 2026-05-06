@@ -74,7 +74,6 @@ const secretboxOpen = (ciphertext, nonce, key) => {
 }
 
 const STORAGE_KEYS = Object.freeze({
-  paired: 'nm.paired',
   fingerprint: 'nm.fingerprint',
   ed25519PublicKey: 'nm.ed25519PublicKey',
   x25519PublicKey: 'nm.x25519PublicKey',
@@ -377,8 +376,7 @@ export class SecureChannelClient {
     const res = await storageGet([
       STORAGE_KEYS.fingerprint,
       STORAGE_KEYS.ed25519PublicKey,
-      STORAGE_KEYS.x25519PublicKey,
-      STORAGE_KEYS.paired
+      STORAGE_KEYS.x25519PublicKey
     ])
     const fingerprint = res[STORAGE_KEYS.fingerprint]
     const ed25519PublicKey = res[STORAGE_KEYS.ed25519PublicKey]
@@ -403,8 +401,7 @@ export class SecureChannelClient {
     await storageSet({
       [STORAGE_KEYS.fingerprint]: id.fingerprint,
       [STORAGE_KEYS.ed25519PublicKey]: id.ed25519PublicKey,
-      [STORAGE_KEYS.x25519PublicKey]: id.x25519PublicKey,
-      [STORAGE_KEYS.paired]: true
+      [STORAGE_KEYS.x25519PublicKey]: id.x25519PublicKey
     })
   }
 
@@ -416,8 +413,7 @@ export class SecureChannelClient {
     await storageSet({
       [STORAGE_KEYS.fingerprint]: undefined,
       [STORAGE_KEYS.ed25519PublicKey]: undefined,
-      [STORAGE_KEYS.x25519PublicKey]: undefined,
-      [STORAGE_KEYS.paired]: false
+      [STORAGE_KEYS.x25519PublicKey]: undefined
     })
     await clearClientKeypair()
   }
