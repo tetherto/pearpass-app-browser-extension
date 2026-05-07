@@ -20,6 +20,7 @@
     "test": "jest",
     "lint:fix": "eslint --fix ./src",
     "lint": "eslint ./src",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "lingui:extract": "lingui extract",
     "lingui:compile": "lingui compile"
