@@ -23,8 +23,22 @@ jobs:
         with:
           node-version: "22.x"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@tetherto'
+
+      - name: Install worker dependencies
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://".insteadOf ssh://
+          git config --global url."https://${{ secrets.PAT_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          npm install --install-links --legacy-peer-deps
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Run tests
         run: npm test
