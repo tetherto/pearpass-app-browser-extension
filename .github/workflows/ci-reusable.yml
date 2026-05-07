@@ -1,0 +1,51 @@
+name: Reusable CI
+
+on:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: Git ref or SHA to validate
+        required: true
+        type: string
+      checkout_repository:
+        description: Repository that contains the ref to validate
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout_ref }}
+          repository: ${{ inputs.checkout_repository }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Rewrite git+ssh deps to https
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://".insteadOf ssh://
+
+      - name: Install dependencies
+        run: npm ci --install-links --legacy-peer-deps
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test -- --ci
