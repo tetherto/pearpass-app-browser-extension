@@ -22,6 +22,7 @@ export const COMMAND_DEFINITIONS = {
   vaultsGet: { params: ['key'] },
   vaultsList: { params: ['filterKey'] },
   vaultsAdd: { params: ['key', 'vault'] },
+  removeVault: { params: ['vaultId'] },
   vaultsClose: { params: [] },
 
   // Active vault commands

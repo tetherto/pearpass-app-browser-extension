@@ -90,6 +90,7 @@ declare module '@tetherto/pearpass-lib-vault' {
       vaultId: string,
       vaultUpdate: { name: string; password: string; currentPassword: string }
     ) => Promise<void>
+    deleteVaultLocal: (vaultId: string) => Promise<Vault[]>
   }
 
   export const setPearpassVaultClient: any
