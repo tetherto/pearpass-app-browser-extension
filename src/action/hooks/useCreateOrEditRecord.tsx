@@ -8,6 +8,9 @@ import type { CreateOrEditCategoryWrapperProps } from '../containers/Modal/Creat
 import { GeneratePasswordModalContentV2 } from '../containers/Modal/GeneratePasswordModalContentV2/GeneratePasswordModalContentV2'
 
 const SUPPORTED_V2_TYPES = new Set<string>([
+  // OTP is the menu entry point; the record still persists as LOGIN (with
+  // data.otpInput). Keep here so handleSelectType can pass mode='authenticator'
+  // through the v2 path.
   RECORD_TYPES.OTP,
   RECORD_TYPES.LOGIN,
   RECORD_TYPES.NOTE,
