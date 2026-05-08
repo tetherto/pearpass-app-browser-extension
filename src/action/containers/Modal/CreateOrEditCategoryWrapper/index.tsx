@@ -31,7 +31,7 @@ export const CreateOrEditCategoryWrapper = ({
   fullScreen,
   onClose
 }: CreateOrEditCategoryWrapperProps) => {
-  if (recordType === RECORD_TYPES.LOGIN) {
+  if (recordType === RECORD_TYPES.LOGIN || recordType === RECORD_TYPES.OTP) {
     return (
       <CreateOrEditLoginModalContentV2
         initialRecord={initialRecord}

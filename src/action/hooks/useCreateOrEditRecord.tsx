@@ -8,6 +8,7 @@ import type { CreateOrEditCategoryWrapperProps } from '../containers/Modal/Creat
 import { GeneratePasswordModalContentV2 } from '../containers/Modal/GeneratePasswordModalContentV2/GeneratePasswordModalContentV2'
 
 const SUPPORTED_V2_TYPES = new Set<string>([
+  RECORD_TYPES.OTP,
   RECORD_TYPES.LOGIN,
   RECORD_TYPES.NOTE,
   RECORD_TYPES.WIFI_PASSWORD,
@@ -17,9 +18,7 @@ const SUPPORTED_V2_TYPES = new Set<string>([
   RECORD_TYPES.PASS_PHRASE
 ])
 
-// 'authenticator' isn't a real record type; it's a menu shortcut that opens
 // the LOGIN form with a narrowed field set (Title + OTP secret + Comments).
-const AUTHENTICATOR_TYPE = 'authenticator'
 const PASSWORD_TYPE = 'password'
 
 export type CreateOrEditRecordOptions = {
@@ -71,20 +70,6 @@ export const useCreateOrEditRecord = () => {
       }
       return
     }
-
-    if (isV2() && recordType === AUTHENTICATOR_TYPE) {
-      setModal(
-        <CreateOrEditCategoryWrapper
-          recordType={RECORD_TYPES.LOGIN}
-          initialRecord={initialRecord}
-          selectedFolder={selectedFolder}
-          isFavorite={isFavorite}
-          mode="authenticator"
-        />
-      )
-      return
-    }
-
     if (isV2() && recordType && SUPPORTED_V2_TYPES.has(recordType)) {
       setModal(
         <CreateOrEditCategoryWrapper
