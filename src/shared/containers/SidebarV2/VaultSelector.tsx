@@ -21,7 +21,8 @@ import {
   EditOutlined,
   LockFilled,
   MoreVert,
-  PersonAddAlt
+  PersonAddAlt,
+  TrashOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { createStyles, VAULT_ACTIONS_MENU_WIDTH } from './VaultSelector.styles'
@@ -30,6 +31,7 @@ import { useModal } from '../../context/ModalContext'
 import { sortByName } from '../../utils/sortByName'
 import { useVaultSwitch } from '../../hooks/useVaultSwitch'
 import { CreateOrEditVaultModalContentV2 } from '../CreateOrEditVaultModalContentV2'
+import { DeleteVaultModalContentV2 } from '../DeleteVaultModalContentV2'
 import { ShareVaultModalContentV2 } from '../ShareVaultModalContentV2'
 
 type VaultSelectorProps = {
@@ -54,6 +56,9 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps = {}) => {
 
   const iconPrimary = { color: theme.colors.colorTextPrimary }
   const iconSecondary = { color: theme.colors.colorTextSecondary }
+  const iconDestructive = {
+    color: theme.colors.colorSurfaceDestructiveElevated
+  }
 
   const openInviteFlow = async (vault: Vault) => {
     if (inviteData?.vaultId !== vault.id) {
@@ -100,6 +105,14 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps = {}) => {
     )
   }
 
+  const handleDelete = (vault: Vault) => {
+    void switchVault(vault, () => {
+      setModal(
+        <DeleteVaultModalContentV2 vaultId={vault.id} vaultName={vault.name} />
+      )
+    })
+  }
+
   return (
     <div style={styles.wrapper} data-testid="vault-selector">
       <div style={styles.titleRow}>
@@ -128,10 +141,12 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps = {}) => {
             vault={vault}
             isActive={vault.id === activeVault?.id}
             iconPrimary={iconPrimary}
+            iconDestructive={iconDestructive}
             styles={styles}
             onSelect={handleVaultClick}
             onInvite={handleInvite}
             onRename={handleRename}
+            onDelete={handleDelete}
           />
         ))}
       </div>
@@ -143,20 +158,24 @@ type VaultRowProps = {
   vault: Vault
   isActive: boolean
   iconPrimary: { color: string }
+  iconDestructive: { color: string }
   styles: ReturnType<typeof createStyles>
   onSelect: (vault: Vault) => void
   onInvite: (vault: Vault) => void
   onRename: (vault: Vault) => void
+  onDelete: (vault: Vault) => void
 }
 
 const VaultRow = ({
   vault,
   isActive,
   iconPrimary,
+  iconDestructive,
   styles,
   onSelect,
   onInvite,
-  onRename
+  onRename,
+  onDelete
 }: VaultRowProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -214,6 +233,17 @@ const VaultRow = ({
             label={t`Rename`}
             testID={`vault-row-rename-${vault.id}`}
             onClick={withMenuClose(onRename)}
+          />
+        </div>
+        <hr style={styles.menuDivider} />
+        <div style={styles.menuGroup}>
+          <NavbarListItem
+            size="small"
+            variant="destructive"
+            icon={<TrashOutlined color={iconDestructive.color} />}
+            label={t`Delete`}
+            testID={`vault-row-delete-${vault.id}`}
+            onClick={withMenuClose(onDelete)}
           />
         </div>
       </ContextMenu>
