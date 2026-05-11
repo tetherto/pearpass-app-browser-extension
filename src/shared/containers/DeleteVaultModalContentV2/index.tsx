@@ -14,17 +14,18 @@ import {
   ToggleSwitch
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
+  useCreateVault,
   useUserData,
   useVault,
   useVaults,
   type Vault
 } from '@tetherto/pearpass-lib-vault'
 
-import { NAVIGATION_ROUTES } from '../../constants/navigation'
 import { useModal } from '../../context/ModalContext'
 import { useRouter } from '../../context/RouterContext'
 import { useToast } from '../../context/ToastContext'
 import { useVaultSwitch } from '../../hooks/useVaultSwitch'
+import { platformMessages } from '../../services/messageBridge'
 import { logger } from '../../utils/logger'
 import { PairedDevicesModalContent } from '../PairedDevicesModalContent'
 
@@ -46,15 +47,16 @@ export const DeleteVaultModalContentV2 = ({
   const { setToast } = useToast() as {
     setToast: (toast: { message: string }) => void
   }
-  const { navigate } = useRouter() as {
-    navigate: (page: string, data: { params: { state: string } }) => void
+  const { navigate } = useRouter() as unknown as {
+    navigate: (page: string, data: { state: { recordType: string } }) => void
   }
   const { switchVault } = useVaultSwitch()
 
   const handleClose = onClose ?? closeModal
 
-  const { data: vaultData, deleteVaultLocal } = useVault()
+  const { data: vaultData, deleteVaultLocal, addDevice } = useVault()
   const { data: allVaults } = useVaults()
+  const { createVault } = useCreateVault()
   const devices = (vaultData as { devices?: unknown[] } | undefined)?.devices
   const deviceCount = Array.isArray(devices) ? devices.length : 0
 
@@ -120,9 +122,24 @@ export const DeleteVaultModalContentV2 = ({
       if (nextVault) {
         await switchVault(nextVault)
       } else {
-        navigate('welcome', {
-          params: { state: NAVIGATION_ROUTES.VAULTS }
-        })
+        try {
+          await createVault({ name: t`Personal` })
+          const platform = (await platformMessages.getPlatformInfo()) as {
+            os: string
+            arch: string
+          }
+          await addDevice(`${platform.os} ${platform.arch}`)
+          navigate('vault', { state: { recordType: 'all' } })
+          setToast({
+            message: t`A new "Personal" vault was created`
+          })
+        } catch (error) {
+          logger.error(
+            'DeleteVaultModalContentV2',
+            'failed to create fallback Personal vault:',
+            error
+          )
+        }
       }
     } finally {
       setIsLoading(false)
