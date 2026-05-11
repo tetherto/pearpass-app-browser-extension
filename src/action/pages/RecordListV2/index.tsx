@@ -18,7 +18,6 @@ import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { DeleteRecordsModalContentV2 } from '../../../shared/containers/DeleteRecordsModalContentV2'
-import { LayoutWithSidebar } from '../../../shared/containers/LayoutWithSidebar'
 import { MoveFolderModalContentV2 } from '../../../shared/containers/MoveFolderModalContentV2'
 import {
   groupRecordsByTimePeriod,
@@ -200,47 +199,43 @@ export const RecordListV2 = () => {
     </div>
   )
 
-  return (
-    <LayoutWithSidebar
-      mainView={
-        hasDetailsPane ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flex: 1,
-              minHeight: 0
-            }}
-          >
-            {listPane}
-            <div
-              style={{
-                width: '1px',
-                backgroundColor: theme.colors.colorBorderPrimary,
-                flexShrink: 0
-              }}
-              role="separator"
-              aria-hidden="true"
-            />
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1,
-                minWidth: 0,
-                minHeight: 0
-              }}
-            >
-              <RecordDetailsV2
-                recordId={selectedRecordId ?? undefined}
-                onClose={() => setSelectedRecordId(null)}
-              />
-            </div>
-          </div>
-        ) : (
-          listPane
-        )
-      }
-    />
-  )
+  if (hasDetailsPane) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          flex: 1,
+          minHeight: 0
+        }}
+      >
+        {listPane}
+        <div
+          style={{
+            width: '1px',
+            backgroundColor: theme.colors.colorBorderPrimary,
+            flexShrink: 0
+          }}
+          role="separator"
+          aria-hidden="true"
+        />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0
+          }}
+        >
+          <RecordDetailsV2
+            recordId={selectedRecordId ?? undefined}
+            onClose={() => setSelectedRecordId(null)}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return listPane
 }

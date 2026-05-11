@@ -23,11 +23,10 @@ export const AppHeaderContainer = () => {
   } = useAppHeaderContext()
   const { setModal } = useModal()
 
-  if (currentPage !== 'vault') {
-    return null
-  }
-
-  if (AUTHENTICATOR_ENABLED && routerState?.recordType === 'authenticator') {
+  if (
+    currentPage !== 'vault' &&
+    !(AUTHENTICATOR_ENABLED && currentPage === 'authenticator')
+  ) {
     return null
   }
 

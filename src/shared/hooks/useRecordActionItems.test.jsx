@@ -3,9 +3,12 @@ import { renderHook } from '@testing-library/react'
 import { useRecordActionItems } from './useRecordActionItems'
 import { useModal } from '../context/ModalContext'
 import { useRouter } from '../context/RouterContext'
+import { useToast } from '../context/ToastContext'
 
 const mockDeleteRecord = jest.fn()
 const mockUpdateFavoriteState = jest.fn()
+const mockUpdateRecords = jest.fn()
+const mockSetToast = jest.fn()
 
 jest.mock('../context/ModalContext', () => ({
   useModal: jest.fn()
@@ -52,11 +55,16 @@ jest.mock('../../action/hooks/useCreateOrEditRecord', () => ({
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
   useRecords: () => ({
     deleteRecords: mockDeleteRecord,
-    updateFavoriteState: mockUpdateFavoriteState
+    updateFavoriteState: mockUpdateFavoriteState,
+    updateRecords: mockUpdateRecords
   }),
   RECORD_TYPES: {
     LOGIN: 'login'
   }
+}))
+
+jest.mock('../context/ToastContext', () => ({
+  useToast: jest.fn()
 }))
 
 jest.mock('@lingui/core/macro', () => ({
@@ -86,6 +94,8 @@ describe('useRecordActionItems', () => {
       navigate: mockNavigate,
       currentPage: 'somePage'
     })
+
+    useToast.mockReturnValue({ setToast: mockSetToast })
   })
 
   test('returns correct actions when no excludeTypes provided', () => {
@@ -261,5 +271,167 @@ describe('useRecordActionItems', () => {
     expect(element.type).toBe('MoveFolderModalContentV2')
     expect(params).toBeUndefined()
     expect(mockOnClose).toHaveBeenCalled()
+  })
+
+  describe('OTP strip logic (authenticator context)', () => {
+    const otpLoginRecord = {
+      id: '456',
+      type: 'login',
+      isFavorite: false,
+      otpPublic: { currentCode: '123456', timeRemaining: 20 },
+      data: {
+        title: 'My Account',
+        username: 'user@test.com',
+        otpInput: 'secretseed',
+        otp: 'otpvalue'
+      }
+    }
+
+    beforeEach(() => {
+      mockIsV2.mockReturnValue(true)
+    })
+
+    test('delete on authenticator page with OTP login opens strip-OTP modal with custom props', () => {
+      useRouter.mockReturnValue({
+        params: {},
+        navigate: mockNavigate,
+        currentPage: 'authenticator'
+      })
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: otpLoginRecord,
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+
+      expect(mockSetModal).toHaveBeenCalledTimes(1)
+      const [element] = mockSetModal.mock.calls[0]
+      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.props.records).toEqual([otpLoginRecord])
+      expect(element.props.title).toBeDefined()
+      expect(element.props.confirmText).toBeDefined()
+      expect(element.props.submitLabel).toBeDefined()
+      expect(element.props.onConfirm).toBeDefined()
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test('delete from record details with source=authenticator opens strip-OTP modal', () => {
+      useRouter.mockReturnValue({
+        params: { source: 'authenticator' },
+        navigate: mockNavigate,
+        currentPage: 'recordDetails'
+      })
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: otpLoginRecord,
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+
+      const [element] = mockSetModal.mock.calls[0]
+      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.props.onConfirm).toBeDefined()
+    })
+
+    test('delete on non-authenticator page with OTP login uses normal delete (no onConfirm)', () => {
+      useRouter.mockReturnValue({
+        params: {},
+        navigate: mockNavigate,
+        currentPage: 'vault'
+      })
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: otpLoginRecord,
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+
+      const [element] = mockSetModal.mock.calls[0]
+      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.props.onConfirm).toBeUndefined()
+      expect(element.props.title).toBeUndefined()
+    })
+
+    test('delete on authenticator page with login record without OTP uses normal delete', () => {
+      useRouter.mockReturnValue({
+        params: {},
+        navigate: mockNavigate,
+        currentPage: 'authenticator'
+      })
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: mockRecord, // no otpPublic
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+
+      const [element] = mockSetModal.mock.calls[0]
+      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.props.onConfirm).toBeUndefined()
+    })
+
+    test('onConfirm strips otpInput, otp, otpPublic and calls updateRecords', async () => {
+      useRouter.mockReturnValue({
+        params: {},
+        navigate: mockNavigate,
+        currentPage: 'authenticator'
+      })
+      mockUpdateRecords.mockResolvedValueOnce(undefined)
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: otpLoginRecord,
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+      const [element] = mockSetModal.mock.calls[0]
+      await element.props.onConfirm()
+
+      expect(mockUpdateRecords).toHaveBeenCalledTimes(1)
+      const [updatedRecords] = mockUpdateRecords.mock.calls[0]
+      const updated = updatedRecords[0]
+      expect(updated.id).toBe('456')
+      expect(updated.otpPublic).toBeUndefined()
+      expect(updated.data.otpInput).toBeUndefined()
+      expect(updated.data.otp).toBeUndefined()
+      expect(updated.data.username).toBe('user@test.com')
+      expect(updated.data.title).toBe('My Account')
+    })
+
+    test('onConfirm calls setToast and rethrows when updateRecords fails', async () => {
+      useRouter.mockReturnValue({
+        params: {},
+        navigate: mockNavigate,
+        currentPage: 'authenticator'
+      })
+      const error = new Error('network error')
+      mockUpdateRecords.mockRejectedValueOnce(error)
+
+      const { result } = renderHook(() =>
+        useRecordActionItems({
+          record: otpLoginRecord,
+          onClose: mockOnClose
+        })
+      )
+
+      result.current.actions[4].click()
+      const [element] = mockSetModal.mock.calls[0]
+      await expect(element.props.onConfirm()).rejects.toThrow('network error')
+      expect(mockSetToast).toHaveBeenCalledWith({ message: 'network error' })
+    })
   })
 })
