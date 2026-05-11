@@ -28,6 +28,7 @@ type AddItemContextMenuProps = {
   onOpenChange: (open: boolean) => void
   selectedFolder?: string
   isFavoritesView?: boolean
+  onSavedForOtp?: () => Promise<void>
   testID?: string
 }
 
@@ -37,6 +38,7 @@ export const AddItemContextMenu = ({
   onOpenChange,
   selectedFolder,
   isFavoritesView = false,
+  onSavedForOtp,
   testID = 'add-item-context-menu'
 }: AddItemContextMenuProps) => {
   const { theme } = useTheme()
@@ -67,7 +69,8 @@ export const AddItemContextMenu = ({
       recordType: type,
       selectedFolder,
       isFavorite: isFavoritesView || undefined,
-      mode: type === RECORD_TYPES.OTP ? 'authenticator' : undefined
+      mode: type === RECORD_TYPES.OTP ? 'authenticator' : undefined,
+      onSaved: type === RECORD_TYPES.OTP ? onSavedForOtp : undefined
     })
   }
 

@@ -30,6 +30,7 @@ export type CreateOrEditRecordOptions = {
   isFavorite?: boolean
   source?: string
   mode?: 'authenticator'
+  onSaved?: (savedRecordId?: string) => void
   /** Optional callback for the password-generator flow — receives the chosen
    * password and lets the caller (e.g. Login / Wi-Fi V2 modal) write it into
    * its own form state. */
@@ -55,6 +56,7 @@ export const useCreateOrEditRecord = () => {
       isFavorite,
       source,
       mode,
+      onSaved,
       setValue
     } = options
 
@@ -80,6 +82,7 @@ export const useCreateOrEditRecord = () => {
           selectedFolder={selectedFolder}
           isFavorite={isFavorite}
           mode={mode}
+          onSaved={onSaved}
         />
       )
       return

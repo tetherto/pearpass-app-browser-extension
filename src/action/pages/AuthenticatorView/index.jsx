@@ -1,27 +1,34 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { t } from '@lingui/core/macro'
 import {
+  RECORD_TYPES,
   useRecords,
+  useVault,
+  useVaults,
+  useUserData,
   isExpiring,
   groupOtpRecords
 } from '@tetherto/pearpass-lib-vault'
 
-import { InputSearch } from '../../../shared/components/InputSearch'
 import { TimerCircle } from '../../../shared/components/TimerCircle'
-import { Sidebar } from '../../../shared/containers/Sidebar'
+import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { PlusIcon } from '../../../shared/icons/PlusIcon'
 import { AuthenticatorIllustration } from '../../../shared/svgs/authenticatorIllustration'
-import { LogoLock } from '../../../shared/svgs/logoLock'
 import { getTimerColor } from '../../../shared/utils/otp'
 import { Record } from '../../containers/Record'
 import { SyncData } from '../../containers/SyncData'
+import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 
 export const AuthenticatorView = () => {
   const { navigate } = useRouter()
-  const [searchValue, setSearchValue] = useState('')
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { searchValue } = useAppHeaderContext()
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
+
+  const { refetch: refetchVault } = useVault()
+  const { refetch: refetchMasterVault } = useVaults()
+  const { refetch: refetchUserData } = useUserData()
 
   const { data: records } = useRecords({
     shouldSkip: true,
@@ -45,6 +52,15 @@ export const AuthenticatorView = () => {
     })
   }
 
+  const handleAddCode = () => {
+    handleCreateOrEditRecord({
+      recordType: RECORD_TYPES.OTP,
+      mode: 'authenticator',
+      onSaved: () =>
+        Promise.all([refetchUserData(), refetchMasterVault(), refetchVault()])
+    })
+  }
+
   const { totpGroups, hotpRecords } = useMemo(
     () => groupOtpRecords(otpRecords),
     [otpRecords]
@@ -53,28 +69,6 @@ export const AuthenticatorView = () => {
   return (
     <div className="flex h-full w-full flex-col">
       <div className="bg-grey400-mode1 flex w-full flex-1 flex-col gap-3 overflow-auto px-6 pt-7">
-        <div className="top-0 flex w-full items-center gap-[10px]">
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(186,222,91,0.2)] px-2 py-1"
-          >
-            <LogoLock width="100%" height="100%" />
-          </button>
-
-          <Sidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-          />
-
-          <InputSearch
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            quantity={otpRecords.length}
-            placeholder="Search..."
-          />
-        </div>
-
         <div className="flex-1 overflow-auto">
           {otpRecords.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-5 px-4">
@@ -91,11 +85,8 @@ export const AuthenticatorView = () => {
 
               <button
                 type="button"
-                onClick={() =>
-                  navigate('createOrEditCategory', {
-                    params: { recordType: 'login' }
-                  })
-                }
+                onClick={handleAddCode}
+                data-testid="authenticator-empty-add-code"
                 className="bg-primary400-mode1 text-black-mode1 flex w-full items-center justify-center gap-1 rounded-lg py-2.5 text-sm font-medium"
               >
                 <PlusIcon size="16" color="#050B06" />

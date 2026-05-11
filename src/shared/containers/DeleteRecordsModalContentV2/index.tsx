@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { Button, Dialog, Text, useTheme } from '@tetherto/pearpass-lib-ui-kit'
@@ -16,23 +16,35 @@ import { RecordItemIcon } from '../RecordItemIcon'
 type DeleteRecordsModalContentV2Props = {
   records: VaultRecord[]
   onCompleted?: () => void
+  onConfirm?: () => Promise<void>
+  title?: string
+  confirmText?: string
+  submitLabel?: string
 }
 
 export const DeleteRecordsModalContentV2 = ({
   records,
-  onCompleted
+  onCompleted,
+  onConfirm,
+  title: titleProp,
+  confirmText: confirmTextProp,
+  submitLabel: submitLabelProp
 }: DeleteRecordsModalContentV2Props) => {
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
   const { closeModal } = useModal()
   const { setIsLoading } = useLoadingContext()
 
-  const { deleteRecords, isLoading } = useRecords({
+  const [confirmLoading, setConfirmLoading] = useState(false)
+
+  const { deleteRecords, isLoading: deleteLoading } = useRecords({
     onCompleted: closeModal
   }) as {
     deleteRecords: (ids: string[]) => Promise<void>
     isLoading: boolean
   }
+
+  const isLoading = deleteLoading || confirmLoading
 
   const itemsListRef = useRef<HTMLDivElement>(null)
   const hasItemsOverflow = useScrollOverflow(itemsListRef, [records.length])
@@ -40,21 +52,39 @@ export const DeleteRecordsModalContentV2 = ({
   const count = records.length
   const isSingle = count === 1
 
-  const dialogTitle = isSingle ? t`Delete 1 Item` : t`Delete ${count} Items`
-  const confirmText = isSingle
-    ? t`Are you sure to delete the selected item?`
-    : t`Are you sure to delete the selected items?`
+  const dialogTitle =
+    titleProp ?? (isSingle ? t`Delete 1 Item` : t`Delete ${count} Items`)
+  const confirmText =
+    confirmTextProp ??
+    (isSingle
+      ? t`Are you sure to delete the selected item?`
+      : t`Are you sure to delete the selected items?`)
   const selectedLabel = isSingle ? t`Selected Item` : t`Selected Items`
-  const submitLabel = isSingle ? t`Delete Item` : t`Delete Items`
+  const submitLabel =
+    submitLabelProp ?? (isSingle ? t`Delete Item` : t`Delete Items`)
 
   const handleDelete = async () => {
     if (!count || isLoading) return
     setIsLoading(true)
-    try {
-      await deleteRecords(records.map((r) => r.id))
-      onCompleted?.()
-    } finally {
-      setIsLoading(false)
+    if (onConfirm) {
+      setConfirmLoading(true)
+      try {
+        await onConfirm()
+        onCompleted?.()
+        closeModal()
+      } catch {
+        // onConfirm handles user feedback; keep modal open on failure
+      } finally {
+        setConfirmLoading(false)
+        setIsLoading(false)
+      }
+    } else {
+      try {
+        await deleteRecords(records.map((r) => r.id))
+        onCompleted?.()
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 

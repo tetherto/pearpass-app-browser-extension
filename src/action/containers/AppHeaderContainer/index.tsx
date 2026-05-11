@@ -1,4 +1,5 @@
 import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
+import { useUserData, useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { AddItemContextMenu } from '../AddItemContextMenu'
 import { AppHeaderAddItemTrigger, AppHeaderV2 } from '../AppHeaderV2'
@@ -23,17 +24,31 @@ export const AppHeaderContainer = () => {
   } = useAppHeaderContext()
   const { setModal } = useModal()
 
-  if (currentPage !== 'vault') {
-    return null
-  }
+  const { refetch: refetchVault } = useVault()
+  const { refetch: refetchMasterVault } = useVaults()
+  const { refetch: refetchUserData } = useUserData()
 
-  if (AUTHENTICATOR_ENABLED && routerState?.recordType === 'authenticator') {
+  if (
+    currentPage !== 'vault' &&
+    !(AUTHENTICATOR_ENABLED && currentPage === 'authenticator')
+  ) {
     return null
   }
 
   const isFavoritesView = isFavorite(routerState?.folder ?? '')
   const selectedFolder =
     routerState?.folder && !isFavoritesView ? routerState.folder : undefined
+
+  const onSavedForOtp =
+    AUTHENTICATOR_ENABLED && currentPage === 'authenticator'
+      ? async () => {
+          await Promise.all([
+            refetchUserData(),
+            refetchMasterVault(),
+            refetchVault()
+          ])
+        }
+      : undefined
 
   const handleImportClick = () => {
     setModal(<ImportItemOrVaultModalContentV2 />)
@@ -49,6 +64,7 @@ export const AppHeaderContainer = () => {
       onOpenChange={setIsAddMenuOpen}
       selectedFolder={selectedFolder}
       isFavoritesView={isFavoritesView}
+      onSavedForOtp={onSavedForOtp}
       testID="app-header-add-menu"
       trigger={
         <AppHeaderAddItemTrigger

@@ -31,6 +31,7 @@ import {
   StarBorder,
   StarFilled,
   TrashOutlined,
+  TwoFactorAuthenticationFilled,
   TwoFactorAuthenticationOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 
@@ -60,7 +61,11 @@ export const SidebarV2 = () => {
   const [openFolderMenu, setOpenFolderMenu] = useState<string | null>(null)
   const styles = createStyles(theme.colors, isCollapsed)
 
-  const { navigate, state: routerState } = useRouter() as {
+  const {
+    navigate,
+    state: routerState,
+    currentPage
+  } = useRouter() as {
     navigate: (
       page: string,
       opts?: {
@@ -69,6 +74,7 @@ export const SidebarV2 = () => {
       }
     ) => void
     state: { recordType?: string; folder?: string } | undefined
+    currentPage: string
   }
   const { data: vaultData } = useVault()
   const { data: foldersData, deleteFolder } = useFolders()
@@ -79,13 +85,20 @@ export const SidebarV2 = () => {
 
   const { categoriesItems } = useRecordMenuItemsV2()
 
-  const activeCategory = routerState?.recordType ?? null
-  const isFavoritesActive = routerState?.folder === FAVORITES_FOLDER_ID
+  const isAuthenticatorActive = currentPage === 'authenticator'
+
+  const activeCategory = isAuthenticatorActive
+    ? null
+    : (routerState?.recordType ?? null)
+  const isFavoritesActive =
+    !isAuthenticatorActive && routerState?.folder === FAVORITES_FOLDER_ID
   const selectedFolderName =
-    routerState?.folder && !isFavoritesActive ? routerState.folder : null
+    !isAuthenticatorActive && routerState?.folder && !isFavoritesActive
+      ? routerState.folder
+      : null
   const currentRecordType = routerState?.recordType ?? 'all'
   const currentFolder = routerState?.folder
-  const isAllFoldersActive = !routerState?.folder
+  const isAllFoldersActive = !isAuthenticatorActive && !routerState?.folder
 
   const customFolders = useMemo(() => {
     const raw = Object.values(foldersData?.customFolders ?? {})
@@ -389,11 +402,18 @@ export const SidebarV2 = () => {
             testID="sidebar-authenticator"
             label={t`Authenticator`}
             size="small"
-            variant="default"
+            selected={isAuthenticatorActive}
+            variant={isAuthenticatorActive ? 'default' : 'secondary'}
             icon={
-              <TwoFactorAuthenticationOutlined
-                color={theme.colors.colorTextPrimary}
-              />
+              isAuthenticatorActive ? (
+                <TwoFactorAuthenticationFilled
+                  color={theme.colors.colorTextPrimary}
+                />
+              ) : (
+                <TwoFactorAuthenticationOutlined
+                  color={theme.colors.colorTextSecondary}
+                />
+              )
             }
             onClick={handleAuthenticatorClick}
           />
