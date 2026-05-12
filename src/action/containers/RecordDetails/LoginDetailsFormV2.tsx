@@ -108,7 +108,7 @@ export const LoginDetailsFormV2 = ({
   return (
     <div className="flex w-full flex-col gap-[var(--spacing16)]">
       <div className="flex flex-col gap-[var(--spacing8)]">
-        {(hasUsername || hasPassword) && (
+        {(hasUsername || hasPassword || !!initialRecord?.otpPublic) && (
           <MultiSlotInput testID="credentials-multi-slot-input">
             {hasUsername && (
               <InputField
@@ -133,6 +133,19 @@ export const LoginDetailsFormV2 = ({
                 isGrouped
                 testID="credentials-multi-slot-input-slot-1"
                 {...toReadOnlyFieldProps(register('password'))}
+              />
+            )}
+
+            {!!initialRecord?.otpPublic && !!initialRecord?.id && (
+              <OtpCodeFieldV2
+                key={initialRecord.id}
+                recordId={initialRecord.id}
+                otpPublic={
+                  initialRecord.otpPublic as Parameters<
+                    typeof OtpCodeFieldV2
+                  >[0]['otpPublic']
+                }
+                isGrouped
               />
             )}
           </MultiSlotInput>
@@ -176,20 +189,6 @@ export const LoginDetailsFormV2 = ({
               />
             </MultiSlotInput>
           ))}
-
-        {!!initialRecord?.otpPublic && !!initialRecord?.id && (
-          <MultiSlotInput testID="otp-multi-slot-input">
-            <OtpCodeFieldV2
-              key={initialRecord.id}
-              recordId={initialRecord.id}
-              otpPublic={
-                initialRecord.otpPublic as Parameters<
-                  typeof OtpCodeFieldV2
-                >[0]['otpPublic']
-              }
-            />
-          </MultiSlotInput>
-        )}
 
         {hasPasskey && (
           <InputField

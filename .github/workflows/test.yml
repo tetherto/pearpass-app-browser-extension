@@ -2,9 +2,9 @@ name: Test check
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
   pull_request_target:
-    branches: [ main, dev ]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
           node-version: "22.x"
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run tests
         run: npm test
