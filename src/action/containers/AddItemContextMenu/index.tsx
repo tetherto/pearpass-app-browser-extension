@@ -1,24 +1,20 @@
 import type { ComponentType, ReactNode, SVGProps } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { UNSUPPORTED } from '@tetherto/pearpass-lib-constants'
+import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import {
   ContextMenu,
   NavbarListItem,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
-import {
-  Key,
-  TwoFactorAuthenticationOutlined
-} from '@tetherto/pearpass-lib-ui-kit/icons'
+import { Key, QrCode } from '@tetherto/pearpass-lib-ui-kit/icons'
+import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
-import { useRouter } from '../../../shared/context/RouterContext'
 import { useRecordMenuItemsV2 } from '../../../shared/hooks/useRecordMenuItemsV2'
 import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 
 const ADD_MENU_WIDTH = 220
 const PASSWORD_TYPE = '__password__'
-const AUTHENTICATOR_CODE_TYPE = '__authenticator__'
 
 type AddMenuItem = {
   type: string
@@ -32,6 +28,7 @@ type AddItemContextMenuProps = {
   onOpenChange: (open: boolean) => void
   selectedFolder?: string
   isFavoritesView?: boolean
+  onSavedForOtp?: () => Promise<void>
   testID?: string
 }
 
@@ -41,16 +38,11 @@ export const AddItemContextMenu = ({
   onOpenChange,
   selectedFolder,
   isFavoritesView = false,
+  onSavedForOtp,
   testID = 'add-item-context-menu'
 }: AddItemContextMenuProps) => {
   const { theme } = useTheme()
   const { defaultItems } = useRecordMenuItemsV2()
-  const { navigate } = useRouter() as {
-    navigate: (
-      page: string,
-      opts?: { params?: Record<string, unknown> }
-    ) => void
-  }
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
 
   const passwordItem: AddMenuItem = {
@@ -60,9 +52,9 @@ export const AddItemContextMenu = ({
   }
 
   const authenticatorItem: AddMenuItem = {
-    type: AUTHENTICATOR_CODE_TYPE,
+    type: RECORD_TYPES.OTP,
     label: t`Authenticator Code`,
-    Icon: TwoFactorAuthenticationOutlined
+    Icon: QrCode
   }
 
   const handleSelectType = (type: string) => {
@@ -73,15 +65,12 @@ export const AddItemContextMenu = ({
       return
     }
 
-    if (type === AUTHENTICATOR_CODE_TYPE) {
-      navigate('authenticator', { params: {} })
-      return
-    }
-
     handleCreateOrEditRecord({
       recordType: type,
       selectedFolder,
-      isFavorite: isFavoritesView || undefined
+      isFavorite: isFavoritesView || undefined,
+      mode: type === RECORD_TYPES.OTP ? 'authenticator' : undefined,
+      onSaved: type === RECORD_TYPES.OTP ? onSavedForOtp : undefined
     })
   }
 
@@ -112,7 +101,7 @@ export const AddItemContextMenu = ({
         })
       )}
       {renderMenuItem(passwordItem)}
-      {UNSUPPORTED && (
+      {AUTHENTICATOR_ENABLED && (
         <>
           <div
             style={{

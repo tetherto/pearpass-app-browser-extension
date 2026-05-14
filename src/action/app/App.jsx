@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
+import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import { rawTokens, useTheme } from '@tetherto/pearpass-lib-ui-kit'
-import { useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { useRedirect } from './hooks/useRedirect'
 import { useWindowResize } from './hooks/useWindowResize'
@@ -10,8 +10,10 @@ import { Routes } from './Routes'
 import { FadeInWrapper } from '../../shared/components/FadeInWrapper'
 import { WelcomePageWrapper } from '../../shared/components/WelcomePageWrapper'
 import { DYNAMIC_WINDOW_MAX_HEIGHT } from '../../shared/constants/windowSizes'
+import { LayoutWithSidebar } from '../../shared/containers/LayoutWithSidebar'
 import { useBlockingStateContext } from '../../shared/context/BlockingStateContext'
 import { useGlobalLoading } from '../../shared/context/LoadingContext'
+import { useRouter } from '../../shared/context/RouterContext'
 import { useVaultAccessRevoked } from '../../shared/hooks/useVaultAccessRevoked'
 import { isV2 } from '../../shared/utils/designVersion'
 import { AppHeaderContainer } from '../containers/AppHeaderContainer'
@@ -19,6 +21,7 @@ import { AppHeaderContainer } from '../containers/AppHeaderContainer'
 export const App = () => {
   const { isChecking: isBlockingStateChecking } = useBlockingStateContext()
   const { isLoading: isRedirectLoading } = useRedirect()
+  const { currentPage } = useRouter()
   const { theme } = useTheme()
   const windowSize = useWindowResize()
   const containerRef = useRef(null)
@@ -28,33 +31,7 @@ export const App = () => {
 
   useGlobalLoading({ isLoading })
 
-  const { triggerAccessRevoked } = useVaultAccessRevoked()
-  const { data: vaultsForDevTrigger } = useVaults()
-  useEffect(() => {
-    // Dev hook: action-bus mechanism is not implemented yet, so for now the
-    // delete handler is fired manually from devtools or tests.
-    if (typeof window === 'undefined') return
-    const list = vaultsForDevTrigger ?? []
-    const devTrigger = (vaultIdOrName, deviceName) => {
-      const match =
-        list.find((v) => v.id === vaultIdOrName) ??
-        list.find((v) => v.name === vaultIdOrName)
-      if (!match) {
-        // eslint-disable-next-line no-console
-        console.error(
-          `[pearpassTriggerAccessRevoked] no vault matched "${vaultIdOrName}". Available:`,
-          list.map((v) => ({ id: v.id, name: v.name }))
-        )
-        return
-      }
-      return triggerAccessRevoked(match.id, deviceName)
-    }
-
-    window.__pearpassTriggerAccessRevoked = devTrigger
-    return () => {
-      delete window.__pearpassTriggerAccessRevoked
-    }
-  }, [triggerAccessRevoked, vaultsForDevTrigger])
+  useVaultAccessRevoked()
 
   const containerClassName = isV2()
     ? 'bg-background flex flex-col'
@@ -160,7 +137,12 @@ export const App = () => {
         <>
           <AppHeaderContainer />
           <div className="flex min-h-0 flex-1 flex-col">
-            <Routes />
+            {currentPage === 'vault' ||
+            (AUTHENTICATOR_ENABLED && currentPage === 'authenticator') ? (
+              <LayoutWithSidebar mainView={<Routes />} />
+            ) : (
+              <Routes />
+            )}
           </div>
         </>
       ) : (

@@ -3,7 +3,7 @@
 exports[`SyncingFailedModal matches snapshot with all props supplied 1`] = `
 <div>
   <div
-    class="bg-surface-primary flex w-full max-w-[500px] flex-col gap-[var(--spacing24)] rounded-[var(--radius8)] p-[var(--spacing24)]"
+    class="bg-surface-primary flex w-full flex-col gap-[var(--spacing24)] rounded-[var(--radius8)] p-[var(--spacing24)]"
     data-testid="syncing-failed-modal"
   >
     <div

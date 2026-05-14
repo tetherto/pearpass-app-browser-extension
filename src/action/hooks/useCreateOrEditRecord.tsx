@@ -8,6 +8,10 @@ import type { CreateOrEditCategoryWrapperProps } from '../containers/Modal/Creat
 import { GeneratePasswordModalContentV2 } from '../containers/Modal/GeneratePasswordModalContentV2/GeneratePasswordModalContentV2'
 
 const SUPPORTED_V2_TYPES = new Set<string>([
+  // OTP is the menu entry point; the record still persists as LOGIN (with
+  // data.otpInput). Keep here so handleSelectType can pass mode='authenticator'
+  // through the v2 path.
+  RECORD_TYPES.OTP,
   RECORD_TYPES.LOGIN,
   RECORD_TYPES.NOTE,
   RECORD_TYPES.WIFI_PASSWORD,
@@ -17,9 +21,6 @@ const SUPPORTED_V2_TYPES = new Set<string>([
   RECORD_TYPES.PASS_PHRASE
 ])
 
-// 'authenticator' isn't a real record type; it's a menu shortcut that opens
-// the LOGIN form with a narrowed field set (Title + OTP secret + Comments).
-const AUTHENTICATOR_TYPE = 'authenticator'
 const PASSWORD_TYPE = 'password'
 
 export type CreateOrEditRecordOptions = {
@@ -29,6 +30,7 @@ export type CreateOrEditRecordOptions = {
   isFavorite?: boolean
   source?: string
   mode?: 'authenticator'
+  onSaved?: (savedRecordId?: string) => void
   /** Optional callback for the password-generator flow — receives the chosen
    * password and lets the caller (e.g. Login / Wi-Fi V2 modal) write it into
    * its own form state. */
@@ -54,6 +56,7 @@ export const useCreateOrEditRecord = () => {
       isFavorite,
       source,
       mode,
+      onSaved,
       setValue
     } = options
 
@@ -71,20 +74,6 @@ export const useCreateOrEditRecord = () => {
       }
       return
     }
-
-    if (isV2() && recordType === AUTHENTICATOR_TYPE) {
-      setModal(
-        <CreateOrEditCategoryWrapper
-          recordType={RECORD_TYPES.LOGIN}
-          initialRecord={initialRecord}
-          selectedFolder={selectedFolder}
-          isFavorite={isFavorite}
-          mode="authenticator"
-        />
-      )
-      return
-    }
-
     if (isV2() && recordType && SUPPORTED_V2_TYPES.has(recordType)) {
       setModal(
         <CreateOrEditCategoryWrapper
@@ -93,6 +82,7 @@ export const useCreateOrEditRecord = () => {
           selectedFolder={selectedFolder}
           isFavorite={isFavorite}
           mode={mode}
+          onSaved={onSaved}
         />
       )
       return

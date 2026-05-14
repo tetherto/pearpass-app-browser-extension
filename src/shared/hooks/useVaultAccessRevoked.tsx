@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { t } from '@lingui/core/macro'
 import {
@@ -7,6 +7,7 @@ import {
   useVaults,
   type Vault
 } from '@tetherto/pearpass-lib-vault'
+import { pearpassVaultClient } from '@tetherto/pearpass-lib-vault/src/instances'
 
 import { useVaultSwitch } from './useVaultSwitch'
 import { AccessRemovedModalContent } from '../containers/AccessRemovedModalContent'
@@ -18,10 +19,12 @@ import { logger } from '../utils/logger'
 
 /**
  * Receive-side handler for "another device removed me from this vault".
- * Wipes local data and shows the access-removed modal.
+ * Wipes local data, recovers to a fresh "Personal" vault when nothing
+ * remains, and shows the access-removed modal.
  *
- * Currently invoked manually (e.g. via `window.__pearpassTriggerAccessRevoked`
- * for testing); will be wired into the action-bus once it lands.
+ * Triggered by the 'vault-access-revoked' event the lib emits from its
+ * delete-vault action handler when an entry lands in this device's
+ * actions queue (see pearpass-lib-vault/src/actions/index.js).
  */
 export const useVaultAccessRevoked = () => {
   const { setModal } = useModal() as {
@@ -38,10 +41,16 @@ export const useVaultAccessRevoked = () => {
   const { switchVault } = useVaultSwitch()
   const { createVault } = useCreateVault()
 
-  const triggerAccessRevoked = useCallback(
-    async (vaultId: string, deviceName?: string) => {
+  const handleAccessRevoked = useCallback(
+    async (payload: { vaultId?: string; actor?: string } = {}) => {
+      const { vaultId, actor } = payload
+      if (!vaultId) return
+
       const vault = (vaults ?? []).find((v: Vault) => v.id === vaultId)
       const vaultName = vault?.name ?? vaultId
+      const deviceName = (vault?.devices ?? []).find(
+        (d: { id?: string }) => d?.id === actor
+      )?.name as string | undefined
       const wasActive = activeVault?.id === vaultId
 
       try {
@@ -97,5 +106,23 @@ export const useVaultAccessRevoked = () => {
     ]
   )
 
-  return { triggerAccessRevoked }
+  useEffect(() => {
+    const client = pearpassVaultClient as unknown as
+      | undefined
+      | {
+          on?: (event: string, handler: (payload: unknown) => void) => void
+          off?: (event: string, handler: (payload: unknown) => void) => void
+        }
+    if (!client?.on) return
+    client.on(
+      'vault-access-revoked',
+      handleAccessRevoked as (payload: unknown) => void
+    )
+    return () => {
+      client.off?.(
+        'vault-access-revoked',
+        handleAccessRevoked as (payload: unknown) => void
+      )
+    }
+  }, [handleAccessRevoked])
 }

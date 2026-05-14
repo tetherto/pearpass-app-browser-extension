@@ -14,6 +14,8 @@ import {
   ToggleSwitch
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
+  ACTION_TYPES,
+  broadcastAction,
   useCreateVault,
   useUserData,
   useVault,
@@ -99,7 +101,20 @@ export const DeleteVaultModalContentV2 = ({
         return
       }
 
-      // TODO: broadcast deleteVault action to other devices when toggle is on.
+      if (eraseFromAllDevices) {
+        try {
+          await broadcastAction({
+            type: ACTION_TYPES.DELETE_VAULT,
+            payload: { vaultId }
+          })
+        } catch (error) {
+          logger.error(
+            'DeleteVaultModalContentV2',
+            'broadcastAction failed:',
+            error
+          )
+        }
+      }
 
       try {
         await deleteVaultLocal(vaultId)
