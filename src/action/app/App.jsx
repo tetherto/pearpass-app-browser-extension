@@ -14,6 +14,7 @@ import { LayoutWithSidebar } from '../../shared/containers/LayoutWithSidebar'
 import { useBlockingStateContext } from '../../shared/context/BlockingStateContext'
 import { useGlobalLoading } from '../../shared/context/LoadingContext'
 import { useRouter } from '../../shared/context/RouterContext'
+import { useVaultAccessRevoked } from '../../shared/hooks/useVaultAccessRevoked'
 import { isV2 } from '../../shared/utils/designVersion'
 import { AppHeaderContainer } from '../containers/AppHeaderContainer'
 
@@ -29,6 +30,8 @@ export const App = () => {
   const isLoading = isBlockingStateChecking || isRedirectLoading
 
   useGlobalLoading({ isLoading })
+
+  useVaultAccessRevoked()
 
   const containerClassName = isV2()
     ? 'bg-background flex flex-col'
