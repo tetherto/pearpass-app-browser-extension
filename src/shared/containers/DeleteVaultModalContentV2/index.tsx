@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { plural, t } from '@lingui/core/macro'
+import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
 import {
@@ -58,9 +58,8 @@ export const DeleteVaultModalContentV2 = ({
   const { data: allVaults } = useVaults()
   const { createVault } = useCreateVault()
   const devices = (vaultData as { devices?: unknown[] } | undefined)?.devices
-  const otherDeviceCount = Array.isArray(devices)
-    ? Math.max(devices.length - 1, 0)
-    : 0
+  const deviceCount = Array.isArray(devices) ? devices.length : 0
+  const showEraseFromAllDevices = deviceCount > 1
 
   const { logIn } = useUserData()
 
@@ -222,40 +221,38 @@ export const DeleteVaultModalContentV2 = ({
             testID="delete-vault-password-v2"
           />
 
-          <div className="flex w-full flex-row items-center justify-between gap-[var(--spacing12)]">
-            <div className="min-w-0 flex-1">
-              <Text as="span" variant="label">
-                {t`Erase Vault from`}
-              </Text>{' '}
-              <Link
-                onClick={() => setModal(<PairedDevicesModalContent />)}
-                data-testid="delete-vault-eraseall-link-v2"
-              >
-                {plural(otherDeviceCount, {
-                  one: '# other device',
-                  other: '# other devices'
-                })}
-              </Link>{' '}
-              <Text as="span" variant="label">
-                {t`with access`}
-              </Text>
-            </div>
-            <ToggleSwitch
-              checked={eraseFromAllDevices}
-              onChange={setEraseFromAllDevices}
-              aria-label={t`Erase vault from all devices`}
-              data-testid="delete-vault-eraseall-toggle-v2"
-            />
-          </div>
+          {showEraseFromAllDevices ? (
+            <>
+              <div className="flex w-full flex-row items-center justify-between gap-[var(--spacing12)]">
+                <div className="min-w-0 flex-1">
+                  <Text as="span" variant="label">
+                    {t`Erase Vault from all`}
+                  </Text>{' '}
+                  <Link
+                    onClick={() => setModal(<PairedDevicesModalContent />)}
+                    data-testid="delete-vault-eraseall-link-v2"
+                  >
+                    {t`${deviceCount} devices`}
+                  </Link>
+                </div>
+                <ToggleSwitch
+                  checked={eraseFromAllDevices}
+                  onChange={setEraseFromAllDevices}
+                  aria-label={t`Erase vault from all devices`}
+                  data-testid="delete-vault-eraseall-toggle-v2"
+                />
+              </div>
 
-          {eraseFromAllDevices ? (
-            <AlertMessage
-              variant="warning"
-              size="small"
-              title=""
-              description={t`The removal will take effect on all other devices the next time they access this vault.`}
-              testID="delete-vault-eraseall-alert-v2"
-            />
+              {eraseFromAllDevices ? (
+                <AlertMessage
+                  variant="warning"
+                  size="small"
+                  title=""
+                  description={t`The removal will take effect on all other devices the next time they access this vault.`}
+                  testID="delete-vault-eraseall-alert-v2"
+                />
+              ) : null}
+            </>
           ) : null}
 
           {submitError ? (
