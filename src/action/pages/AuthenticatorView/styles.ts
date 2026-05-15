@@ -56,14 +56,6 @@ export const createStyles = (colors: ThemeColors) => ({
     backgroundColor: colors.colorSurfacePrimary,
     overflow: 'hidden' as const
   },
-  emptyState: {
-    display: 'flex' as const,
-    flex: 1,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    padding: `${rawTokens.spacing24}px`,
-    textAlign: 'center' as const
-  },
   detailsWrapper: {
     display: 'flex' as const,
     flexDirection: 'row' as const,

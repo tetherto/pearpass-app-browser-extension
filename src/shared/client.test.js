@@ -10,6 +10,11 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
 jest.mock('./constants/envMode', () => ({
   MODE: 'test'
 }))
+jest.mock('./services/messageBridge', () => ({
+  platformMessages: {
+    getPlatformInfo: jest.fn().mockResolvedValue({ os: 'mac', arch: 'x86_64' })
+  }
+}))
 
 describe('client module', () => {
   beforeEach(() => {
@@ -27,7 +32,9 @@ describe('client module', () => {
       expect(PearpassVaultClient).toHaveBeenCalledWith({
         debugMode: false
       })
-      expect(setPearpassVaultClient).toHaveBeenCalledWith(fakeClient)
+      expect(setPearpassVaultClient).toHaveBeenCalledWith(fakeClient, {
+        currentDeviceName: 'mac x86_64'
+      })
       expect(client).toBe(fakeClient)
     })
 

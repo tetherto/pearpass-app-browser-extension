@@ -1,6 +1,7 @@
 import { setPearpassVaultClient } from '@tetherto/pearpass-lib-vault'
 
 import { PearpassVaultClient } from '../vaultClient'
+import { platformMessages } from './services/messageBridge'
 
 /**
  * @type {import('../vaultClient/nativeMessaging').NativeMessagingVaultClient}
@@ -23,7 +24,11 @@ export const createClient = async () => {
     debugMode: false
   })
 
-  setPearpassVaultClient(client)
+  const platform = await platformMessages.getPlatformInfo()
+  const currentDeviceName = platform
+    ? `${platform.os} ${platform.arch}`.trim()
+    : undefined
+  setPearpassVaultClient(client, { currentDeviceName })
 
   return client
 }
