@@ -18,6 +18,7 @@ import {
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
   Add,
+  Devices,
   EditOutlined,
   LockFilled,
   MoreVert,
@@ -32,6 +33,7 @@ import { sortByName } from '../../utils/sortByName'
 import { useVaultSwitch } from '../../hooks/useVaultSwitch'
 import { CreateOrEditVaultModalContentV2 } from '../CreateOrEditVaultModalContentV2'
 import { DeleteVaultModalContentV2 } from '../DeleteVaultModalContentV2'
+import { PairedDevicesModalContent } from '../PairedDevicesModalContent'
 import { ShareVaultModalContentV2 } from '../ShareVaultModalContentV2'
 
 type VaultSelectorProps = {
@@ -113,6 +115,12 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps = {}) => {
     })
   }
 
+  const handleViewPairedDevices = (vault: Vault) => {
+    void switchVault(vault, () => {
+      setModal(<PairedDevicesModalContent />)
+    })
+  }
+
   return (
     <div style={styles.wrapper} data-testid="vault-selector">
       <div style={styles.titleRow}>
@@ -146,6 +154,7 @@ export const VaultSelector = ({ onClose }: VaultSelectorProps = {}) => {
             onSelect={handleVaultClick}
             onInvite={handleInvite}
             onRename={handleRename}
+            onViewPairedDevices={handleViewPairedDevices}
             onDelete={handleDelete}
           />
         ))}
@@ -163,6 +172,7 @@ type VaultRowProps = {
   onSelect: (vault: Vault) => void
   onInvite: (vault: Vault) => void
   onRename: (vault: Vault) => void
+  onViewPairedDevices: (vault: Vault) => void
   onDelete: (vault: Vault) => void
 }
 
@@ -175,6 +185,7 @@ const VaultRow = ({
   onSelect,
   onInvite,
   onRename,
+  onViewPairedDevices,
   onDelete
 }: VaultRowProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -233,6 +244,13 @@ const VaultRow = ({
             label={t`Rename`}
             testID={`vault-row-rename-${vault.id}`}
             onClick={withMenuClose(onRename)}
+          />
+          <NavbarListItem
+            size="small"
+            icon={<Devices color={iconPrimary.color} />}
+            label={t`View Paired Devices`}
+            testID={`vault-row-devices-${vault.id}`}
+            onClick={withMenuClose(onViewPairedDevices)}
           />
         </div>
         <hr style={styles.menuDivider} />
