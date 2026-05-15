@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { t } from '@lingui/core/macro'
+import { plural, t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
 import {
@@ -231,7 +231,10 @@ export const DeleteVaultModalContentV2 = ({
                 onClick={() => setModal(<PairedDevicesModalContent />)}
                 data-testid="delete-vault-eraseall-link-v2"
               >
-                {t`${otherDeviceCount} other devices`}
+                {plural(otherDeviceCount, {
+                  one: '# other device',
+                  other: '# other devices'
+                })}
               </Link>{' '}
               <Text as="span" variant="label">
                 {t`with access`}
