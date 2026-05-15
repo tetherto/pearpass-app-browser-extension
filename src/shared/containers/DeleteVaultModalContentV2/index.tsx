@@ -26,7 +26,6 @@ import { useModal } from '../../context/ModalContext'
 import { useRouter } from '../../context/RouterContext'
 import { useToast } from '../../context/ToastContext'
 import { useVaultSwitch } from '../../hooks/useVaultSwitch'
-import { platformMessages } from '../../services/messageBridge'
 import { logger } from '../../utils/logger'
 import { PairedDevicesModalContent } from '../PairedDevicesModalContent'
 
@@ -59,7 +58,9 @@ export const DeleteVaultModalContentV2 = ({
   const { data: allVaults } = useVaults()
   const { createVault } = useCreateVault()
   const devices = (vaultData as { devices?: unknown[] } | undefined)?.devices
-  const deviceCount = Array.isArray(devices) ? devices.length : 0
+  const otherDeviceCount = Array.isArray(devices)
+    ? Math.max(devices.length - 1, 0)
+    : 0
 
   const { logIn } = useUserData()
 
@@ -100,10 +101,13 @@ export const DeleteVaultModalContentV2 = ({
         return
       }
 
+      let broadcastFailed = false
       if (eraseFromAllDevices) {
         try {
-          await broadcastDeleteVault(vaultId)
+          const { failures } = await broadcastDeleteVault(vaultId)
+          if (failures?.length) broadcastFailed = true
         } catch (error) {
+          broadcastFailed = true
           logger.error(
             'DeleteVaultModalContentV2',
             'broadcastDeleteVault failed:',
@@ -121,7 +125,16 @@ export const DeleteVaultModalContentV2 = ({
           error
         )
         setSubmitError(t`Failed to delete vault`)
+        setToast({
+          message: t`Couldn't delete vault files. Please try again.`
+        })
         return
+      }
+
+      if (broadcastFailed) {
+        setToast({
+          message: t`Couldn't reach other devices. They will sync next time they come online.`
+        })
       }
 
       handleClose()
@@ -135,11 +148,7 @@ export const DeleteVaultModalContentV2 = ({
       } else {
         try {
           await createVault({ name: t`Personal` })
-          const platform = (await platformMessages.getPlatformInfo()) as {
-            os: string
-            arch: string
-          }
-          await addDevice(`${platform.os} ${platform.arch}`)
+          await addDevice()
           navigate('vault', { state: { recordType: 'all' } })
           setToast({
             message: t`A new "Personal" vault was created`
@@ -216,13 +225,13 @@ export const DeleteVaultModalContentV2 = ({
           <div className="flex w-full flex-row items-center justify-between gap-[var(--spacing12)]">
             <div className="min-w-0 flex-1">
               <Text as="span" variant="label">
-                {t`Erase Vault from all the`}
+                {t`Erase Vault from`}
               </Text>{' '}
               <Link
                 onClick={() => setModal(<PairedDevicesModalContent />)}
                 data-testid="delete-vault-eraseall-link-v2"
               >
-                {t`${deviceCount} devices`}
+                {t`${otherDeviceCount} other devices`}
               </Link>{' '}
               <Text as="span" variant="label">
                 {t`with access`}
