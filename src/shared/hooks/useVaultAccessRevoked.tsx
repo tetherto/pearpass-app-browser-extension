@@ -76,8 +76,9 @@ export const useVaultAccessRevoked = () => {
       } = latest.current
 
       const vault = (vaults ?? []).find((v: Vault) => v.id === vaultId)
-      const vaultName = vault?.name ?? vaultId
-      const deviceName = (vault?.devices ?? []).find(
+      if (!vault) return
+      const vaultName = vault.name ?? vaultId
+      const deviceName = (vault.devices ?? []).find(
         (d: { id?: string }) => d?.id === actor
       )?.name as string | undefined
       const wasActive = activeVault?.id === vaultId
