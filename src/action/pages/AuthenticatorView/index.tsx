@@ -8,9 +8,11 @@ import {
   ListItem,
   NavbarListItem,
   Text,
+  Title,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import {
+  Add,
   CalendarToday,
   Check,
   Checklist,
@@ -23,8 +25,12 @@ import {
   // @ts-expect-error - groupOtpRecords is exported at runtime but absent from the package's main type declarations
   groupOtpRecords,
   isExpiring,
+  RECORD_TYPES,
   useFolders,
-  useRecords
+  useRecords,
+  useUserData,
+  useVault,
+  useVaults
 } from '@tetherto/pearpass-lib-vault'
 import type {
   OtpGroupResult,
@@ -32,10 +38,12 @@ import type {
 } from '@tetherto/pearpass-lib-vault/src/types'
 
 import { createStyles } from './styles'
+import { createStyles as createEmptyStyles } from '../../containers/EmptyCollectionViewV2/EmptyCollectionViewV2.styles'
 import { EmptyResultsViewV2 } from '../../containers/EmptyResultsViewV2'
 import { MultiSelectActionsBar } from '../../containers/MultiSelectActionsBar'
 import { RecordDetailsV2 } from '../../containers/RecordDetails/RecordDetailsV2'
 import { createStyles as createListStyles } from '../../containers/RecordListView/RecordListViewV2.styles'
+import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 import { TimerCircle } from '../../../shared/components/TimerCircle'
 import {
   SORT_BY_TYPE,
@@ -67,6 +75,16 @@ export const AuthenticatorView = () => {
   }
   const styles = createStyles(theme.colors)
   const listStyles = createListStyles(theme.colors)
+  const emptyStyles = createEmptyStyles()
+  const { handleCreateOrEditRecord } = useCreateOrEditRecord()
+
+  const { refetch: refetchVault } = useVault()
+  const { refetch: refetchMasterVault } = useVaults()
+  const { refetch: refetchUserData } = useUserData()
+
+  const onSavedForOtp = useCallback(async () => {
+    await Promise.all([refetchUserData(), refetchMasterVault(), refetchVault()])
+  }, [refetchUserData, refetchMasterVault, refetchVault])
 
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEYS.LAST_UPDATED_NEWEST)
   const [isSortOpen, setIsSortOpen] = useState(false)
@@ -141,9 +159,9 @@ export const AuthenticatorView = () => {
 
   useEffect(() => {
     if (!selectedRecordId) return
-    const stillExists = records?.some((r) => r.id === selectedRecordId)
+    const stillExists = otpRecords.some((r) => r.id === selectedRecordId)
     if (!stillExists) setSelectedRecordId(null)
-  }, [records, selectedRecordId])
+  }, [otpRecords, selectedRecordId])
 
   const exitMultiSelect = useCallback(() => {
     setSelectedRecords([])
@@ -352,10 +370,49 @@ export const AuthenticatorView = () => {
       {!hasRecords && !!searchValue ? (
         <EmptyResultsViewV2 />
       ) : !hasRecords ? (
-        <div style={styles.emptyState} data-testid="authenticator-empty-state">
-          <Text variant="label" color={theme.colors.colorTextSecondary}>
-            {t`No codes saved`}
-          </Text>
+        <div
+          style={emptyStyles.container}
+          data-testid="authenticator-empty-state"
+        >
+          <div style={emptyStyles.content}>
+            <div style={emptyStyles.textBlock}>
+              <Title as="h3" data-testid="authenticator-empty-state-title">
+                {t`No codes saved`}
+              </Title>
+              <Text
+                as="p"
+                variant="label"
+                color={theme.colors.colorTextSecondary}
+                style={
+                  emptyStyles.descriptionParagraph as unknown as React.ComponentProps<
+                    typeof Text
+                  >['style']
+                }
+              >
+                {t`Save your first authenticator code.`}
+              </Text>
+            </div>
+            <div style={emptyStyles.ctas}>
+              <div style={emptyStyles.ctaButton}>
+                <Button
+                  variant="primary"
+                  size="small"
+                  fullWidth
+                  data-testid="authenticator-empty-add-code"
+                  iconBefore={<Add width={16} height={16} />}
+                  onClick={() =>
+                    handleCreateOrEditRecord({
+                      recordType: RECORD_TYPES.OTP,
+                      mode: 'authenticator',
+                      onSaved: onSavedForOtp
+                    })
+                  }
+                >
+                  {t`Add Code`}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div style={listStyles.wrapper}>

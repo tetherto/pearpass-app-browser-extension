@@ -20,6 +20,7 @@ import { checkPasswordStrength } from '@tetherto/pearpass-utils-password-check'
 import {
   Add,
   ArrowBackOutined,
+  Close,
   SyncLock,
   TrashOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
@@ -331,6 +332,25 @@ export const CreateOrEditLoginModalContentV2 = ({
               onChange={(e) => otpSecretField.onChange(e.target.value)}
               error={otpSecretField.error || undefined}
               testID="createoredit-login-v2-otpsecret"
+              rightSlot={
+                isEdit && (otpSecretField.value as string)?.length ? (
+                  <Button
+                    variant="tertiaryAccent"
+                    size="small"
+                    type="button"
+                    aria-label={t`Remove authenticator code`}
+                    iconBefore={
+                      <Close
+                        width={16}
+                        height={16}
+                        color={theme.colors.colorTextPrimary}
+                      />
+                    }
+                    onClick={() => otpSecretField.onChange('')}
+                    data-testid="createoredit-login-v2-remove-otpsecret"
+                  />
+                ) : undefined
+              }
             />
           </MultiSlotInput>
         ) : null}

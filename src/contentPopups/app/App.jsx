@@ -7,6 +7,7 @@ import {
 
 import { Routes } from './Routes'
 import { useRouter } from '../../shared/context/RouterContext'
+import { platformMessages } from '../../shared/services/messageBridge'
 import { logger } from '../../shared/utils/logger'
 import { PearpassVaultClient } from '../../vaultClient'
 import { closeIframe } from '../iframeApi/closeIframe'
@@ -83,7 +84,11 @@ export const App = () => {
       const client = new PearpassVaultClient({
         debugMode: false
       })
-      setPearpassVaultClient(client)
+      const platform = await platformMessages.getPlatformInfo()
+      const currentDeviceName = platform
+        ? `${platform.os} ${platform.arch}`.trim()
+        : undefined
+      setPearpassVaultClient(client, { currentDeviceName })
 
       const res = await refetchUserData()
 

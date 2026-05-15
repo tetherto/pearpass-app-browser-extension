@@ -258,6 +258,20 @@ declare module '@tetherto/pearpass-lib-vault' {
   export const useRecords: any
   export const useBlindMirrors: any
 
+  export function matchLoginRecords(
+    parsedOtp: { issuer?: string; label?: string } | null | undefined,
+    loginRecords: Array<{ id: string; data?: Record<string, unknown> }>
+  ): Array<{
+    record: { id: string; data?: Record<string, unknown> }
+    reasons: string[]
+  }>
+
+  export function parseOtpInput(
+    input: string | undefined | null
+  ): { issuer?: string; label?: string; secret?: string } | null
+
+  export function validateOtpInput(input: string | undefined | null): boolean
+
   export interface UseRecordCountsByTypeResult {
     isLoading: boolean
     data: Record<string, number> | undefined

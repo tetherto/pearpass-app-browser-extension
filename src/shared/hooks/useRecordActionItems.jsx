@@ -11,7 +11,6 @@ import { ConfirmationModalContent } from '../containers/ConfirmationModalContent
 import { DeleteRecordsModalContentV2 } from '../containers/DeleteRecordsModalContentV2'
 import { MoveFolderModalContent } from '../containers/MoveFolderModalContent'
 import { MoveFolderModalContentV2 } from '../containers/MoveFolderModalContentV2'
-import { useToast } from '../context/ToastContext'
 
 /**
  * @param {{
@@ -40,14 +39,8 @@ export const useRecordActionItems = ({
   onClose
 } = {}) => {
   const { setModal, closeModal } = useModal()
-  const { params, navigate, currentPage } = useRouter()
-  const {
-    deleteRecords,
-    updateRecords,
-    updateFavoriteState,
-    data: records
-  } = useRecords()
-  const { setToast } = useToast()
+  const { params, navigate } = useRouter()
+  const { deleteRecords, updateFavoriteState, data: records } = useRecords()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const pendingDeleteId = useRef(null)
 
@@ -128,35 +121,6 @@ export const useRecordActionItems = ({
     onClose?.()
   }
 
-  const isAuthenticatorLoginRecord =
-    record?.type === RECORD_TYPES.LOGIN &&
-    !!record?.otpPublic &&
-    (currentPage === 'authenticator' || params?.source === 'authenticator')
-
-  const handleStripOtp = () => {
-    setModal(
-      <DeleteRecordsModalContentV2
-        records={[record]}
-        title={t`Remove Authenticator Code`}
-        confirmText={t`Are you sure you want to remove the authenticator code from this login record?`}
-        submitLabel={t`Remove`}
-        onConfirm={async () => {
-          const { otpInput, otp, ...restData } = record.data
-          const { otpPublic, ...recordWithoutOtp } = record
-          const updatedRecord = { ...recordWithoutOtp, data: restData }
-          try {
-            await updateRecords([updatedRecord])
-          } catch (err) {
-            setToast({
-              message: err?.message ?? t`Failed to remove authenticator code`
-            })
-          }
-        }}
-      />
-    )
-    onClose?.()
-  }
-
   const defaultActions = [
     {
       name: t`Select element`,
@@ -181,7 +145,7 @@ export const useRecordActionItems = ({
     {
       name: t`Delete element`,
       type: 'delete',
-      click: isAuthenticatorLoginRecord ? handleStripOtp : handleDelete
+      click: handleDelete
     }
   ]
 

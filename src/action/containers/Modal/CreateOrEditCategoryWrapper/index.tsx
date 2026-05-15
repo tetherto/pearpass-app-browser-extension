@@ -1,5 +1,6 @@
 import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
+import { CreateOrEditAuthenticatorModalContentV2 } from './CreateOrEditAuthenticatorModalContentV2/CreateOrEditAuthenticatorModalContentV2'
 import { CreateOrEditCreditCardModalContentV2 } from './CreateOrEditCreditCardModalContentV2/CreateOrEditCreditCardModalContentV2'
 import { CreateOrEditCustomModalContentV2 } from './CreateOrEditCustomModalContentV2/CreateOrEditCustomModalContentV2'
 import { CreateOrEditIdentityModalContentV2 } from './CreateOrEditIdentityModalContentV2/CreateOrEditIdentityModalContentV2'
@@ -31,7 +32,17 @@ export const CreateOrEditCategoryWrapper = ({
   fullScreen,
   onClose
 }: CreateOrEditCategoryWrapperProps) => {
-  if (recordType === RECORD_TYPES.LOGIN || recordType === RECORD_TYPES.OTP) {
+  if (recordType === RECORD_TYPES.OTP) {
+    return (
+      <CreateOrEditAuthenticatorModalContentV2
+        selectedFolder={selectedFolder}
+        isFavorite={isFavorite}
+        onSaved={onSaved}
+      />
+    )
+  }
+
+  if (recordType === RECORD_TYPES.LOGIN) {
     return (
       <CreateOrEditLoginModalContentV2
         initialRecord={initialRecord}
