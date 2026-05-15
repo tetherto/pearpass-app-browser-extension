@@ -7,6 +7,7 @@ import {
 
 import { Routes } from './Routes'
 import { useRouter } from '../../shared/context/RouterContext'
+import { initCurrentDeviceName } from '../../shared/utils/initCurrentDeviceName'
 import { logger } from '../../shared/utils/logger'
 import { PearpassVaultClient } from '../../vaultClient'
 import { closeIframe } from '../iframeApi/closeIframe'
@@ -84,6 +85,7 @@ export const App = () => {
         debugMode: false
       })
       setPearpassVaultClient(client)
+      await initCurrentDeviceName()
 
       const res = await refetchUserData()
 

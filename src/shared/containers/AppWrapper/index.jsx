@@ -10,6 +10,7 @@ import { messages } from '../../../locales/en/messages'
 import { PearpassVaultClient } from '../../../vaultClient'
 import { LoadingProvider } from '../../context/LoadingContext'
 import { RouterProvider } from '../../context/RouterContext'
+import { initCurrentDeviceName } from '../../utils/initCurrentDeviceName'
 import '../../../index.css'
 
 // const client = new PearpassVaultClient({
@@ -20,6 +21,7 @@ const client = new PearpassVaultClient({
 })
 
 setPearpassVaultClient(client)
+initCurrentDeviceName()
 
 i18n.load('en', messages)
 i18n.activate('en')

@@ -71,7 +71,7 @@ export const DeleteVaultModalContentV2 = ({
     masterPassword: Validator.string().required(t`Master password is required`)
   })
 
-  const { register, handleSubmit, setErrors, values } = useForm({
+  const { register, handleSubmit, values } = useForm({
     initialValues: { masterPassword: '' },
     validate: (formValues: { masterPassword: string }) =>
       schema.validate(formValues)
@@ -83,11 +83,6 @@ export const DeleteVaultModalContentV2 = ({
 
   const onSubmit = async (formValues: { masterPassword: string }) => {
     if (isLoading) return
-
-    if (!formValues.masterPassword) {
-      setErrors({ masterPassword: t`Master password is required` })
-      return
-    }
 
     setSubmitError(null)
     setIsLoading(true)
@@ -158,6 +153,9 @@ export const DeleteVaultModalContentV2 = ({
             'failed to create fallback Personal vault:',
             error
           )
+          setToast({
+            message: t`Couldn't create a starter vault. Please try again.`
+          })
         }
       }
     } finally {

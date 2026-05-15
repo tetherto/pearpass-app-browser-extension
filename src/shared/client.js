@@ -1,6 +1,7 @@
 import { setPearpassVaultClient } from '@tetherto/pearpass-lib-vault'
 
 import { PearpassVaultClient } from '../vaultClient'
+import { initCurrentDeviceName } from './utils/initCurrentDeviceName'
 
 /**
  * @type {import('../vaultClient/nativeMessaging').NativeMessagingVaultClient}
@@ -24,6 +25,7 @@ export const createClient = async () => {
   })
 
   setPearpassVaultClient(client)
+  await initCurrentDeviceName()
 
   return client
 }
