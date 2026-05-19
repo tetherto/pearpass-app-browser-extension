@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro'
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
 import {
+  AlertMessage,
   Button,
   Combobox,
   Dialog,
@@ -17,6 +18,7 @@ import {
   matchLoginRecords,
   parseOtpInput,
   useCreateRecord,
+  useFindOtpDuplicates,
   useRecords,
   validateOtpInput
 } from '@tetherto/pearpass-lib-vault'
@@ -98,6 +100,12 @@ export const CreateOrEditAuthenticatorModalContentV2 = ({
     () => matchLoginRecords(parsedOtp, loginRecords ?? []),
     [parsedOtp, loginRecords]
   )
+
+  const { data: duplicates } = useFindOtpDuplicates({
+    secret: parsedOtp?.secret,
+    excludeRecordId: (values.linkedRecordId as string) || undefined
+  })
+  const duplicateRecord = duplicates[0]
 
   const linkedRecord = useMemo(
     () =>
@@ -228,6 +236,16 @@ export const CreateOrEditAuthenticatorModalContentV2 = ({
             error={otpSecretField.error || undefined}
             testID="createoredit-authenticator-v2-otpsecret"
           />
+
+          {duplicateRecord && (
+            <AlertMessage
+              variant="warning"
+              size="small"
+              title={t`Potential code duplicate`}
+              description={t`An item with this secret key or URL already exists: ${duplicateRecord.title || t`Untitled`}`}
+              testID="otp-duplicate-warning"
+            />
+          )}
 
           <MultiSlotInput testID="createoredit-authenticator-v2-link-slot">
             <Combobox
