@@ -86,7 +86,11 @@ export const COMMAND_DEFINITIONS = {
   generateOtpCodesByIds: { params: ['recordIds'] },
   generateHotpNext: { params: ['recordId'] },
   addOtpToRecord: { params: ['recordId', 'otpInput'] },
-  removeOtpFromRecord: { params: ['recordId'] }
+  removeOtpFromRecord: { params: ['recordId'] },
+  findOtpDuplicates: {
+    params: ['options'],
+    extractParams: (options) => options
+  }
 }
 
 // Export just the command names
