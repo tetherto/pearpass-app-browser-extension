@@ -18,6 +18,18 @@ jest.mock('../../shared/utils/designVersion', () => ({
   isV2: jest.fn(() => false)
 }))
 
+jest.mock('../../shared/context/RouterContext', () => ({
+  useRouter: jest.fn(() => ({ currentPage: 'vault' }))
+}))
+
+jest.mock('../../shared/hooks/useVaultAccessRevoked', () => ({
+  useVaultAccessRevoked: jest.fn()
+}))
+
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
+  AUTHENTICATOR_ENABLED: false
+}))
+
 jest.mock('./hooks/useRedirect', () => ({
   useRedirect: jest.fn()
 }))
@@ -50,6 +62,12 @@ jest.mock('../../shared/components/WelcomePageWrapper', () => ({
 
 jest.mock('./Loading', () => ({
   Loading: () => <div data-testid="loading" />
+}))
+
+jest.mock('../../shared/containers/LayoutWithSidebar', () => ({
+  LayoutWithSidebar: ({ children }) => (
+    <div data-testid="layout-with-sidebar">{children}</div>
+  )
 }))
 
 const { App } = require('./App')
