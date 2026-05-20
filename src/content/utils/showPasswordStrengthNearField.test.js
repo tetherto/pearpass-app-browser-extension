@@ -5,6 +5,8 @@ import {
 
 import { showPasswordStrengthNearField } from './showPasswordStrengthNearField'
 
+jest.mock('./contentI18n.js', () => ({}))
+
 jest.mock('@tetherto/pearpass-utils-password-check', () => {
   const actual = jest.requireActual('@tetherto/pearpass-utils-password-check')
   return {
