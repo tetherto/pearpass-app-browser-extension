@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`PairingRequiredModalContentV2 - snapshot renders master password form when token is present 1`] = `
+exports[`PairingRequiredModalContent - snapshot renders master password form when token is present 1`] = `
 <div>
   <div
     class="bg-surface-primary flex h-full w-full items-center justify-center overflow-hidden"

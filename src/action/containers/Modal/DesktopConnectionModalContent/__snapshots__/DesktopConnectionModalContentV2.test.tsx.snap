@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DesktopConnectionModalContentV2 matches snapshot 1`] = `
+exports[`DesktopConnectionModalContent matches snapshot 1`] = `
 <div>
   <div
     data-close-on-outside-click="false"

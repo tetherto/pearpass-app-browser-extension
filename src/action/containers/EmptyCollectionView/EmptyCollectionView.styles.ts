@@ -1,7 +1,7 @@
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-export const CONTENT_MAX_WIDTH = 360
-export const BUTTONS_MAX_WIDTH = 260
+const CONTENT_MAX_WIDTH = 360
+const BUTTONS_MAX_WIDTH = 260
 
 export const createStyles = () => ({
   container: {

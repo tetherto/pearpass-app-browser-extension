@@ -1,7 +1,7 @@
 import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-export const APP_HEADER_HEIGHT = 64
+const APP_HEADER_HEIGHT = 64
 
 export const createStyles = (colors: ThemeColors) => ({
   root: {

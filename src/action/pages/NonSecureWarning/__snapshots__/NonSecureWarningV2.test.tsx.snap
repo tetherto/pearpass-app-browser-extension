@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NonSecureWarningV2 matches snapshot 1`] = `
+exports[`NonSecureWarning matches snapshot 1`] = `
 <div>
   <div
     data-close-on-outside-click="false"

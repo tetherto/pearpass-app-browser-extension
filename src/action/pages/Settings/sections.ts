@@ -14,12 +14,11 @@ export enum SettingsItemKey {
 export enum SettingsSectionKey {
   Security = 'security',
   Vault = 'vault',
-  SharedElements = 'shared-elements',
   Appearance = 'appearance',
   About = 'about'
 }
 
-export type SectionItem = {
+type SectionItem = {
   key: SettingsItemKey
   label: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
