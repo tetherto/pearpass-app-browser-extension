@@ -191,7 +191,7 @@ import { Add, Download, Folder, OpenInNew } from '@tetherto/pearpass-lib-ui-kit/
 
 **Discovering others:** `ls node_modules/@tetherto/pearpass-lib-ui-kit/dist/icons/components/ | grep -i <keyword>` — names are PascalCase, grep is case-insensitive friendly.
 
-Product-specific illustrations (e.g. `src/shared/svgs/authenticatorIllustration/`, `src/shared/svgs/logoLock/`) are not design-system icons and may stay under `src/`.
+Product-specific illustrations (e.g. `src/shared/svgs/logoLock/`) are not design-system icons and may stay under `src/`.
 
 ## Anti-patterns to avoid
 
