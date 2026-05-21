@@ -13,8 +13,8 @@ jest.mock('../../../../../shared/components/ButtonRoundIcon', () => ({
   ))
 }))
 
-jest.mock('../../../../../shared/icons/ArrowLeftIcon', () => ({
-  ArrowLeftIcon: () => <span data-testid="mock-icon">Mock Icon</span>
+jest.mock('../../../../../shared/icons/BackIcon', () => ({
+  BackIcon: () => <span data-testid="mock-icon">Mock Icon</span>
 }))
 
 describe('WelcomeCardHeader', () => {

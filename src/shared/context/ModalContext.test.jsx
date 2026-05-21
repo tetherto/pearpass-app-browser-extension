@@ -72,9 +72,21 @@ describe('ModalContext', () => {
   })
 
   it('should render an overlay if hasOverlay is true', () => {
-    renderWithProvider(<TestComponent />)
+    const TestComponentWithOverlay = () => {
+      const { setModal } = useModal()
+      return (
+        <button
+          onClick={() =>
+            setModal(<div>Modal Content</div>, { hasOverlay: true })
+          }
+        >
+          Open Modal With Overlay
+        </button>
+      )
+    }
+    renderWithProvider(<TestComponentWithOverlay />)
 
-    fireEvent.click(screen.getByText('Open Modal'))
+    fireEvent.click(screen.getByText('Open Modal With Overlay'))
 
     expect(screen.getByRole('dialog', { name: /overlay/i })).toBeInTheDocument()
   })
