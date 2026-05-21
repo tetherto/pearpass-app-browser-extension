@@ -11,27 +11,20 @@ This is the browser extension (Chrome MV3) for PearPass. It's written in React +
 
 This document is for **anyone contributing UI** to the repo — new hires, current engineers, and AI coding assistants (Claude Code, Cursor, Codex, etc.). It captures the component catalog, styling conventions, file-naming rules, and patterns we use when building UI in this extension. Read it once before your first UI change; keep it open when you're in doubt.
 
-## Migration state — v2 is the target
+## Migration state — kit is the only design system
 
-UI is being migrated onto `@tetherto/pearpass-lib-ui-kit`. For **new UI work** — v2 redesigns of existing screens and net-new features — use the kit. Today the only kit wiring in this repo is the `ThemeProvider` in [src/action/index.jsx](../../../src/action/index.jsx); every actual component rendered in the UI still comes from the legacy tree at [src/shared/components/](../../../src/shared/components/). That tree keeps working while the migration is in progress — do not delete anything from it as part of v2 work.
+UI is fully on `@tetherto/pearpass-lib-ui-kit`. All screens and components use kit primitives. There is no `EXTENSION_DESIGN_VERSION` / `isV2()` runtime flag — those have been removed. Kit components render directly throughout.
 
-Note: unlike the sibling desktop repo, this extension does **not** currently gate v1 vs v2 behind a `EXTENSION_DESIGN_VERSION` / `isV2()` runtime flag. Kit-based components render directly at their call sites. If a flag is added later, this doc will describe it.
+A small number of legacy components remain in [src/shared/components/](../../../src/shared/components/) (e.g. `Switch`, `SwitchWithLabel`, `TimerBar`, `ModalHeader`) — carry-overs from the migration period. Do not grow that tree; use kit equivalents for any new work.
 
-## File naming: when to use the `V2` suffix
-
-The `V2` suffix is a **coexistence marker**, not a design marker. Use it only when a v1 sibling already exists:
-
-- **A v1 file already exists** for this component/screen → create a new file with the `V2` suffix next to it (e.g. v1 `CreateVaultModalContent.jsx` → new `CreateVaultModalContentV2.tsx`). Both live in the tree during migration; the branching happens at the call site.
-- **No v1 equivalent exists** (net-new feature, net-new component) → create the file with its natural name, **no `V2` suffix**. The suffix would just be noise.
-
-Before creating a file, glob the directory for the base name without the suffix. If nothing comes up, skip the suffix.
+**Never use the `V2` suffix.** It was a coexistence marker during the v1/v2 migration, which is now complete. All new files use their natural name.
 
 ## Where UI lives in this repo
 
 - [src/action/pages/](../../../src/action/pages/) — top-level screens for the action popup (WelcomePage, Settings, RecordDetails, RecordList, CreatePasskey, SelectPasskey, AuthenticatorView, AddDevice, NonSecureWarning).
 - [src/action/containers/](../../../src/action/containers/) — stateful composed UI used by those pages.
 - [src/contentPopups/views/](../../../src/contentPopups/views/) — in-page popups rendered by the content script (Autofill, LoginDetect, PasswordGenerator, PasswordSuggestion, Logo).
-- [src/shared/components/](../../../src/shared/components/) — **legacy v1 custom components** (do not grow; see rules below).
+- [src/shared/components/](../../../src/shared/components/) — **legacy components** (do not grow; use kit equivalents for new work).
 - [src/shared/containers/](../../../src/shared/containers/) — shared stateful UI (Sidebar, PassPhrase, CreateVaultModalContent, etc.).
 
 ## Golden rules
@@ -205,17 +198,15 @@ Product-specific illustrations (e.g. [src/shared/svgs/authenticatorIllustration/
 
 ## Anti-patterns to avoid
 
-When creating new UI or touching a v2 file, do **not**:
+Do **not**:
 
 - Add a new file under [src/shared/components/](../../../src/shared/components/) for a Button/Input/Modal variant.
 - Import `InputPearPass`, `InputPasswordPearPass`, `InputFieldPassword`, any `Button*` variant, `Switch` / `SwitchWithLabel`, `ModalCard` / `ModalHeader` / `PopupCard`, `OtpCodeField`, `RadioOption` / `RadioSelect`, or `Select` from [src/shared/components/](../../../src/shared/components/) into any new file — swap to the kit equivalents.
-- Add a `V2` suffix to a net-new file that has no v1 sibling. Suffix is only for migration coexistence.
+- Add a `V2` suffix to any file — the migration is complete and the suffix is permanently retired.
 - Use native `<button>`, `<input>`, or `<dialog>` in production code (tests are fine).
 - Hardcode hex colors, brand radii, or design-system spacing — use `rawTokens` and `theme.colors`. (Feature-specific layout literals like `maxWidth: '500px'` are fine.)
 - Add new SVG files under `src/` when the kit's icons subpath covers them.
 - Introduce `styled-components`. Style with Tailwind utilities (plus `rawTokens` in JS when needed). `styled-components` is still in `package.json` but not used in `src/` — keep it that way.
-
-When editing a v1 file and you spot these patterns, mention them to the user but **don't do drive-by rewrites** unless asked — v1 migration is scoped work.
 
 ## When the kit truly lacks something
 
