@@ -1,6 +1,21 @@
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 import { TextEncoder, TextDecoder } from 'util'
 
+// StyleX calls css.create() at module load time, which requires a browser CSS
+// environment that jsdom does not provide. Mock the runtime so module loading
+// succeeds; tests don't assert CSS class names so there is no behavioral loss.
+jest.mock('@stylexjs/stylex', () => {
+  const noop = () => new Proxy({}, { get: () => '' })
+  return {
+    create: noop,
+    props: () => ({ className: '', style: {} }),
+    defineVars: (vars) => vars,
+    createTheme: noop,
+    keyframes: () => '',
+    include: () => '',
+  }
+})
+
 import { i18n } from '@lingui/core'
 
 import { CRYPTO_ALGORITHMS } from './src/shared/constants/crypto'

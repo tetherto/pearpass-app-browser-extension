@@ -115,7 +115,7 @@ exports[`Icon Components ErrorIcon renders correctly 1`] = `
 >
   <path
     d="M10 19C14.9706 19 19 14.9706 19 10C19 5.02944 14.9706 1 10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19Z"
-    fill="#D65C5E"
+    fill="#D13B3D"
     stroke="#000"
     stroke-linecap="round"
     stroke-linejoin="round"
@@ -239,8 +239,8 @@ exports[`Icon Components OkayIcon renders correctly 1`] = `
 >
   <path
     d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-    fill="#A3BB62"
-    stroke="#BADE5B"
+    fill="#B0D944"
+    stroke="#B0D944"
     stroke-linecap="round"
     stroke-linejoin="round"
   />

@@ -29,7 +29,7 @@ exports[`ButtonFilter Component renders correctly with a start icon 1`] = `
   >
     <svg
       data-testid="mock-icon"
-      fill="#050B06"
+      fill="#08090C"
       height="24"
       width="24"
     />

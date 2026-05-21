@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { fireEvent, render, waitFor } from '@testing-library/react'
-import { ThemeProvider } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import {
   Menu,
@@ -30,21 +29,19 @@ afterEach(() => {
 
 const renderMenu = (props = {}) =>
   render(
-    <ThemeProvider>
-      <Menu {...props}>
-        <MenuTrigger>
-          <button>Open Menu</button>
-        </MenuTrigger>
-        <MenuContent className="test-content">
-          <MenuItem className="test-item" onClick={props.onItemClick}>
-            Item 1
-          </MenuItem>
-          <MenuItem onClick={props.onItemClick}>Item 2</MenuItem>
-          <MenuSeparator className="test-separator" />
-          <MenuItem disabled>Disabled Item</MenuItem>
-        </MenuContent>
-      </Menu>
-    </ThemeProvider>
+    <Menu {...props}>
+      <MenuTrigger>
+        <button>Open Menu</button>
+      </MenuTrigger>
+      <MenuContent className="test-content">
+        <MenuItem className="test-item" onClick={props.onItemClick}>
+          Item 1
+        </MenuItem>
+        <MenuItem onClick={props.onItemClick}>Item 2</MenuItem>
+        <MenuSeparator className="test-separator" />
+        <MenuItem disabled>Disabled Item</MenuItem>
+      </MenuContent>
+    </Menu>
   )
 
 describe('Menu Component', () => {
@@ -102,32 +99,28 @@ describe('Menu Component', () => {
     test('works in controlled mode', async () => {
       const onOpenChange = jest.fn()
       const { getByText, rerender } = render(
-        <ThemeProvider>
-          <Menu open={false} onOpenChange={onOpenChange}>
-            <MenuTrigger>
-              <button>Open Menu</button>
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem>Item 1</MenuItem>
-            </MenuContent>
-          </Menu>
-        </ThemeProvider>
+        <Menu open={false} onOpenChange={onOpenChange}>
+          <MenuTrigger>
+            <button>Open Menu</button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem>Item 1</MenuItem>
+          </MenuContent>
+        </Menu>
       )
 
       fireEvent.click(getByText('Open Menu'))
       expect(onOpenChange).toHaveBeenCalledWith(true)
 
       rerender(
-        <ThemeProvider>
-          <Menu open={true} onOpenChange={onOpenChange}>
-            <MenuTrigger>
-              <button>Open Menu</button>
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem>Item 1</MenuItem>
-            </MenuContent>
-          </Menu>
-        </ThemeProvider>
+        <Menu open={true} onOpenChange={onOpenChange}>
+          <MenuTrigger>
+            <button>Open Menu</button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem>Item 1</MenuItem>
+          </MenuContent>
+        </Menu>
       )
 
       await waitFor(() => {
@@ -167,16 +160,14 @@ describe('Menu Component', () => {
   describe('MenuTrigger', () => {
     test('applies className', () => {
       const { container } = render(
-        <ThemeProvider>
-          <Menu>
-            <MenuTrigger className="custom-trigger">
-              <button>Trigger</button>
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem>Item</MenuItem>
-            </MenuContent>
-          </Menu>
-        </ThemeProvider>
+        <Menu>
+          <MenuTrigger className="custom-trigger">
+            <button>Trigger</button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem>Item</MenuItem>
+          </MenuContent>
+        </Menu>
       )
 
       expect(container.querySelector('.custom-trigger')).toBeInTheDocument()
@@ -257,16 +248,14 @@ describe('Menu Component', () => {
 
     test('does not close menu when closeOnClick is false', async () => {
       const { getByText } = render(
-        <ThemeProvider>
-          <Menu>
-            <MenuTrigger>
-              <button>Open Menu</button>
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem closeOnClick={false}>Stay Open</MenuItem>
-            </MenuContent>
-          </Menu>
-        </ThemeProvider>
+        <Menu>
+          <MenuTrigger>
+            <button>Open Menu</button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem closeOnClick={false}>Stay Open</MenuItem>
+          </MenuContent>
+        </Menu>
       )
 
       fireEvent.click(getByText('Open Menu'))
@@ -283,18 +272,16 @@ describe('Menu Component', () => {
     test('does not call onClick when disabled', async () => {
       const onItemClick = jest.fn()
       const { getByText } = render(
-        <ThemeProvider>
-          <Menu>
-            <MenuTrigger>
-              <button>Open Menu</button>
-            </MenuTrigger>
-            <MenuContent>
-              <MenuItem disabled onClick={onItemClick}>
-                Disabled
-              </MenuItem>
-            </MenuContent>
-          </Menu>
-        </ThemeProvider>
+        <Menu>
+          <MenuTrigger>
+            <button>Open Menu</button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem disabled onClick={onItemClick}>
+              Disabled
+            </MenuItem>
+          </MenuContent>
+        </Menu>
       )
 
       fireEvent.click(getByText('Open Menu'))
@@ -360,16 +347,14 @@ describe('calculatePosition', () => {
 
   test('positions menu at bottom with start alignment', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="bottom" align="start">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="bottom" align="start">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))
@@ -381,16 +366,14 @@ describe('calculatePosition', () => {
 
   test('positions menu at bottom with end alignment', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="bottom" align="end">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="bottom" align="end">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))
@@ -402,16 +385,14 @@ describe('calculatePosition', () => {
 
   test('positions menu at top', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="top" align="start">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="top" align="start">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))
@@ -423,16 +404,14 @@ describe('calculatePosition', () => {
 
   test('positions menu at left', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="left">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="left">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))
@@ -444,16 +423,14 @@ describe('calculatePosition', () => {
 
   test('positions menu at right', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="right">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="right">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))
@@ -465,16 +442,14 @@ describe('calculatePosition', () => {
 
   test('positions menu with center alignment', async () => {
     const { getByText } = render(
-      <ThemeProvider>
-        <Menu anchor="bottom" align="center">
-          <MenuTrigger>
-            <button>Open Menu</button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItem>Item</MenuItem>
-          </MenuContent>
-        </Menu>
-      </ThemeProvider>
+      <Menu anchor="bottom" align="center">
+        <MenuTrigger>
+          <button>Open Menu</button>
+        </MenuTrigger>
+        <MenuContent>
+          <MenuItem>Item</MenuItem>
+        </MenuContent>
+      </Menu>
     )
 
     fireEvent.click(getByText('Open Menu'))

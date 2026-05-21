@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 /**
  * @param {{
@@ -11,6 +11,8 @@ import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
  * }} props
  */
 export const Toasts = ({ toasts }) => {
+  const { theme } = useTheme()
+
   if (!toasts?.length) {
     return null
   }
@@ -25,7 +27,7 @@ export const Toasts = ({ toasts }) => {
             key={index}
             className="font-inter flex items-center justify-center gap-1.5 rounded-lg bg-white p-2.5 text-sm leading-normal font-normal text-black shadow-lg"
           >
-            {Icon && <Icon color={colors.black.mode1} />}
+            {Icon && <Icon color={theme.colors.colorOnPrimary} />}
             {toast.message}
           </div>
         )

@@ -14,7 +14,7 @@ exports[`RecordAvatar Component renders correctly when selected 1`] = `
     >
       <path
         d="M9.8423 17.6296L4.87305 12.6604L5.58655 11.9469L9.8423 16.2026L18.998 7.04688L19.7115 7.76037L9.8423 17.6296Z"
-        fill="#050B06"
+        fill="#08090C"
       />
     </svg>
   </div>
@@ -59,7 +59,7 @@ exports[`RecordAvatar Component renders correctly with initials and favorite 1`]
       >
         <path
           d="M8.13251 19.207L9.37301 13.8935L5.24976 10.3225L10.6805 9.8513L12.8075 4.8418L14.9345 9.8513L20.3653 10.3225L16.242 13.8935L17.4825 19.207L12.8075 16.386L8.13251 19.207Z"
-          fill="#BADE5B"
+          fill="#B0D944"
         />
       </svg>
     </div>

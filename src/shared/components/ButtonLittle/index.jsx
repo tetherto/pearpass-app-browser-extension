@@ -1,6 +1,6 @@
 import React, { createElement } from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 /**
  * @param {{
@@ -22,6 +22,7 @@ export const ButtonLittle = ({
   className = '',
   onClick
 }) => {
+  const { theme } = useTheme()
   const buttonClass =
     variant === 'primary'
       ? 'bg-primary400-mode1 px-2.5 py-1 rounded-[10px] text-black-mode1 hover:bg-primary500-mode1'
@@ -41,8 +42,8 @@ export const ButtonLittle = ({
           size: '24px',
           color:
             variant === 'primary'
-              ? colors.black.mode1
-              : colors.primary400.mode1,
+              ? theme.colors.colorOnPrimary
+              : theme.colors.colorPrimary,
           className: 'peer-focus:text-primary500-mode1'
         })}
       {children}

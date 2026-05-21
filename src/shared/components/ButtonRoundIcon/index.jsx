@@ -1,7 +1,6 @@
-import React from 'react'
-import { createElement } from 'react'
+import React, { createElement } from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 /**
  * @param {Object} props - Component props.
@@ -15,17 +14,21 @@ export const ButtonRoundIcon = ({
   startIcon,
   onClick,
   type = 'button'
-}) => (
-  <button
-    onClick={onClick}
-    type={type}
-    className="bg-black-mode1 border-black-mode1 hover:border-primary400-mode1 flex cursor-pointer items-center justify-center rounded-full border p-1"
-  >
-    {startIcon &&
-      createElement(startIcon, {
-        size: '24px',
-        color: colors.primary400.mode1
-      })}
-    {children}
-  </button>
-)
+}) => {
+  const { theme } = useTheme()
+
+  return (
+    <button
+      onClick={onClick}
+      type={type}
+      className="bg-black-mode1 border-black-mode1 hover:border-primary400-mode1 flex cursor-pointer items-center justify-center rounded-full border p-1"
+    >
+      {startIcon &&
+        createElement(startIcon, {
+          size: '24px',
+          color: theme.colors.colorPrimary
+        })}
+      {children}
+    </button>
+  )
+}

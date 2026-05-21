@@ -17,7 +17,7 @@ exports[`ModalHeader renders correctly and matches snapshot 1`] = `
       type="button"
     >
       <svg
-        fill="#BADE5B"
+        fill="#B0D944"
         height="24px"
         width="24px"
       >

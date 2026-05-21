@@ -4,7 +4,7 @@ import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 import { useCountDown } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { generateQRCodeSVG } from '@tetherto/pear-apps-utils-qr'
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 import {
   authoriseCurrentProtectedVault,
   useInvite,
@@ -27,6 +27,7 @@ import { ImportItemOrVaultModalContent } from '../../containers/Modal/ImportItem
 import { VaultPasswordForm } from '../../containers/VaultPasswordForm'
 
 export const AddDevice = () => {
+  const { theme } = useTheme()
   const { setShouldBypassAutoLock } = useAutoLockPreferences()
 
   useEffect(() => {
@@ -169,7 +170,7 @@ export const AddDevice = () => {
           </div>
 
           <div className="flex-shrink-0">
-            <TimeIcon color={colors.primary400.mode1} />
+            <TimeIcon color={theme.colors.colorPrimary} />
           </div>
         </div>
 
@@ -179,7 +180,7 @@ export const AddDevice = () => {
         >
           <div className="flex gap-2">
             <div className="flex-shrink-0">
-              <CopyIcon color={colors.primary400.mode1} />
+              <CopyIcon color={theme.colors.colorPrimary} />
             </div>
 
             <div className="text-white-mode1 font-inter text-sm font-medium">

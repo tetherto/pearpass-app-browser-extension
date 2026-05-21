@@ -1,13 +1,11 @@
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
-
 import { getTimerColor } from './otp'
 
 describe('getTimerColor', () => {
-  it('should return errorRed when expiring is true', () => {
-    expect(getTimerColor(true)).toBe(colors.errorRed.mode1)
+  it('should return error red when expiring is true', () => {
+    expect(getTimerColor(true)).toBe('#D13B3D')
   })
 
-  it('should return primary400 when expiring is false', () => {
-    expect(getTimerColor(false)).toBe(colors.primary400.mode1)
+  it('should return primary when expiring is false', () => {
+    expect(getTimerColor(false)).toBe('#B0D944')
   })
 })

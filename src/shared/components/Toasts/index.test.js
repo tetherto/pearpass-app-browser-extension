@@ -1,8 +1,6 @@
 import React from 'react'
 
 import { render } from '@testing-library/react'
-import { ThemeProvider } from '@tetherto/pearpass-lib-ui-theme-provider'
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
 
 import { Toasts } from './index'
 import '@testing-library/jest-dom'
@@ -20,25 +18,14 @@ describe('Toasts Component', () => {
       { message: 'Error message', icon: null }
     ]
 
-    const { container } = render(
-      <ThemeProvider>
-        <Toasts toasts={toasts} />
-      </ThemeProvider>
-    )
+    const { container } = render(<Toasts toasts={toasts} />)
 
-    expect(mockIcon).toHaveBeenCalledWith(
-      { color: colors.black.mode1 },
-      undefined
-    )
+    expect(mockIcon).toHaveBeenCalledWith({ color: '#08090C' }, undefined)
     expect(container).toMatchSnapshot()
   })
 
   test('renders correctly without toasts', () => {
-    const { container } = render(
-      <ThemeProvider>
-        <Toasts toasts={[]} />
-      </ThemeProvider>
-    )
+    const { container } = render(<Toasts toasts={[]} />)
 
     expect(container.firstChild).toBeNull()
   })
@@ -49,11 +36,7 @@ describe('Toasts Component', () => {
       { message: 'Toast 2', icon: mockIcon }
     ]
 
-    const { getAllByTestId } = render(
-      <ThemeProvider>
-        <Toasts toasts={toasts} />
-      </ThemeProvider>
-    )
+    const { getAllByTestId } = render(<Toasts toasts={toasts} />)
 
     expect(mockIcon).toHaveBeenCalledTimes(2)
     expect(getAllByTestId('mock-icon')).toHaveLength(2)
@@ -65,11 +48,7 @@ describe('Toasts Component', () => {
       { message: 'Toast 2', icon: null }
     ]
 
-    const { queryAllByTestId } = render(
-      <ThemeProvider>
-        <Toasts toasts={toasts} />
-      </ThemeProvider>
-    )
+    const { queryAllByTestId } = render(<Toasts toasts={toasts} />)
 
     expect(queryAllByTestId('mock-icon')).toHaveLength(0)
   })
@@ -80,11 +59,7 @@ describe('Toasts Component', () => {
       { message: 'Toast without icon', icon: null }
     ]
 
-    const { getByText, queryByTestId } = render(
-      <ThemeProvider>
-        <Toasts toasts={toasts} />
-      </ThemeProvider>
-    )
+    const { getByText, queryByTestId } = render(<Toasts toasts={toasts} />)
 
     expect(mockIcon).toHaveBeenCalledTimes(1)
     expect(queryByTestId('mock-icon')).toBeInTheDocument()

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 import { getIconProps } from '../../../shared/utils/getIconProps'
 
@@ -13,9 +13,10 @@ import { getIconProps } from '../../../shared/utils/getIconProps'
  * }} props
  */
 export const YellowErrorIcon = (props) => {
+  const { theme } = useTheme()
   const { width, height, color } = getIconProps({
     ...props,
-    color: props.color || colors.errorYellow.dark
+    color: props.color || theme.colors.colorSurfaceWarning
   })
 
   return (
@@ -35,7 +36,7 @@ export const YellowErrorIcon = (props) => {
       />
       <path
         d="M11.2986 5.41748L11.0615 12.7429H8.94271L8.70558 5.41748H11.2986ZM9.9995 16.1246C9.63177 16.1246 9.31559 15.994 9.05097 15.7328C8.78978 15.4716 8.65918 15.1554 8.65918 14.7843C8.65918 14.42 8.78978 14.109 9.05097 13.8512C9.31559 13.59 9.63177 13.4594 9.9995 13.4594C10.3535 13.4594 10.6645 13.59 10.9326 13.8512C11.2041 14.109 11.3398 14.42 11.3398 14.7843C11.3398 15.0317 11.2762 15.2568 11.1491 15.4596C11.0254 15.6624 10.8621 15.8239 10.6594 15.9442C10.46 16.0645 10.2401 16.1246 9.9995 16.1246Z"
-        fill={colors.white.mode1}
+        fill={theme.colors.colorTextTertiary}
       />
     </svg>
   )

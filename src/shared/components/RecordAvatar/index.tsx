@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 import { CheckIcon } from '../../../shared/icons/CheckIcon'
 import { StarIcon } from '../../../shared/icons/StarIcon'
@@ -23,6 +23,7 @@ export const RecordAvatar: React.FC<RecordAvatarProps> = ({
   isFavorite = false,
   color
 }) => {
+  const { theme } = useTheme()
   const isSmall = size === 'sm'
   const { faviconSrc } = useFavicon({ url: websiteDomain })
 
@@ -33,7 +34,7 @@ export const RecordAvatar: React.FC<RecordAvatarProps> = ({
       <div
         className={`bg-primary400-mode1 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] p-[5px]`}
       >
-        <CheckIcon size="24" color={colors.black.mode1} />
+        <CheckIcon size="24" color={theme.colors.colorOnPrimary} />
       </div>
     )
   }
@@ -61,7 +62,7 @@ export const RecordAvatar: React.FC<RecordAvatarProps> = ({
         <div className="absolute -right-[6px] -bottom-[7px]">
           <StarIcon
             size="18px"
-            color={colors.primary400.mode1}
+            color={theme.colors.colorPrimary}
             fill={isFavorite}
           />
         </div>

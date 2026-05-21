@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 /**
  * @param {{
@@ -20,6 +20,7 @@ export const ButtonFilter = ({
   disabled,
   onClick
 }) => {
+  const { theme } = useTheme()
   const handleClick = disabled ? () => {} : onClick
 
   // const size = variant === 'primary' ? 14 : 21
@@ -41,7 +42,9 @@ export const ButtonFilter = ({
         <StartIcon
           size="24"
           color={
-            variant === 'primary' ? colors.black.mode1 : colors.white.mode1
+            variant === 'primary'
+              ? theme.colors.colorOnPrimary
+              : theme.colors.colorTextTertiary
           }
         />
       )}

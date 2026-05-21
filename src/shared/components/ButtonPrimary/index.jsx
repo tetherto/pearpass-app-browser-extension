@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { colors } from '@tetherto/pearpass-lib-ui-theme-provider'
+import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 /**
  *
@@ -19,16 +19,20 @@ export const ButtonPrimary = ({
   startIcon: StartIcon,
   type = 'button',
   className = ''
-}) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    type={type}
-    className={`bg-primary400-mode1 border-primary400-mode1 flex cursor-pointer items-center justify-center gap-1 rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold ${
-      disabled ? 'pointer-events-none opacity-50' : ''
-    } ${className}`}
-  >
-    {StartIcon && <StartIcon size="24" color={colors.black.mode1} />}
-    {children}
-  </button>
-)
+}) => {
+  const { theme } = useTheme()
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      type={type}
+      className={`bg-primary400-mode1 border-primary400-mode1 flex cursor-pointer items-center justify-center gap-1 rounded-[10px] border px-[15px] py-[8px] text-[14px] font-semibold ${
+        disabled ? 'pointer-events-none opacity-50' : ''
+      } ${className}`}
+    >
+      {StartIcon && <StartIcon size="24" color={theme.colors.colorOnPrimary} />}
+      {children}
+    </button>
+  )
+}
