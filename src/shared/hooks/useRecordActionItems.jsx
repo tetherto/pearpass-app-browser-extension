@@ -6,11 +6,8 @@ import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
 import { useCreateOrEditRecord } from '../../action/hooks/useCreateOrEditRecord'
 import { useModal } from '../../shared/context/ModalContext'
 import { useRouter } from '../../shared/context/RouterContext'
-import { isV2 } from '../../shared/utils/designVersion'
-import { ConfirmationModalContent } from '../containers/ConfirmationModalContent'
-import { DeleteRecordsModalContentV2 } from '../containers/DeleteRecordsModalContentV2'
+import { DeleteRecordsModalContent } from '../containers/DeleteRecordsModalContent'
 import { MoveFolderModalContent } from '../containers/MoveFolderModalContent'
-import { MoveFolderModalContentV2 } from '../containers/MoveFolderModalContentV2'
 
 /**
  * @param {{
@@ -39,8 +36,8 @@ export const useRecordActionItems = ({
   onClose
 } = {}) => {
   const { setModal, closeModal } = useModal()
-  const { params, navigate } = useRouter()
-  const { deleteRecords, updateFavoriteState, data: records } = useRecords()
+  const { params } = useRouter()
+  const { updateFavoriteState, data: records } = useRecords()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const pendingDeleteId = useRef(null)
 
@@ -58,36 +55,8 @@ export const useRecordActionItems = ({
     }
   }, [records?.length, closeModal])
 
-  const handleDeleteConfirm = async () => {
-    if (params?.recordId === record?.id) {
-      navigate('vault')
-    }
-
-    pendingDeleteId.current = record?.id
-
-    try {
-      await deleteRecords([record?.id])
-      closeModal()
-    } catch {
-      pendingDeleteId.current = null
-    }
-  }
-
   const handleDelete = () => {
-    setModal(
-      isV2() ? (
-        <DeleteRecordsModalContentV2 records={[record]} />
-      ) : (
-        <ConfirmationModalContent
-          title={t`Are you sure to delete this item?`}
-          text={t`This is permanent and cannot be undone`}
-          primaryLabel={t`No`}
-          secondaryLabel={t`Yes`}
-          secondaryAction={handleDeleteConfirm}
-          primaryAction={closeModal}
-        />
-      )
-    )
+    setModal(<DeleteRecordsModalContent records={[record]} />)
     onClose?.()
   }
 
@@ -102,13 +71,7 @@ export const useRecordActionItems = ({
   }
 
   const handleMoveClick = () => {
-    setModal(
-      isV2() ? (
-        <MoveFolderModalContentV2 records={[record]} />
-      ) : (
-        <MoveFolderModalContent records={[record]} />
-      )
-    )
+    setModal(<MoveFolderModalContent records={[record]} />)
     onClose?.()
   }
 

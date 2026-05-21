@@ -10,7 +10,7 @@ import {
 import { Key, QrCode } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { RECORD_TYPES } from '@tetherto/pearpass-lib-vault'
 
-import { useRecordMenuItemsV2 } from '../../../shared/hooks/useRecordMenuItemsV2'
+import { useRecordMenuItems } from '../../../shared/hooks/useRecordMenuItems'
 import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 
 const ADD_MENU_WIDTH = 220
@@ -42,7 +42,7 @@ export const AddItemContextMenu = ({
   testID = 'add-item-context-menu'
 }: AddItemContextMenuProps) => {
   const { theme } = useTheme()
-  const { defaultItems } = useRecordMenuItemsV2()
+  const { defaultItems } = useRecordMenuItems()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
 
   const passwordItem: AddMenuItem = {

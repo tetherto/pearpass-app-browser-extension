@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 import { createStyles } from './LayoutWithSidebar.styles'
-import { SidebarV2 } from '../SidebarV2'
+import { Sidebar } from '../Sidebar'
 
 type LayoutWithSidebarProps = {
   mainView: ReactNode
@@ -15,7 +15,7 @@ export const LayoutWithSidebar = ({ mainView }: LayoutWithSidebarProps) => {
 
   return (
     <div style={styles.wrapper} data-testid="layout-with-sidebar">
-      <SidebarV2 />
+      <Sidebar />
       <div style={styles.content}>{mainView}</div>
     </div>
   )

@@ -10,7 +10,7 @@ import {
   StarFilled
 } from '@tetherto/pearpass-lib-ui-kit/icons'
 
-import { createStyles } from './RecordListViewV2.styles'
+import { createStyles } from './RecordListView.styles'
 import { RecordRowContextMenu } from './RecordRowContextMenu'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
@@ -22,7 +22,7 @@ import type {
 
 const ROW_RECORD_ID_ATTR = 'data-record-id'
 
-type RecordListViewV2Props = {
+type RecordListViewProps = {
   sections: RecordSection[]
   isMultiSelectOn?: boolean
   selectedRecords?: string[]
@@ -60,7 +60,7 @@ const sectionLabel = (key: string, fallback: string): string => {
   }
 }
 
-export const RecordListViewV2 = ({
+export const RecordListView = ({
   sections,
   isMultiSelectOn = false,
   selectedRecords = [],
@@ -68,7 +68,7 @@ export const RecordListViewV2 = ({
   setIsMultiSelectOn,
   selectedRecordId,
   onSelectRecord
-}: RecordListViewV2Props) => {
+}: RecordListViewProps) => {
   const { theme } = useTheme()
   const { navigate } = useRouter() as {
     navigate: (

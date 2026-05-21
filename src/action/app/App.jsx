@@ -7,15 +7,12 @@ import { useRedirect } from './hooks/useRedirect'
 import { useWindowResize } from './hooks/useWindowResize'
 import { Loading } from './Loading'
 import { Routes } from './Routes'
-import { FadeInWrapper } from '../../shared/components/FadeInWrapper'
-import { WelcomePageWrapper } from '../../shared/components/WelcomePageWrapper'
 import { DYNAMIC_WINDOW_MAX_HEIGHT } from '../../shared/constants/windowSizes'
 import { LayoutWithSidebar } from '../../shared/containers/LayoutWithSidebar'
 import { useBlockingStateContext } from '../../shared/context/BlockingStateContext'
 import { useGlobalLoading } from '../../shared/context/LoadingContext'
 import { useRouter } from '../../shared/context/RouterContext'
 import { useVaultAccessRevoked } from '../../shared/hooks/useVaultAccessRevoked'
-import { isV2 } from '../../shared/utils/designVersion'
 import { AppHeaderContainer } from '../containers/AppHeaderContainer'
 
 export const App = () => {
@@ -33,9 +30,7 @@ export const App = () => {
 
   useVaultAccessRevoked()
 
-  const containerClassName = isV2()
-    ? 'bg-background flex flex-col'
-    : 'bg-black-mode1 flex items-center'
+  const containerClassName = 'bg-background flex flex-col'
 
   const heightStyle =
     windowSize.height !== null && windowSize.height !== undefined
@@ -109,14 +104,10 @@ export const App = () => {
   const containerStyle = {
     ...heightStyle,
     width: `${windowSize.width}px`,
-    ...(isV2()
-      ? {
-          padding: '4px',
-          border: `1px solid ${theme.colors.colorBorderTertiary}`,
-          borderRadius: `${rawTokens.radius8}px`,
-          boxSizing: 'border-box'
-        }
-      : {})
+    padding: '4px',
+    border: `1px solid ${theme.colors.colorBorderTertiary}`,
+    borderRadius: `${rawTokens.radius8}px`,
+    boxSizing: 'border-box'
   }
 
   return (
@@ -126,14 +117,8 @@ export const App = () => {
       style={containerStyle}
     >
       {isLoading ? (
-        isV2() ? (
-          <Loading />
-        ) : (
-          <FadeInWrapper>
-            <WelcomePageWrapper />
-          </FadeInWrapper>
-        )
-      ) : isV2() ? (
+        <Loading />
+      ) : (
         <>
           <AppHeaderContainer />
           <div className="flex min-h-0 flex-1 flex-col">
@@ -145,8 +130,6 @@ export const App = () => {
             )}
           </div>
         </>
-      ) : (
-        <Routes />
       )}
     </div>
   )

@@ -135,7 +135,7 @@ function findRightmostTrailingControlLeft(input, inputRect) {
  * Renders a pill **inside the right area** of the page password field (fixed overlay
  * aligned to the input, with extra padding on the field). Uses
  * `checkPasswordStrength` from `@tetherto/pearpass-utils-password-check` (same as
- * `InputFieldPassword` / `PasswordGeneratorV2` random path).
+ * `InputFieldPassword` / `PasswordGenerator` random path).
  * @param {HTMLInputElement} inputElement
  * @param {string} password
  */

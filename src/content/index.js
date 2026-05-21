@@ -22,7 +22,6 @@ import {
   getAutofillEnabled,
   onAutofillEnabledChanged
 } from '../shared/utils/autofillSetting'
-import { isV2 } from '../shared/utils/designVersion'
 import { logger } from '../shared/utils/logger'
 import { runtime } from '../shared/utils/runtime'
 
@@ -204,9 +203,7 @@ function handleInsertPassword({ password, iframeData }) {
   if (iframeData.element) {
     iframeData.element.value = password
     triggerInputEvents(iframeData.element, ['input', 'change', 'blur'])
-    if (isV2()) {
-      showPasswordStrengthNearField(iframeData.element, password)
-    }
+    showPasswordStrengthNearField(iframeData.element, password)
   }
 
   removeIframe(iframeData)

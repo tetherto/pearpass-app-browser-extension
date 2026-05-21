@@ -3,7 +3,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-import { PairingRequiredModalContentV2 } from './PairingRequiredModalContentV2'
+import { PairingRequiredModalContent } from './PairingRequiredModalContent'
 
 jest.mock('../../../../hooks/useDesktopPairing', () => ({
   useDesktopPairing: () => ({
@@ -67,9 +67,9 @@ const mockLocalStorage = (tokenValue: string | null) => {
 }
 
 const renderComponent = (onPairSuccess: () => void = jest.fn()) =>
-  render(<PairingRequiredModalContentV2 onPairSuccess={onPairSuccess} />)
+  render(<PairingRequiredModalContent onPairSuccess={onPairSuccess} />)
 
-describe('PairingRequiredModalContentV2 - snapshot', () => {
+describe('PairingRequiredModalContent - snapshot', () => {
   beforeEach(() => {
     mockLocalStorage('mock-token')
   })

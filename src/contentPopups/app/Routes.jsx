@@ -5,14 +5,11 @@ import {
   getAutofillEnabled,
   onAutofillEnabledChanged
 } from '../../shared/utils/autofillSetting'
-import { isV2 } from '../../shared/utils/designVersion'
 import { Autofill } from '../views/Autofill'
 import { LoginDetect } from '../views/LoginDetect'
 import { Logo } from '../views/Logo'
 import { PasswordGenerator } from '../views/PasswordGenerator'
-import { PasswordGeneratorV2 } from '../views/PasswordGeneratorV2'
 import { PasswordSuggestion } from '../views/PasswordSuggestion'
-import { PasswordSuggestionV2 } from '../views/PasswordSuggestionV2'
 
 export const Routes = () => {
   const { currentPage } = useRouter()
@@ -36,9 +33,9 @@ export const Routes = () => {
       if (!isAutofillEnabled) return null
       return <Autofill />
     case 'passwordSuggestion':
-      return isV2() ? <PasswordSuggestionV2 /> : <PasswordSuggestion />
+      return <PasswordSuggestion />
     case 'passwordGenerator':
-      return isV2() ? <PasswordGeneratorV2 /> : <PasswordGenerator />
+      return <PasswordGenerator />
     default:
       return null
   }

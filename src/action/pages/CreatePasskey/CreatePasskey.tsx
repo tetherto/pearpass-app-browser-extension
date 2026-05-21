@@ -1,0 +1,278 @@
+import { useMemo, useState } from 'react'
+
+import { t } from '@lingui/core/macro'
+import {
+  Button,
+  ListItem,
+  Text,
+  Title,
+  useTheme
+} from '@tetherto/pearpass-lib-ui-kit'
+import { Add } from '@tetherto/pearpass-lib-ui-kit/icons'
+import { RECORD_TYPES, useRecords } from '@tetherto/pearpass-lib-vault'
+
+import { CONTENT_MESSAGE_TYPES } from '../../../shared/constants/nativeMessaging'
+import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
+import { ReplacePasskeyModalContent } from '../../../shared/containers/ReplacePasskeyModalContent/ReplacePasskeyModalContent'
+import { useModal } from '../../../shared/context/ModalContext'
+import { useRouter } from '../../../shared/context/RouterContext'
+import { MESSAGE_TYPES } from '../../../shared/services/messageBridge'
+import { getHostname } from '../../../shared/utils/getHostname'
+import { getRecordSubtitle } from '../../../shared/utils/getRecordSubtitle'
+import { logger } from '../../../shared/utils/logger'
+import { normalizeUrl } from '../../../shared/utils/normalizeUrl'
+import { PasskeyContainer } from '../../containers/PasskeyContainer/PasskeyContainer'
+
+type RecordEntry = {
+  id: string
+  data?: {
+    title?: string
+    username?: string
+    credential?: unknown
+    websites?: string[]
+  }
+}
+
+export const CreatePasskey = () => {
+  const { state: routerState, navigate } = useRouter()
+  const { requestId, tabId, serializedPublicKey, requestOrigin } = routerState
+  const { setModal } = useModal()
+  const { theme } = useTheme()
+  const { data: records } = useRecords()
+
+  const [, setSelectedRecord] = useState<RecordEntry | null>(null)
+
+  const saveToExistingRecord = async (record: RecordEntry | null) => {
+    if (!record) return
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
+        requestOrigin,
+        serializedPublicKey
+      })
+
+      const { credential, publicKey } = response
+
+      navigate('createOrEditCategory', {
+        params: { recordId: record.id },
+        state: {
+          inPasskeyFlow: true,
+          passkeyCredential: credential,
+          passkeyCreatedAt: Date.now(),
+          initialData: {
+            username: record.data?.username || publicKey.user.name
+          },
+          serializedPublicKey,
+          requestId,
+          requestOrigin,
+          tabId
+        }
+      })
+    } catch (error) {
+      logger.error(
+        'Failed to save passkey to existing record:',
+        (error as Error)?.message || error
+      )
+    }
+  }
+
+  const handleCreateNewLogin = () => {
+    chrome.runtime
+      .sendMessage({
+        type: MESSAGE_TYPES.READY_FOR_PASSKEY_PAYLOAD,
+        requestOrigin,
+        serializedPublicKey
+      })
+      .then((response) => {
+        const { credential, publicKey } = response
+
+        navigate('passkeyLoginCreate', {
+          state: {
+            passkeyCredential: credential,
+            passkeyCreatedAt: Date.now(),
+            initialData: {
+              title: publicKey.rp.name,
+              username: publicKey.user.name,
+              websites: [normalizeUrl(publicKey.rp.id, true)]
+            },
+            serializedPublicKey,
+            requestId,
+            requestOrigin,
+            tabId,
+            isVerified: routerState?.isVerified ?? true
+          }
+        })
+      })
+      .catch((error) => {
+        logger.error(
+          'Failed to create passkey:',
+          (error as Error)?.message || error
+        )
+      })
+  }
+
+  const handleStoreHere = async (record: RecordEntry | null) => {
+    if (!record) return
+
+    if (record.data?.credential) {
+      setModal(
+        <ReplacePasskeyModalContent
+          onConfirm={async () => {
+            try {
+              await saveToExistingRecord(record)
+            } catch (error) {
+              logger.error(
+                'Failed to save passkey:',
+                (error as Error)?.message || error
+              )
+            }
+          }}
+        />
+      )
+      return
+    }
+
+    await saveToExistingRecord(record)
+  }
+
+  const handleCancel = () => {
+    chrome.tabs
+      .sendMessage(parseInt(tabId), {
+        type: CONTENT_MESSAGE_TYPES.SAVED_PASSKEY,
+        requestId,
+        recordId: null
+      })
+      .finally(() => {
+        window.close()
+      })
+  }
+
+  const recordsFiltered = useMemo(() => {
+    const loginRecords = (records as RecordEntry[]).filter(
+      (record) => (record as { type?: string })?.type === RECORD_TYPES.LOGIN
+    )
+
+    if (!serializedPublicKey) return loginRecords
+
+    let publicKeyData: {
+      rp?: { id?: string }
+      user?: { name?: string }
+    } | null = null
+    try {
+      publicKeyData = JSON.parse(serializedPublicKey)
+    } catch {
+      return loginRecords
+    }
+
+    const passkeyHostname = getHostname(publicKeyData?.rp?.id)
+    if (!passkeyHostname) return []
+
+    const passkeyUsername = (publicKeyData?.user?.name ?? '').trim()
+    if (!passkeyUsername) return []
+
+    const stripWww = (h: string) => h.replace(/^www\./i, '')
+    const target = stripWww(passkeyHostname)
+
+    return loginRecords.filter((record) => {
+      const recordUsername = (record?.data?.username ?? '').trim()
+      const usernameMatches = recordUsername === passkeyUsername
+      if (!usernameMatches) return false
+
+      const websites = record?.data?.websites ?? []
+      return websites.some((w) => {
+        const recordHost = getHostname(w)
+        if (!recordHost) return false
+        const candidate = stripWww(recordHost)
+        return (
+          candidate === target ||
+          candidate.endsWith(`.${target}`) ||
+          target.endsWith(`.${candidate}`)
+        )
+      })
+    })
+  }, [records, serializedPublicKey])
+
+  const hasRecords = recordsFiltered.length > 0
+
+  return (
+    <PasskeyContainer
+      title={t`Save Passkey`}
+      onClose={handleCancel}
+      onVaultChange={() => setSelectedRecord(null)}
+    >
+      {hasRecords ? (
+        <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col overflow-auto">
+            <div className="border-border-primary flex flex-col rounded-[var(--radius16)] border">
+              <div className="border-border-primary border-b p-[var(--spacing4)]">
+                {recordsFiltered.map((record) => (
+                  <ListItem
+                    icon={<RecordItemIcon record={record} />}
+                    iconSize={32}
+                    title={record.data?.title ?? ''}
+                    subtitle={getRecordSubtitle(record) || undefined}
+                    testID={`record-list-item-${record.id}`}
+                    onClick={() => handleStoreHere(record)}
+                    rightElement={
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        data-testid={`passkey-use-btn-${record.id}`}
+                        onClick={(e) => {
+                          e?.stopPropagation?.()
+                          handleStoreHere(record)
+                        }}
+                      >
+                        {t`Store here`}
+                      </Button>
+                    }
+                  />
+                ))}
+              </div>
+              <div className="p-[var(--spacing4)]">
+                <Button
+                  variant="tertiaryAccent"
+                  size="small"
+                  data-testid="passkey-add-new-login-btn"
+                  onClick={handleCreateNewLogin}
+                  iconBefore={<Add />}
+                >
+                  {t`Add New Login Item`}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col items-center justify-between gap-[var(--spacing24)]">
+          <div className="flex flex-1 flex-col items-center justify-center gap-[var(--spacing6)] text-center">
+            <Title as="h2">{t`No Matching Login Found`}</Title>
+            <Text color={theme.colors.colorTextSecondary}>
+              {t`No matching login found. Add a new login to store this passkey.`}
+            </Text>
+          </div>
+
+          <div className="flex w-full flex-col gap-[var(--spacing12)]">
+            <Button
+              variant="primary"
+              size="small"
+              data-testid="passkey-add-new-login-btn"
+              onClick={handleCreateNewLogin}
+              iconBefore={<Add />}
+            >
+              {t`Add New Login`}
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              data-testid="passkey-discard-btn"
+              onClick={handleCancel}
+            >
+              {t`Discard`}
+            </Button>
+          </div>
+        </div>
+      )}
+    </PasskeyContainer>
+  )
+}

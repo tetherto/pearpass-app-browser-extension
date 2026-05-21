@@ -2,8 +2,8 @@ import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import { useUserData, useVault, useVaults } from '@tetherto/pearpass-lib-vault'
 
 import { AddItemContextMenu } from '../AddItemContextMenu'
-import { AppHeaderAddItemTrigger, AppHeaderV2 } from '../AppHeaderV2'
-import { ImportItemOrVaultModalContentV2 } from '../../../shared/containers/ImportItemOrVaultModalContentV2'
+import { AppHeaderAddItemTrigger, AppHeader } from '../AppHeader'
+import { ImportItemOrVaultModalContent } from '../../../shared/containers/ImportItemOrVaultModalContent'
 import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
@@ -51,7 +51,7 @@ export const AppHeaderContainer = () => {
       : undefined
 
   const handleImportClick = () => {
-    setModal(<ImportItemOrVaultModalContentV2 />)
+    setModal(<ImportItemOrVaultModalContent />)
   }
 
   const handleSidebarToggle = () => {
@@ -76,7 +76,7 @@ export const AppHeaderContainer = () => {
   )
 
   return (
-    <AppHeaderV2
+    <AppHeader
       searchValue={searchValue}
       onSearchChange={(val) => setSearchValue(val)}
       onImportClick={handleImportClick}

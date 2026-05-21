@@ -1,4 +1,4 @@
-import { openOnboardingPage } from './PairingRequiredModalContentV2'
+import { openOnboardingPage } from './PairingRequiredModalContent'
 
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   Title: () => null,

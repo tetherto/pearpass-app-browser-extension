@@ -38,11 +38,11 @@ import type {
 } from '@tetherto/pearpass-lib-vault/src/types'
 
 import { createStyles } from './styles'
-import { createStyles as createEmptyStyles } from '../../containers/EmptyCollectionViewV2/EmptyCollectionViewV2.styles'
-import { EmptyResultsViewV2 } from '../../containers/EmptyResultsViewV2'
+import { createStyles as createEmptyStyles } from '../../containers/EmptyCollectionView/EmptyCollectionView.styles'
+import { EmptyResultsView } from '../../containers/EmptyResultsView'
 import { MultiSelectActionsBar } from '../../containers/MultiSelectActionsBar'
-import { RecordDetailsV2 } from '../../containers/RecordDetails/RecordDetailsV2'
-import { createStyles as createListStyles } from '../../containers/RecordListView/RecordListViewV2.styles'
+import { RecordDetails } from '../../containers/RecordDetails/RecordDetails'
+import { createStyles as createListStyles } from '../../containers/RecordListView/RecordListView.styles'
 import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
 import { TimerCircle } from '../../../shared/components/TimerCircle'
 import {
@@ -50,8 +50,8 @@ import {
   SORT_KEYS,
   type SortKey
 } from '../../../shared/constants/sortOptions'
-import { DeleteRecordsModalContentV2 } from '../../../shared/containers/DeleteRecordsModalContentV2'
-import { MoveFolderModalContentV2 } from '../../../shared/containers/MoveFolderModalContentV2'
+import { DeleteRecordsModalContent } from '../../../shared/containers/DeleteRecordsModalContent'
+import { MoveFolderModalContent } from '../../../shared/containers/MoveFolderModalContent'
 import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
 import { useAppHeaderContext } from '../../../shared/context/AppHeaderContext'
 import { useModal } from '../../../shared/context/ModalContext'
@@ -197,7 +197,7 @@ export const AuthenticatorView = () => {
   const handleMove = () => {
     if (!selectedCount) return
     setModal(
-      <MoveFolderModalContentV2
+      <MoveFolderModalContent
         records={selectedRecordObjects}
         onCompleted={exitMultiSelect}
       />
@@ -207,7 +207,7 @@ export const AuthenticatorView = () => {
   const handleDelete = () => {
     if (!selectedCount) return
     setModal(
-      <DeleteRecordsModalContentV2
+      <DeleteRecordsModalContent
         records={selectedRecordObjects}
         onCompleted={exitMultiSelect}
       />
@@ -368,7 +368,7 @@ export const AuthenticatorView = () => {
       )}
 
       {!hasRecords && !!searchValue ? (
-        <EmptyResultsViewV2 />
+        <EmptyResultsView />
       ) : !hasRecords ? (
         <div
           style={emptyStyles.container}
@@ -475,7 +475,7 @@ export const AuthenticatorView = () => {
         {listPane}
         <div style={styles.separator} role="separator" aria-hidden="true" />
         <div style={styles.detailsPane}>
-          <RecordDetailsV2
+          <RecordDetails
             recordId={selectedRecordId ?? undefined}
             onClose={() => setSelectedRecordId(null)}
           />

@@ -13,23 +13,16 @@ import { useToast } from '../../shared/context/ToastContext'
 import { useActiveTabSecureProtocol } from '../../shared/hooks/useActiveTabSecureProtocol'
 import { useAllowHttpEnabled } from '../../shared/hooks/useAllowHttpEnabled'
 import { LockIcon } from '../../shared/icons/LockIcon'
-import { CreateOrEditCategory } from '../../shared/pages/CreateOrEditCategory'
-import { CreateOrEditCategoryV2 } from '../../shared/pages/CreateOrEditCategory/CreateOrEditCategoryV2'
-import { isV2 } from '../../shared/utils/designVersion'
+import { CreateOrEditCategory } from '../../shared/pages/CreateOrEditCategory/CreateOrEditCategory'
 import { AddDevice } from '../pages/AddDevice'
 import { AuthenticatorView } from '../pages/AuthenticatorView'
-import { CreatePasskey } from '../pages/CreatePasskey'
-import { CreatePasskeyV2 } from '../pages/CreatePasskey/CreatePasskeyV2'
-import { NonSecureWarning } from '../pages/NonSecureWarning'
-import { NonSecureWarningV2 } from '../pages/NonSecureWarning/NonSecureWarningV2'
+import { CreatePasskey } from '../pages/CreatePasskey/CreatePasskey'
+import { NonSecureWarning } from '../pages/NonSecureWarning/NonSecureWarning'
 import { PasskeyLoginCreate } from '../pages/PasskeyLoginCreate'
 import { RecordDetails } from '../pages/RecordDetails'
 import { RecordList } from '../pages/RecordList'
-import { RecordListV2 } from '../pages/RecordListV2'
-import { SelectPasskey } from '../pages/SelectPasskey'
-import { SelectPasskeyV2 } from '../pages/SelectPasskey/SelectPasskeyV2'
+import { SelectPasskey } from '../pages/SelectPasskey/SelectPasskey'
 import { Settings } from '../pages/Settings'
-import { SettingsV2 } from '../pages/SettingsV2'
 import { WelcomePage } from '../pages/WelcomePage'
 
 export const Routes = () => {
@@ -70,13 +63,13 @@ export const Routes = () => {
       case 'createOrEditCategory':
         return (
           <FadeInWrapper key="createOrEditCategory">
-            {isV2() ? <CreateOrEditCategoryV2 /> : <CreateOrEditCategory />}
+            <CreateOrEditCategory />
           </FadeInWrapper>
         )
       case 'vault':
         return (
           <FadeInWrapper key="vault">
-            {isV2() ? <RecordListV2 /> : <RecordList />}
+            <RecordList />
           </FadeInWrapper>
         )
       case 'authenticator':
@@ -101,19 +94,19 @@ export const Routes = () => {
       case 'settings':
         return (
           <FadeInWrapper key="settings">
-            {isV2() ? <SettingsV2 /> : <Settings />}
+            <Settings />
           </FadeInWrapper>
         )
       case 'getPasskey':
         return (
           <FadeInWrapper key="getPasskey">
-            {isV2() ? <SelectPasskeyV2 /> : <SelectPasskey />}
+            <SelectPasskey />
           </FadeInWrapper>
         )
       case 'createPasskey':
         return (
           <FadeInWrapper key="createPasskey">
-            {isV2() ? <CreatePasskeyV2 /> : <CreatePasskey />}
+            <CreatePasskey />
           </FadeInWrapper>
         )
       case 'passkeyLoginCreate':
@@ -133,7 +126,7 @@ export const Routes = () => {
 
       {!isSecure && !isAllowHttpEnabled && (
         <FadeInWrapper key="nonSecureWarning">
-          {isV2() ? <NonSecureWarningV2 /> : <NonSecureWarning />}
+          <NonSecureWarning />
         </FadeInWrapper>
       )}
     </OtpRefreshProvider>

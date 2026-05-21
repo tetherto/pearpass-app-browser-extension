@@ -10,12 +10,9 @@ import { NAVIGATION_ROUTES } from '../../../shared/constants/navigation'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { secureChannelMessages } from '../../../shared/services/messageBridge'
-import { isV2 } from '../../../shared/utils/designVersion'
 import { logger } from '../../../shared/utils/logger'
-import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent'
-import { DesktopConnectionModalContentV2 } from '../../containers/Modal/DesktopConnectionModalContent/DesktopConnectionModalContentV2'
-import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequiredModalContent'
-import { PairingRequiredModalContentV2 } from '../../containers/Modal/PairingRequiredModalContent/PairingRequiredModalContentV2'
+import { DesktopConnectionModalContent } from '../../containers/Modal/DesktopConnectionModalContent/DesktopConnectionModalContent'
+import { PairingRequiredModalContent } from '../../containers/Modal/PairingRequiredModalContent/PairingRequiredModalContent'
 
 /**
  * Hook to check blocking state on extension open and reactively handle
@@ -43,15 +40,8 @@ export const useBlockingState = () => {
     pairingModalOpenRef.current = true
     closeAllModals()
 
-    const content = isV2() ? (
-      <PairingRequiredModalContentV2 onPairSuccess={onPairSuccess} />
-    ) : (
-      // TODO: Remove this component once version 2 is the only supported version.
-      <PairingRequiredModalContent onPairSuccess={onPairSuccess} />
-    )
-
-    setModal(content, {
-      fullScreen: isV2(),
+    setModal(<PairingRequiredModalContent onPairSuccess={onPairSuccess} />, {
+      fullScreen: true,
       closeable: false
     })
   }, [closeAllModals, setModal, onPairSuccess])
@@ -78,22 +68,12 @@ export const useBlockingState = () => {
   const showConnectionModal = useCallback(
     (onRetry) => {
       closeAllModals()
-      const content = isV2() ? (
-        <DesktopConnectionModalContentV2
-          onRetry={onRetry}
-          onClose={closeAllModals}
-        />
-      ) : (
+      setModal(
         <DesktopConnectionModalContent
           onRetry={onRetry}
           onClose={closeAllModals}
-        />
-      )
-      setModal(
-        content,
-        isV2()
-          ? { fullScreen: false, closeable: true }
-          : { fullScreen: true, hasOverlay: false, closeable: false }
+        />,
+        { fullScreen: false, closeable: true }
       )
     },
     [closeAllModals, setModal]

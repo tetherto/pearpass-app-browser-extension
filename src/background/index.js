@@ -22,7 +22,6 @@ import {
 } from '../shared/services/messageBridge'
 import { arrayBufferToBase64Url } from '../shared/utils/arrayBufferToBase64Url'
 import { base64UrlToArrayBuffer } from '../shared/utils/base64UrlToArrayBuffer'
-import { isV2 } from '../shared/utils/designVersion'
 import { logger } from '../shared/utils/logger'
 import { runtime } from '../shared/utils/runtime'
 
@@ -33,7 +32,7 @@ const pending = new Map()
 const conditionalPasskeyRequests = new Map()
 
 chrome.runtime.onInstalled.addListener((details) => {
-  if (isV2() && details.reason === 'install') {
+  if (details.reason === 'install') {
     chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') })
   }
 })

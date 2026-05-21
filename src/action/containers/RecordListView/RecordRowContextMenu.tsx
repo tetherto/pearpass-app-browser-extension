@@ -26,8 +26,8 @@ import {
 import { useCreateRecord, vaultGetFile } from '@tetherto/pearpass-lib-vault'
 
 import { useModal } from '../../../shared/context/ModalContext'
-import { DeleteRecordsModalContentV2 } from '../../../shared/containers/DeleteRecordsModalContentV2'
-import { MoveFolderModalContentV2 } from '../../../shared/containers/MoveFolderModalContentV2'
+import { DeleteRecordsModalContent } from '../../../shared/containers/DeleteRecordsModalContent'
+import { MoveFolderModalContent } from '../../../shared/containers/MoveFolderModalContent'
 import { useRecordActionItems } from '../../../shared/hooks/useRecordActionItems'
 import type { VaultRecord } from '../../../shared/utils/groupRecordsByTimePeriod'
 import { useCreateOrEditRecord } from '../../hooks/useCreateOrEditRecord'
@@ -89,7 +89,7 @@ export const RecordRowContextMenu = ({
 
   const handleMove = () => {
     close()
-    setModal(<MoveFolderModalContentV2 records={[record]} />)
+    setModal(<MoveFolderModalContent records={[record]} />)
   }
 
   const fetchFileBuffers = async (files: FileBuffer[] | undefined) =>
@@ -127,7 +127,7 @@ export const RecordRowContextMenu = ({
 
   const handleDelete = () => {
     close()
-    setModal(<DeleteRecordsModalContentV2 records={[record]} />)
+    setModal(<DeleteRecordsModalContent records={[record]} />)
   }
 
   const menuRef = useRef<HTMLDivElement>(null)

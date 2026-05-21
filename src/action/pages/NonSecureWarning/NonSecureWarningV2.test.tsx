@@ -3,7 +3,7 @@ import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-import { NonSecureWarningV2 } from './NonSecureWarningV2'
+import { NonSecureWarning } from './NonSecureWarning'
 
 const mockSetAllowHttpEnabled = jest.fn()
 
@@ -68,7 +68,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   )
 }))
 
-describe('NonSecureWarningV2', () => {
+describe('NonSecureWarning', () => {
   let closeSpy: jest.SpyInstance
 
   beforeEach(() => {
@@ -81,7 +81,7 @@ describe('NonSecureWarningV2', () => {
   })
 
   it('renders dialog with title and body copy', () => {
-    render(<NonSecureWarningV2 />)
+    render(<NonSecureWarning />)
     expect(
       screen.getByText('Extension disabled on this site')
     ).toBeInTheDocument()
@@ -93,7 +93,7 @@ describe('NonSecureWarningV2', () => {
   })
 
   it('disables close-on-outside-click', () => {
-    render(<NonSecureWarningV2 />)
+    render(<NonSecureWarning />)
     expect(screen.getByTestId('non-secure-warning')).toHaveAttribute(
       'data-close-on-outside-click',
       'false'
@@ -101,27 +101,27 @@ describe('NonSecureWarningV2', () => {
   })
 
   it('calls window.close when Discard is clicked', () => {
-    render(<NonSecureWarningV2 />)
+    render(<NonSecureWarning />)
     fireEvent.click(screen.getByTestId('non-secure-warning-discard'))
     expect(closeSpy).toHaveBeenCalledTimes(1)
     expect(mockSetAllowHttpEnabled).not.toHaveBeenCalled()
   })
 
   it('calls window.close when X close-button is clicked', () => {
-    render(<NonSecureWarningV2 />)
+    render(<NonSecureWarning />)
     fireEvent.click(screen.getByTestId('non-secure-warning-close'))
     expect(closeSpy).toHaveBeenCalledTimes(1)
   })
 
   it('enables HTTP allowance and does not close popup when Enable is clicked', () => {
-    render(<NonSecureWarningV2 />)
+    render(<NonSecureWarning />)
     fireEvent.click(screen.getByTestId('non-secure-warning-enable'))
     expect(mockSetAllowHttpEnabled).toHaveBeenCalledWith(true)
     expect(closeSpy).not.toHaveBeenCalled()
   })
 
   it('matches snapshot', () => {
-    const { container } = render(<NonSecureWarningV2 />)
+    const { container } = render(<NonSecureWarning />)
     expect(container).toMatchSnapshot()
   })
 })

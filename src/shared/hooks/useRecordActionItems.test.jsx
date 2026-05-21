@@ -15,30 +15,14 @@ jest.mock('../context/RouterContext', () => ({
   useRouter: jest.fn()
 }))
 
-const mockIsV2 = jest.fn(() => false)
-
-jest.mock('../utils/designVersion', () => ({
-  isV2: () => mockIsV2()
-}))
-
 jest.mock('../containers/MoveFolderModalContent', () => ({
   __esModule: true,
   MoveFolderModalContent: 'MoveFolderModalContent'
 }))
 
-jest.mock('../containers/MoveFolderModalContentV2', () => ({
+jest.mock('../containers/DeleteRecordsModalContent', () => ({
   __esModule: true,
-  MoveFolderModalContentV2: 'MoveFolderModalContentV2'
-}))
-
-jest.mock('../containers/ConfirmationModalContent', () => ({
-  __esModule: true,
-  ConfirmationModalContent: 'ConfirmationModalContent'
-}))
-
-jest.mock('../containers/DeleteRecordsModalContentV2', () => ({
-  __esModule: true,
-  DeleteRecordsModalContentV2: 'DeleteRecordsModalContentV2'
+  DeleteRecordsModalContent: 'DeleteRecordsModalContent'
 }))
 
 const mockHandleCreateOrEditRecord = jest.fn()
@@ -74,7 +58,6 @@ describe('useRecordActionItems', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockIsV2.mockReturnValue(false)
 
     useModal.mockReturnValue({
       setModal: mockSetModal,
@@ -181,26 +164,7 @@ describe('useRecordActionItems', () => {
     result.current.actions[4].click()
     expect(mockSetModal).toHaveBeenCalledTimes(1)
     const [element] = mockSetModal.mock.calls[0]
-    expect(element.type).toBe('ConfirmationModalContent')
-    expect(mockOnClose).toHaveBeenCalled()
-  })
-
-  test('delete action opens the V2 modal when isV2() is true', () => {
-    mockIsV2.mockReturnValue(true)
-
-    const { result } = renderHook(() =>
-      useRecordActionItems({
-        record: mockRecord,
-        onSelect: mockOnSelect,
-        onClose: mockOnClose
-      })
-    )
-
-    result.current.actions[4].click()
-
-    expect(mockSetModal).toHaveBeenCalledTimes(1)
-    const [element] = mockSetModal.mock.calls[0]
-    expect(element.type).toBe('DeleteRecordsModalContentV2')
+    expect(element.type).toBe('DeleteRecordsModalContent')
     expect(element.props.records).toEqual([mockRecord])
     expect(mockOnClose).toHaveBeenCalled()
   })
@@ -225,7 +189,7 @@ describe('useRecordActionItems', () => {
     expect(mockSetModal).toHaveBeenCalled()
   })
 
-  test('move action opens the V1 modal without modal params when isV2() is false', () => {
+  test('move action opens MoveFolderModalContent', () => {
     const { result } = renderHook(() =>
       useRecordActionItems({
         record: mockRecord,
@@ -243,27 +207,7 @@ describe('useRecordActionItems', () => {
     expect(mockOnClose).toHaveBeenCalled()
   })
 
-  test('move action opens the V2 modal when isV2() is true (no params passed — ModalContext handles overlay default)', () => {
-    mockIsV2.mockReturnValue(true)
-
-    const { result } = renderHook(() =>
-      useRecordActionItems({
-        record: mockRecord,
-        onSelect: mockOnSelect,
-        onClose: mockOnClose
-      })
-    )
-
-    result.current.actions[3].click()
-
-    expect(mockSetModal).toHaveBeenCalledTimes(1)
-    const [element, params] = mockSetModal.mock.calls[0]
-    expect(element.type).toBe('MoveFolderModalContentV2')
-    expect(params).toBeUndefined()
-    expect(mockOnClose).toHaveBeenCalled()
-  })
-
-  describe('delete with OTP login record (v2)', () => {
+  describe('delete with OTP login record', () => {
     const otpLoginRecord = {
       id: '456',
       type: 'login',
@@ -276,10 +220,6 @@ describe('useRecordActionItems', () => {
         otp: 'otpvalue'
       }
     }
-
-    beforeEach(() => {
-      mockIsV2.mockReturnValue(true)
-    })
 
     test('delete on authenticator page with OTP login opens standard delete modal', () => {
       useRouter.mockReturnValue({
@@ -299,7 +239,7 @@ describe('useRecordActionItems', () => {
 
       expect(mockSetModal).toHaveBeenCalledTimes(1)
       const [element] = mockSetModal.mock.calls[0]
-      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.type).toBe('DeleteRecordsModalContent')
       expect(element.props.records).toEqual([otpLoginRecord])
       expect(element.props.onConfirm).toBeUndefined()
       expect(element.props.title).toBeUndefined()
@@ -323,7 +263,7 @@ describe('useRecordActionItems', () => {
       result.current.actions[4].click()
 
       const [element] = mockSetModal.mock.calls[0]
-      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.type).toBe('DeleteRecordsModalContent')
       expect(element.props.onConfirm).toBeUndefined()
     })
 
@@ -344,7 +284,7 @@ describe('useRecordActionItems', () => {
       result.current.actions[4].click()
 
       const [element] = mockSetModal.mock.calls[0]
-      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.type).toBe('DeleteRecordsModalContent')
       expect(element.props.onConfirm).toBeUndefined()
       expect(element.props.title).toBeUndefined()
     })
@@ -366,7 +306,7 @@ describe('useRecordActionItems', () => {
       result.current.actions[4].click()
 
       const [element] = mockSetModal.mock.calls[0]
-      expect(element.type).toBe('DeleteRecordsModalContentV2')
+      expect(element.type).toBe('DeleteRecordsModalContent')
       expect(element.props.onConfirm).toBeUndefined()
     })
   })

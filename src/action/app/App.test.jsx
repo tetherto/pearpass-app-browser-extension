@@ -14,10 +14,6 @@ jest.mock('../containers/AppHeaderContainer', () => ({
   AppHeaderContainer: () => <div data-testid="app-header-container" />
 }))
 
-jest.mock('../../shared/utils/designVersion', () => ({
-  isV2: jest.fn(() => false)
-}))
-
 jest.mock('../../shared/context/RouterContext', () => ({
   useRouter: jest.fn(() => ({ currentPage: 'vault' }))
 }))
@@ -75,11 +71,9 @@ const { useRedirect } = require('./hooks/useRedirect')
 const {
   useBlockingStateContext
 } = require('../../shared/context/BlockingStateContext')
-const { isV2: mockIsV2 } = require('../../shared/utils/designVersion')
 
 describe('App', () => {
   beforeEach(() => {
-    mockIsV2.mockReturnValue(false)
     useBlockingStateContext.mockReturnValue({
       isChecking: false,
       blockingState: null
@@ -89,25 +83,12 @@ describe('App', () => {
     })
   })
 
-  it('renders Loading while loading when isV2() is true', () => {
-    mockIsV2.mockReturnValue(true)
-
+  it('renders Loading while loading', () => {
     render(<App />)
 
     expect(screen.getByTestId('loading')).toBeInTheDocument()
     expect(screen.queryByTestId('fade-in-wrapper')).not.toBeInTheDocument()
     expect(screen.queryByTestId('welcome-page-wrapper')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('routes')).not.toBeInTheDocument()
-  })
-
-  it('renders FadeInWrapper with WelcomePageWrapper while loading when isV2() is false', () => {
-    mockIsV2.mockReturnValue(false)
-
-    render(<App />)
-
-    expect(screen.getByTestId('fade-in-wrapper')).toBeInTheDocument()
-    expect(screen.getByTestId('welcome-page-wrapper')).toBeInTheDocument()
-    expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
     expect(screen.queryByTestId('routes')).not.toBeInTheDocument()
   })
 })

@@ -17,7 +17,7 @@ import { RecordItemIcon } from '../../../shared/containers/RecordItemIcon'
 import { sanitizeCredentialForPage } from '../../../shared/utils/sanitizeCredentialForPage'
 import { formatPasskeyDate } from '../../../shared/utils/formatPasskeyDate'
 import { normalizeUrl } from '../../../shared/utils/normalizeUrl'
-import { PasskeyContainerV2 } from '../../containers/PasskeyContainer/PasskeyContainerV2'
+import { PasskeyContainer } from '../../containers/PasskeyContainer/PasskeyContainer'
 
 export const PasskeyLoginCreate = () => {
   const { state: routerState } = useRouter()
@@ -107,7 +107,7 @@ export const PasskeyLoginCreate = () => {
   }
 
   return (
-    <PasskeyContainerV2 title={t`Save Passkey`} onClose={handleDiscard}>
+    <PasskeyContainer title={t`Save Passkey`} onClose={handleDiscard}>
       <Form
         onSubmit={handleSubmit(onSubmit)}
         testID="passkey-login-create-form"
@@ -199,6 +199,6 @@ export const PasskeyLoginCreate = () => {
           </Button>
         </div>
       </Form>
-    </PasskeyContainerV2>
+    </PasskeyContainer>
   )
 }

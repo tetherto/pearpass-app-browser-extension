@@ -21,8 +21,8 @@ import { createStyles, SORT_MENU_WIDTH } from './MainViewHeader.styles'
 import { useRouter } from '../../../shared/context/RouterContext'
 import {
   ALL_ITEMS_TYPE,
-  useRecordMenuItemsV2
-} from '../../../shared/hooks/useRecordMenuItemsV2'
+  useRecordMenuItems
+} from '../../../shared/hooks/useRecordMenuItems'
 import { SORT_KEYS, type SortKey } from '../../../shared/constants/sortOptions'
 import { isFavorite } from '../../../shared/utils/isFavorite'
 
@@ -43,7 +43,7 @@ export const MainViewHeader = ({
   const { state: routerState } = useRouter() as {
     state: { recordType?: string; folder?: string } | undefined
   }
-  const { categoriesItems } = useRecordMenuItemsV2()
+  const { categoriesItems } = useRecordMenuItems()
   const styles = createStyles(theme.colors)
   const [isSortOpen, setIsSortOpen] = useState(false)
 

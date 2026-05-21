@@ -3,7 +3,7 @@ import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-import { DesktopConnectionModalContentV2 } from './DesktopConnectionModalContentV2'
+import { DesktopConnectionModalContent } from './DesktopConnectionModalContent'
 
 const mockCloseModal = jest.fn()
 
@@ -81,7 +81,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   )
 }))
 
-describe('DesktopConnectionModalContentV2', () => {
+describe('DesktopConnectionModalContent', () => {
   let closeSpy: jest.SpyInstance
 
   beforeEach(() => {
@@ -94,7 +94,7 @@ describe('DesktopConnectionModalContentV2', () => {
   })
 
   it('renders dialog title and body copy', () => {
-    render(<DesktopConnectionModalContentV2 />)
+    render(<DesktopConnectionModalContent />)
     expect(screen.getByText('Desktop app required')).toBeInTheDocument()
     expect(
       screen.getByText(
@@ -104,7 +104,7 @@ describe('DesktopConnectionModalContentV2', () => {
   })
 
   it('disables close-on-outside-click', () => {
-    render(<DesktopConnectionModalContentV2 />)
+    render(<DesktopConnectionModalContent />)
     expect(screen.getByTestId('desktop-connection-modal')).toHaveAttribute(
       'data-close-on-outside-click',
       'false'
@@ -113,7 +113,7 @@ describe('DesktopConnectionModalContentV2', () => {
 
   it('uses provided onClose and still calls window.close on Discard', () => {
     const onClose = jest.fn()
-    render(<DesktopConnectionModalContentV2 onClose={onClose} />)
+    render(<DesktopConnectionModalContent onClose={onClose} />)
     fireEvent.click(screen.getByTestId('desktop-connection-modal-discard'))
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(closeSpy).toHaveBeenCalledTimes(1)
@@ -121,7 +121,7 @@ describe('DesktopConnectionModalContentV2', () => {
   })
 
   it('falls back to closeModal when onClose prop is not provided', () => {
-    render(<DesktopConnectionModalContentV2 />)
+    render(<DesktopConnectionModalContent />)
     fireEvent.click(screen.getByTestId('desktop-connection-modal-close'))
     expect(mockCloseModal).toHaveBeenCalledTimes(1)
     expect(closeSpy).toHaveBeenCalledTimes(1)
@@ -129,21 +129,21 @@ describe('DesktopConnectionModalContentV2', () => {
 
   it('invokes onRetry when retry button is clicked', async () => {
     const onRetry = jest.fn().mockResolvedValue({ success: true })
-    render(<DesktopConnectionModalContentV2 onRetry={onRetry} />)
+    render(<DesktopConnectionModalContent onRetry={onRetry} />)
     fireEvent.click(screen.getByTestId('desktop-connection-modal-retry'))
     await waitFor(() => expect(onRetry).toHaveBeenCalledTimes(1))
     expect(closeSpy).not.toHaveBeenCalled()
   })
 
   it('closes when retry is clicked but no onRetry is provided', () => {
-    render(<DesktopConnectionModalContentV2 />)
+    render(<DesktopConnectionModalContent />)
     fireEvent.click(screen.getByTestId('desktop-connection-modal-retry'))
     expect(closeSpy).toHaveBeenCalledTimes(1)
   })
 
   it('matches snapshot', () => {
     const { container } = render(
-      <DesktopConnectionModalContentV2
+      <DesktopConnectionModalContent
         onRetry={jest.fn().mockResolvedValue({ success: true })}
         onClose={jest.fn()}
       />
