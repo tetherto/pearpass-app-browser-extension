@@ -24,7 +24,7 @@ import { getMyDeviceId, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { useModal } from '../../context/ModalContext'
 import { logger } from '../../utils/logger'
-import { RevokeAccessModalContentV2 } from '../RevokeAccessModalContentV2'
+import { RevokeAccessModalContent } from '../RevokeAccessModalContent'
 
 const DEVICE_ACTIONS_MENU_WIDTH = 220
 
@@ -76,7 +76,7 @@ export const PairedDevicesModalContent = () => {
   const { theme } = useTheme()
 
   const { data: vaultData } = useVault()
-  const vaultId = (vaultData as { id?: string } | undefined)?.id ?? ''
+  const vaultId = (vaultData as { id?: string } | undefined)?.id ?? null
 
   const devices = useMemo<Device[]>(
     () =>
@@ -102,12 +102,12 @@ export const PairedDevicesModalContent = () => {
     return () => {
       cancelled = true
     }
-  }, [devices])
+  }, [])
 
   const openRevokeModal = (device: Device, displayName: string) => {
     if (!device.id || !vaultId) return
     setModal(
-      <RevokeAccessModalContentV2
+      <RevokeAccessModalContent
         vaultId={vaultId}
         targetDeviceId={device.id}
         deviceName={displayName}
@@ -147,6 +147,7 @@ export const PairedDevicesModalContent = () => {
               ? formatDate(device.createdAt, 'dd-mmm-yyyy', ' ')
               : null
             const isCurrentDevice = !!myDeviceId && device.id === myDeviceId
+            const canRevoke = !!vaultId && !!device.id && !isCurrentDevice
 
             return (
               <ListItem
@@ -166,7 +167,7 @@ export const PairedDevicesModalContent = () => {
                 }
                 testID={`paired-devices-item-${device.id ?? index}`}
                 rightElement={
-                  isCurrentDevice || !device.id ? undefined : (
+                  canRevoke ? (
                     <ContextMenu
                       menuWidth={DEVICE_ACTIONS_MENU_WIDTH}
                       testID={`paired-devices-row-menu-${device.id}`}
@@ -190,7 +191,7 @@ export const PairedDevicesModalContent = () => {
                         variant="destructive"
                         icon={
                           <DoNotDisturb
-                            color={theme.colors.colorSurfaceDestructiveElevated}
+                            color={theme.colors.colorTextDestructive}
                           />
                         }
                         label={t`Revoke Access`}
@@ -198,7 +199,7 @@ export const PairedDevicesModalContent = () => {
                         onClick={() => openRevokeModal(device, deviceName)}
                       />
                     </ContextMenu>
-                  )
+                  ) : undefined
                 }
               />
             )

@@ -312,6 +312,14 @@ declare module '@tetherto/pearpass-lib-vault' {
     failures: Array<{ targetDeviceId: string; error: Error }>
   }>
 
+  export function useFindOtpDuplicates(params?: {
+    secret?: string | null
+    excludeRecordId?: string
+  }): {
+    data: Array<{ id: string; title: string }>
+    isLoading: boolean
+  }
+
   export function kickDevice(params: {
     vaultId: string
     targetDeviceId: string
