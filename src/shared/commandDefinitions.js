@@ -35,6 +35,7 @@ export const COMMAND_DEFINITIONS = {
   activeVaultList: { params: ['filterKey'] },
   activeVaultAdd: { params: ['key', 'data'] },
   activeVaultRemove: { params: ['key'] },
+  activeVaultRemoveWriter: { params: ['writerKey'] },
   activeVaultClose: { params: [] },
   activeVaultCreateInvite: { params: [] },
   activeVaultDeleteInvite: { params: [] },
