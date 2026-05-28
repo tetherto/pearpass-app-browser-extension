@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import { t } from '@lingui/core/macro'
 import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
@@ -30,6 +30,17 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
   const [isCopyToClipboardEnabled, setIsCopyToClipboardEnabled] = useState(
     getIsCopyToClipboardEnabled()
   )
+
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key === LOCAL_STORAGE_KEYS.COPY_TO_CLIPBOARD_ENABLED) {
+        setIsCopyToClipboardEnabled(getIsCopyToClipboardEnabled())
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   const handleCopyToClipboardSettingChange = (isEnabled) => {
     if (!isEnabled) {
       localStorage.setItem(
@@ -43,52 +54,55 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
     setIsCopyToClipboardEnabled(isEnabled)
   }
 
-  const copyToClipboard = React.useCallback((text) => {
-    if (!isCopyToClipboardEnabled) {
-      return false
-    }
-
-    if (!navigator.clipboard) {
-      logger.error('Clipboard API is not available')
-      return false
-    }
-
-    navigator.clipboard.writeText(text).then(
-      () => {
-        setIsCopied(true)
-
-        if (onCopy) {
-          onCopy()
-        } else {
-          setToast?.({ message: t`Copied to clipboard`, icon: Check })
-        }
-
-        try {
-          if (typeof chrome !== 'undefined') {
-            chrome?.runtime?.sendMessage?.({
-              type: SCHEDULE_CLIPBOARD_CLEAR,
-              delayMs: CLIPBOARD_CLEAR_TIMEOUT
-            })
-          }
-        } catch {
-          setTimeout(() => {
-            navigator?.clipboard?.writeText('')
-          }, CLIPBOARD_CLEAR_TIMEOUT)
-        }
-
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-        }
-
-        timeoutRef.current = setTimeout(() => setIsCopied(false), 2000)
-      },
-      (err) => {
-        logger.error('Failed to copy text to clipboard', err)
+  const copyToClipboard = React.useCallback(
+    (text) => {
+      if (!isCopyToClipboardEnabled) {
+        return false
       }
-    )
 
-    return true
-  }, [])
+      if (!navigator.clipboard) {
+        logger.error('Clipboard API is not available')
+        return false
+      }
+
+      navigator.clipboard.writeText(text).then(
+        () => {
+          setIsCopied(true)
+
+          if (onCopy) {
+            onCopy()
+          } else {
+            setToast?.({ message: t`Copied to clipboard`, icon: Check })
+          }
+
+          try {
+            if (typeof chrome !== 'undefined') {
+              chrome?.runtime?.sendMessage?.({
+                type: SCHEDULE_CLIPBOARD_CLEAR,
+                delayMs: CLIPBOARD_CLEAR_TIMEOUT
+              })
+            }
+          } catch {
+            setTimeout(() => {
+              navigator?.clipboard?.writeText('')
+            }, CLIPBOARD_CLEAR_TIMEOUT)
+          }
+
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+          }
+
+          timeoutRef.current = setTimeout(() => setIsCopied(false), 2000)
+        },
+        (err) => {
+          logger.error('Failed to copy text to clipboard', err)
+        }
+      )
+
+      return true
+    },
+    [isCopyToClipboardEnabled]
+  )
 
   return {
     isCopied,
