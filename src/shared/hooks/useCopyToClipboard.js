@@ -45,6 +45,9 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
 
   const copyToClipboard = React.useCallback((text) => {
     if (!isCopyToClipboardEnabled) {
+      setToast?.({
+        message: t`Please turn on the Copy to clipboard action from your settings`
+      })
       return false
     }
 
