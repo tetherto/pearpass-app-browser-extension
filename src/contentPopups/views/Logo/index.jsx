@@ -68,8 +68,8 @@ export const Logo = () => {
       className="bg-grey500-mode1 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[10px]"
       onClick={handleClick}
     >
-      <div className="relative">
-        <LogoLock width="100%" height="100%" />
+      <div className="relative h-[20px] w-[15px]">
+        <LogoLock width="15" height="20" />
 
         {!!count && (
           <div className="bg-black-mode1 font-inter text-white-mode1 absolute bottom-[1px] left-[50%] flex h-[10px] w-[10px] -translate-x-[50%] items-center justify-center rounded-full text-[8px] font-bold">
