@@ -11,6 +11,7 @@ import { findLoginForms } from './utils/findLoginForms'
 import { findSelectOptionValue } from './utils/findSelectOptionValue'
 import { getField, PASSWORD_MATCHERS } from './utils/getField'
 import { isContentScriptEnabled } from './utils/isContentScriptEnabled'
+import { isCreditCardField } from './utils/isCreditCardField'
 import { isIdentityField } from './utils/isIdentityField'
 import { isPasswordField } from './utils/isPasswordField'
 import { isUsernameField } from './utils/isUsernameField'
@@ -149,6 +150,14 @@ runtime.onMessage.addListener(async (msg) => {
           city: recordData.city,
           region: recordData.region,
           country: recordData.country
+        })
+        break
+      case RECORD_TYPES.CREDIT_CARD:
+        handleAutofillCreditCard({
+          cardNumber: recordData.cardNumber,
+          cardholderName: recordData.cardholderName,
+          expireDate: recordData.expireDate,
+          securityCode: recordData.securityCode
         })
         break
     }
@@ -367,6 +376,126 @@ const handleAutoFillIdentityFromPopup = ({
   removeIframe(iframeData)
 }
 
+function handleAutofillCreditCard({
+  cardNumber,
+  cardholderName,
+  expireDate,
+  securityCode
+}) {
+  if (!isAutoFillEnabled) {
+    return
+  }
+
+  const { element: numberField } = getField([
+    'cc-number',
+    'cardnumber',
+    'card number',
+    'card-number',
+    'cardno'
+  ])
+  const { element: nameField } = getField([
+    'cc-name',
+    'cardholder',
+    'card holder',
+    'name on card',
+    'ccname'
+  ])
+  const { element: securityCodeField } = getField([
+    'cc-csc',
+    'cvv',
+    'cvc',
+    'csc',
+    'security code',
+    'securitycode',
+    'card-code'
+  ])
+  const { element: expireField } = getField([
+    'cc-exp',
+    'expiration',
+    'expiry',
+    'exp-date',
+    'expdate'
+  ])
+  const { element: expireMonthField, type: expireMonthFieldType } = getField([
+    'cc-exp-month',
+    'exp-month',
+    'expmonth',
+    'expiry-month'
+  ])
+  const { element: expireYearField, type: expireYearFieldType } = getField([
+    'cc-exp-year',
+    'exp-year',
+    'expyear',
+    'expiry-year'
+  ])
+
+  if (numberField) {
+    numberField.value = cardNumber
+    triggerInputEvents(numberField, ['input', 'change', 'blur'])
+  }
+
+  if (nameField) {
+    nameField.value = cardholderName
+    triggerInputEvents(nameField, ['input', 'change', 'blur'])
+  }
+
+  if (securityCodeField) {
+    securityCodeField.value = securityCode
+    triggerInputEvents(securityCodeField, ['input', 'change', 'blur'])
+  }
+
+  // Stored expiration is "MM YY"
+  const [month = '', year = ''] = (expireDate || '').trim().split(/\s+/)
+
+  if (expireMonthField && month) {
+    if (expireMonthFieldType === 'select') {
+      expireMonthField.value = findSelectOptionValue(expireMonthField, month)
+    } else {
+      expireMonthField.value = month
+    }
+    triggerInputEvents(expireMonthField, ['input', 'change', 'blur'])
+  }
+
+  if (expireYearField && year) {
+    const fullYear = `20${year}`
+    if (expireYearFieldType === 'select') {
+      expireYearField.value = findSelectOptionValue(expireYearField, fullYear)
+    } else {
+      expireYearField.value = year
+    }
+    triggerInputEvents(expireYearField, ['input', 'change', 'blur'])
+  }
+
+  // Only fill a combined expiration field when there are no split inputs
+  if (expireField && !expireMonthField && !expireYearField && month && year) {
+    expireField.value = `${month}/${year}`
+    triggerInputEvents(expireField, ['input', 'change', 'blur'])
+  }
+}
+
+const handleAutoFillCreditCardFromPopup = ({
+  cardNumber,
+  cardholderName,
+  expireDate,
+  securityCode,
+  iframeData
+}) => {
+  handleAutofillCreditCard({
+    cardNumber,
+    cardholderName,
+    expireDate,
+    securityCode
+  })
+
+  removeIframe(iframeData)
+
+  const logoIframeData = getIframeData(IFRAME_TYPES.logo)
+
+  if (logoIframeData) {
+    removeIframe(logoIframeData)
+  }
+}
+
 function hideAutofillOnOutsideClick(event) {
   const element = event.target
 
@@ -545,6 +674,10 @@ function getRecordTypeByField(field) {
     return 'login'
   }
 
+  if (isCreditCardField(field)) {
+    return RECORD_TYPES.CREDIT_CARD
+  }
+
   if (isIdentityField(field)) {
     return 'identity'
   }
@@ -554,7 +687,10 @@ function getRecordTypeByField(field) {
 
 function isAcceptedField(field) {
   return (
-    isUsernameField(field) || isPasswordField(field) || isIdentityField(field)
+    isUsernameField(field) ||
+    isPasswordField(field) ||
+    isCreditCardField(field) ||
+    isIdentityField(field)
   )
 }
 
@@ -753,6 +889,19 @@ const handleIframeEvent = (event) => {
       city,
       region,
       country,
+      iframeData
+    })
+    return
+  }
+
+  if (eventType === 'autofillCreditCard') {
+    const { cardNumber, cardholderName, expireDate, securityCode } = msg.data
+
+    handleAutoFillCreditCardFromPopup({
+      cardNumber,
+      cardholderName,
+      expireDate,
+      securityCode,
       iframeData
     })
     return

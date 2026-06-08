@@ -160,6 +160,23 @@ export const useRecordActionItems = ({
 
         onClose?.()
       }
+    },
+    [RECORD_TYPES.CREDIT_CARD]: {
+      name: t`Autofill`,
+      type: 'autofill',
+      click: () => {
+        handleAutofill({
+          recordType: record?.type,
+          data: {
+            cardNumber: record?.data?.number || '',
+            cardholderName: record?.data?.name || '',
+            expireDate: record?.data?.expireDate || '',
+            securityCode: record?.data?.securityCode || ''
+          }
+        })
+
+        onClose?.()
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { CreditCard } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { RECORD_TYPES, useVault } from '@tetherto/pearpass-lib-vault'
 
 import { PopupCard } from '../../../shared/components/PopupCard'
@@ -143,6 +144,23 @@ export const Autofill = () => {
     )
   }
 
+  const handleAutofillCreditCard = (record) => {
+    window.parent.postMessage(
+      {
+        type: 'autofillCreditCard',
+        data: {
+          iframeId: routerState?.iframeId,
+          iframeType: routerState?.iframeType,
+          cardNumber: record?.data?.number,
+          cardholderName: record?.data?.name,
+          expireDate: record?.data?.expireDate,
+          securityCode: record?.data?.securityCode
+        }
+      },
+      '*'
+    )
+  }
+
   const handleAutofillPasskey = (record) => {
     setIsAuthenticating(true)
     const startTime = Date.now()
@@ -192,10 +210,23 @@ export const Autofill = () => {
 
     if (routerState.recordType === RECORD_TYPES.IDENTITY) {
       handleAutofillIdentity(record)
+    } else if (routerState.recordType === RECORD_TYPES.CREDIT_CARD) {
+      handleAutofillCreditCard(record)
     } else if (routerState.recordType === RECORD_TYPES.LOGIN) {
       handleAutofillLogin(record)
     }
   }
+
+  const getRecordSubtitle = (record) => {
+    if (record.type === RECORD_TYPES.CREDIT_CARD) {
+      const digits = (record?.data?.number || '').replace(/\D/g, '')
+      return digits ? `•••• ${digits.slice(-4)}` : ''
+    }
+
+    return record.data?.username
+  }
+
+  const isCreditCard = routerState.recordType === RECORD_TYPES.CREDIT_CARD
 
   const renderRecordList = (records) =>
     records.map((record) => {
@@ -212,7 +243,7 @@ export const Autofill = () => {
             title={record.data?.title}
             isFavorite={record.isFavorite}
             type={record.type}
-            folder={record.data?.username}
+            folder={getRecordSubtitle(record)}
           />
         </div>
       )
@@ -259,8 +290,12 @@ export const Autofill = () => {
                   {regularLogins.length > 0 && (
                     <>
                       <div className="text-white-mode1 mb-[5px] flex items-center gap-2 text-sm">
-                        <UserIcon size="24" />
-                        <span>Password</span>
+                        {isCreditCard ? (
+                          <CreditCard width={24} height={24} />
+                        ) : (
+                          <UserIcon size="24" />
+                        )}
+                        <span>{isCreditCard ? 'Card' : 'Password'}</span>
                       </div>
                       {renderRecordList(regularLogins)}
                     </>
