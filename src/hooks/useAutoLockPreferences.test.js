@@ -74,23 +74,24 @@ describe('useAutoLockPreferences (extension)', () => {
     expect(result.current.timeoutMs).toBe(4567)
   })
 
-  it('setAutoLockEnabled sends runtime message', () => {
+  it('setAutoLockEnabled updates state optimistically and sends runtime message', () => {
     getMock.mockImplementation((keys, cb) => cb({}))
     const { result } = renderHook(() => useAutoLockPreferences(), {
       wrapper: AutoLockProvider
     })
 
     act(() => {
-      result.current.setAutoLockEnabled(true)
+      result.current.setAutoLockEnabled(false)
     })
 
+    expect(result.current.isAutoLockEnabled).toBe(false)
     expect(sendMessageMock).toHaveBeenCalledWith({
       type: MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED,
-      autoLockEnabled: true
+      autoLockEnabled: false
     })
   })
 
-  it('setTimeoutMs sends runtime message', () => {
+  it('setTimeoutMs updates state optimistically and sends runtime message', () => {
     getMock.mockImplementation((keys, cb) => cb({}))
     const { result } = renderHook(() => useAutoLockPreferences(), {
       wrapper: AutoLockProvider
@@ -100,9 +101,27 @@ describe('useAutoLockPreferences (extension)', () => {
       result.current.setTimeoutMs(9999)
     })
 
+    expect(result.current.timeoutMs).toBe(9999)
     expect(sendMessageMock).toHaveBeenCalledWith({
       type: MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT,
       autoLockTimeoutMs: 9999
+    })
+  })
+
+  it('setTimeoutMs accepts null (Never)', () => {
+    getMock.mockImplementation((keys, cb) => cb({}))
+    const { result } = renderHook(() => useAutoLockPreferences(), {
+      wrapper: AutoLockProvider
+    })
+
+    act(() => {
+      result.current.setTimeoutMs(null)
+    })
+
+    expect(result.current.timeoutMs).toBeNull()
+    expect(sendMessageMock).toHaveBeenCalledWith({
+      type: MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT,
+      autoLockTimeoutMs: null
     })
   })
 })

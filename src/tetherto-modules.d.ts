@@ -12,7 +12,6 @@ declare module '@tetherto/pearpass-lib-constants' {
   export const AUTHENTICATOR_ENABLED: boolean
   export const PROTECTED_VAULT_ENABLED: boolean
   export const SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED: boolean
-  export const CLIPBOARD_CLEAR_TIMEOUT: number
   export const LANGUAGES: Record<string, string>
   export const MANIFEST_NAME: string
   export const MS_PER_SECOND: number
@@ -345,7 +344,17 @@ declare module '@tetherto/pearpass-lib-constants' {
   export const PROTECTED_VAULT_ENABLED: boolean
   export const DELETE_VAULT_ENABLED: boolean
   export const SAVE_CREDENTIALS_AFTER_LOGIN_ENABLED: boolean
-  export const CLIPBOARD_CLEAR_TIMEOUT: number
+  export const BE_AUTO_LOCK_ENABLED: boolean
+  export const AUTO_LOCK_TIMEOUT_OPTIONS: Record<
+    string,
+    { label: string; value: number | null; deprecated?: boolean }
+  >
+  export const DEFAULT_AUTO_LOCK_TIMEOUT: number
+  export const CLIPBOARD_CLEAR_TIMEOUT_OPTIONS: Record<
+    string,
+    { label: string; value: number | null }
+  >
+  export const DEFAULT_CLIPBOARD_CLEAR_TIMEOUT: number
   export const LANGUAGES: Record<string, string>
   export const MANIFEST_NAME: string
   export const MS_PER_SECOND: number

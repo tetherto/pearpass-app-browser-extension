@@ -4,7 +4,9 @@ import { t } from '@lingui/core/macro'
 import { useLingui } from '@lingui/react'
 import {
   AUTO_LOCK_TIMEOUT_OPTIONS,
-  BE_AUTO_LOCK_ENABLED
+  BE_AUTO_LOCK_ENABLED,
+  CLIPBOARD_CLEAR_TIMEOUT_OPTIONS,
+  DEFAULT_CLIPBOARD_CLEAR_TIMEOUT
 } from '@tetherto/pearpass-lib-constants'
 import {
   Button,
@@ -19,6 +21,7 @@ import {
 import { KeyboardArrowBottom } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { useAutoLockPreferences } from '../../../../../hooks/useAutoLockPreferences'
+import { useClipboardClearPreferences } from '../../../../../hooks/useClipboardClearPreferences'
 import {
   LOCAL_STORAGE_KEYS,
   PASSKEY_VERIFICATION_OPTIONS
@@ -36,6 +39,8 @@ const TEST_IDS = {
   root: 'settings-app-preferences',
   autofillToggle: 'settings-autofill-toggle',
   allowHttpToggle: 'settings-allow-http-toggle',
+  clipboardClearSelect: 'settings-clipboard-clear-select',
+  clipboardClearOption: 'settings-clipboard-clear-option',
   autoLockSelect: 'settings-auto-lock-select',
   autoLockOption: 'settings-auto-lock-option',
   copyToClipboardToggle: 'settings-copy-to-clipboard-toggle',
@@ -56,6 +61,13 @@ const TIMEOUT_OPTIONS: TimeoutOption[] = Object.entries(
   >
 ).map(([key, option]) => ({ key, label: option.label, value: option.value }))
 
+const CLIPBOARD_TIMEOUT_OPTIONS: TimeoutOption[] = Object.entries(
+  CLIPBOARD_CLEAR_TIMEOUT_OPTIONS as Record<
+    string,
+    { label: string; value: number | null }
+  >
+).map(([key, option]) => ({ key, label: option.label, value: option.value }))
+
 export const AppPreferencesContent = () => {
   const { i18n } = useLingui()
   const { theme } = useTheme()
@@ -65,6 +77,11 @@ export const AppPreferencesContent = () => {
     timeoutMs: number | null
     setTimeoutMs: (ms: number | null) => void
   }
+  const { clipboardClearTimeoutMs, setClipboardClearTimeoutMs } =
+    useClipboardClearPreferences() as {
+      clipboardClearTimeoutMs: number | null
+      setClipboardClearTimeoutMs: (ms: number | null) => void
+    }
   const { isCopyToClipboardEnabled, handleCopyToClipboardSettingChange } =
     useCopyToClipboard()
   const [isAllowHttpEnabled, setIsAllowHttpEnabled] = useAllowHttpEnabled() as [
@@ -73,6 +90,7 @@ export const AppPreferencesContent = () => {
   ]
 
   const [isAutoLockDropdownOpen, setIsAutoLockDropdownOpen] = useState(false)
+  const [isClipboardDropdownOpen, setIsClipboardDropdownOpen] = useState(false)
   const [isReminderDisabled, setIsReminderDisabled] = useState(() =>
     isPasswordChangeReminderDisabled()
   )
@@ -100,11 +118,32 @@ export const AppPreferencesContent = () => {
     [i18n]
   )
 
+  const translatedClipboardTimeoutOptions = useMemo(
+    () =>
+      CLIPBOARD_TIMEOUT_OPTIONS.map((option) => ({
+        ...option,
+        label: i18n._(option.label)
+      })),
+    [i18n]
+  )
+
   const selectedTimeoutOption = useMemo(
     () =>
       translatedTimeoutOptions.find((option) => option.value === timeoutMs) ??
       translatedTimeoutOptions[0],
     [translatedTimeoutOptions, timeoutMs]
+  )
+
+  const selectedClipboardTimeoutOption = useMemo(
+    () =>
+      translatedClipboardTimeoutOptions.find(
+        (option) => option.value === clipboardClearTimeoutMs
+      ) ??
+      translatedClipboardTimeoutOptions.find(
+        (option) => option.value === DEFAULT_CLIPBOARD_CLEAR_TIMEOUT
+      ) ??
+      translatedClipboardTimeoutOptions[0],
+    [translatedClipboardTimeoutOptions, clipboardClearTimeoutMs]
   )
 
   const handleTimeoutSelect = useCallback(
@@ -113,6 +152,14 @@ export const AppPreferencesContent = () => {
       setIsAutoLockDropdownOpen(false)
     },
     [setTimeoutMs]
+  )
+
+  const handleClipboardTimeoutSelect = useCallback(
+    (option: TimeoutOption) => {
+      setClipboardClearTimeoutMs(option.value)
+      setIsClipboardDropdownOpen(false)
+    },
+    [setClipboardClearTimeoutMs]
   )
 
   const handleAutofillToggle = useCallback(
@@ -212,6 +259,38 @@ export const AppPreferencesContent = () => {
               label={t`Allow non-secure websites`}
               description={t`Allow autofill and access on HTTP websites. When disabled, only secure HTTPS sites are supported`}
             />
+          </div>
+          <div className="border-border-primary flex items-center justify-between gap-[12px] border-t p-[12px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
+              <Text variant="labelEmphasized">{t`Clear Clipboard`}</Text>
+              <Text variant="caption" color={colors.colorTextSecondary}>
+                {t`Automatically clear clipboard after copying credentials`}
+              </Text>
+            </div>
+            <Dropdown
+              open={isClipboardDropdownOpen}
+              onOpenChange={setIsClipboardDropdownOpen}
+              trigger={
+                <Button
+                  variant="secondary"
+                  size="small"
+                  iconAfter={<KeyboardArrowBottom />}
+                  data-testid={TEST_IDS.clipboardClearSelect}
+                >
+                  {selectedClipboardTimeoutOption?.label ?? t`Select a timeout`}
+                </Button>
+              }
+            >
+              {translatedClipboardTimeoutOptions.map((option) => (
+                <NavbarListItem
+                  key={option.key}
+                  testID={`${TEST_IDS.clipboardClearOption}-${option.key.toLowerCase()}`}
+                  label={option.label}
+                  selected={option.value === clipboardClearTimeoutMs}
+                  onClick={() => handleClipboardTimeoutSelect(option)}
+                />
+              ))}
+            </Dropdown>
           </div>
         </div>
       </section>

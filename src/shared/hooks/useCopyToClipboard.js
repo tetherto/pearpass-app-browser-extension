@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react'
 
 import { t } from '@lingui/core/macro'
-import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
 import { Check } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { MESSAGES } from '../../background/constants'
@@ -68,15 +67,10 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
 
         try {
           if (typeof chrome !== 'undefined') {
-            chrome?.runtime?.sendMessage?.({
-              type: SCHEDULE_CLIPBOARD_CLEAR,
-              delayMs: CLIPBOARD_CLEAR_TIMEOUT
-            })
+            chrome?.runtime?.sendMessage?.({ type: SCHEDULE_CLIPBOARD_CLEAR })
           }
         } catch {
-          setTimeout(() => {
-            navigator?.clipboard?.writeText('')
-          }, CLIPBOARD_CLEAR_TIMEOUT)
+          // background not available — skip clipboard clearing
         }
 
         if (timeoutRef.current) {

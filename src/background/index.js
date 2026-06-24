@@ -1,5 +1,7 @@
 import './nativeMessaging'
 
+import { DEFAULT_CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
+
 import {
   ensureClientKeypairUnlocked,
   commitPendingClientKeystore
@@ -73,6 +75,17 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
     })
   } catch (error) {
     logger.error('[AutoLock] Failed to fetch settings on focus', error)
+  }
+
+  try {
+    const { clipboardClearTimeoutMs } =
+      await secureChannel.getClipboardClearTimeout()
+    await chrome.storage.local.set({ clipboardClearTimeoutMs })
+  } catch (error) {
+    logger.error(
+      '[Clipboard] Failed to fetch clipboard timeout on focus',
+      error
+    )
   }
 })
 
@@ -230,6 +243,25 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
           await secureChannel.setAutoLockTimeout(msg.autoLockTimeoutMs)
           await chrome.storage.local.set({
             autoLockTimeoutMs: msg.autoLockTimeoutMs
+          })
+          sendResponse({ ok: true })
+        } catch (err) {
+          logger.error(err)
+          sendResponse({ ok: false, error: String(err) })
+        }
+      })()
+
+      return true
+    }
+
+    case MESSAGE_TYPES.SET_CLIPBOARD_CLEAR_TIMEOUT: {
+      void (async () => {
+        try {
+          await secureChannel.setClipboardClearTimeout(
+            msg.clipboardClearTimeoutMs
+          )
+          await chrome.storage.local.set({
+            clipboardClearTimeoutMs: msg.clipboardClearTimeoutMs
           })
           sendResponse({ ok: true })
         } catch (err) {
@@ -422,6 +454,17 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
               error
             )
           }
+
+          try {
+            const { clipboardClearTimeoutMs } =
+              await secureChannel.getClipboardClearTimeout()
+            await chrome.storage.local.set({ clipboardClearTimeoutMs })
+          } catch (error) {
+            logger.error(
+              '[Clipboard] Failed to sync clipboard timeout after pairing',
+              error
+            )
+          }
         } catch (e) {
           sendResponse({
             success: false,
@@ -516,7 +559,18 @@ runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case SCHEDULE_CLIPBOARD_CLEAR: {
       void (async () => {
         await chrome.alarms.clear(CLEAR_CLIPBOARD)
-        const when = Date.now() + msg.delayMs
+        const { clipboardClearTimeoutMs } = await chrome.storage.local.get(
+          'clipboardClearTimeoutMs'
+        )
+        const timeoutMs =
+          clipboardClearTimeoutMs !== undefined
+            ? clipboardClearTimeoutMs
+            : DEFAULT_CLIPBOARD_CLEAR_TIMEOUT
+        if (timeoutMs === null) {
+          sendResponse({ success: true })
+          return
+        }
+        const when = Date.now() + timeoutMs
         await chrome.alarms.create(CLEAR_CLIPBOARD, { when })
         sendResponse({ success: true })
       })()

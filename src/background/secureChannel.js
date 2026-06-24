@@ -763,6 +763,32 @@ export class SecureChannelClient {
       throw error
     }
   }
+
+  async getClipboardClearTimeout() {
+    try {
+      return await nativeMessaging.sendRequest('getClipboardClearTimeout')
+    } catch (error) {
+      logger.error(
+        'Failed to get clipboard clear timeout:',
+        error?.message || error
+      )
+      throw error
+    }
+  }
+
+  async setClipboardClearTimeout(clipboardClearTimeoutMs) {
+    try {
+      return await nativeMessaging.sendRequest('setClipboardClearTimeout', {
+        clipboardClearTimeoutMs
+      })
+    } catch (error) {
+      logger.error(
+        'Failed to set clipboard clear timeout:',
+        error?.message || error
+      )
+      throw error
+    }
+  }
 }
 
 export const secureChannel = new SecureChannelClient()

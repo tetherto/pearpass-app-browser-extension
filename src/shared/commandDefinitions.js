@@ -79,6 +79,8 @@ export const COMMAND_DEFINITIONS = {
   setAutoLockTimeout: { params: ['autoLockTimeoutMs'] },
   setAutoLockEnabled: { params: ['autoLockEnabled'] },
   resetTimer: { params: [] },
+  getClipboardClearTimeout: { params: [] },
+  setClipboardClearTimeout: { params: ['clipboardClearTimeoutMs'] },
   // Password commands
   initWithPassword: { params: ['password'] },
   fetchFavicon: { params: ['url'] },
