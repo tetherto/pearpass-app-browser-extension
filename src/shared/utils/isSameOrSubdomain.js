@@ -7,8 +7,8 @@ import { getHostname } from './getHostname'
  * @returns {boolean} True if domains are the same or 'a' is a subdomain of 'b'
  */
 export const isSameOrSubdomain = (a, b) => {
-  const normalizedA = getHostname(a)
-  const normalizedB = getHostname(b)
+  const normalizedA = getHostname(a)?.replace(/^www\./i, '')
+  const normalizedB = getHostname(b)?.replace(/^www\./i, '')
 
   if (!normalizedA || !normalizedB) return false
 

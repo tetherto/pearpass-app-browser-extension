@@ -16,6 +16,12 @@ describe('isSameOrSubdomain', () => {
     ).toBe(true)
   })
 
+  test('should return true when saved website uses www and current website does not', () => {
+    expect(
+      isSameOrSubdomain('https://example.com', 'https://www.example.com')
+    ).toBe(true)
+  })
+
   test('should return true for valid subdomain', () => {
     expect(isSameOrSubdomain('app.example.com', 'example.com')).toBe(true)
     expect(isSameOrSubdomain('api.app.example.com', 'example.com')).toBe(true)

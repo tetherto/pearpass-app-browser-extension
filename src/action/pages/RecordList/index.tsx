@@ -24,8 +24,13 @@ import {
   type VaultRecord
 } from '../../../shared/utils/groupRecordsByTimePeriod'
 import { isFavorite } from '../../../shared/utils/isFavorite'
+import { partitionRecommendedRecords } from '../../../shared/utils/partitionRecommendedRecords'
 
-export const RecordList = () => {
+type RecordListProps = {
+  activeTabUrl?: string | null
+}
+
+export const RecordList = ({ activeTabUrl }: RecordListProps) => {
   const { state: routerState } = useRouter() as {
     state: { recordType?: string; folder?: string } | undefined
   }
@@ -63,9 +68,25 @@ export const RecordList = () => {
     updateFavoriteState: (ids: string[], isFavorite: boolean) => Promise<void>
   }
 
+  const { recommendedRecords, remainingRecords } = useMemo(
+    () => partitionRecommendedRecords(records ?? [], activeTabUrl),
+    [activeTabUrl, records]
+  )
+
   const sections = useMemo(
-    () => groupRecordsByTimePeriod(records ?? [], sort),
-    [records, sort]
+    () => [
+      ...(recommendedRecords.length
+        ? [
+            {
+              title: 'Recommended',
+              key: 'recommended',
+              data: recommendedRecords
+            }
+          ]
+        : []),
+      ...groupRecordsByTimePeriod(remainingRecords, sort)
+    ],
+    [recommendedRecords, remainingRecords, sort]
   )
 
   useEffect(() => {

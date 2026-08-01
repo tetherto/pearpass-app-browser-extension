@@ -30,7 +30,7 @@ export const Routes = () => {
   const { setToast } = useToast()
   const { closeAllModals } = useModal()
 
-  const { isSecure } = useActiveTabSecureProtocol()
+  const { isSecure, currentUrl } = useActiveTabSecureProtocol()
   const [isAllowHttpEnabled] = useAllowHttpEnabled()
 
   useDesktopLogout({
@@ -69,7 +69,7 @@ export const Routes = () => {
       case 'vault':
         return (
           <FadeInWrapper key="vault">
-            <RecordList />
+            <RecordList activeTabUrl={currentUrl} />
           </FadeInWrapper>
         )
       case 'authenticator':
