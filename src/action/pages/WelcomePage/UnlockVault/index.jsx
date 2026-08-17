@@ -13,6 +13,7 @@ import { InputPasswordPearPass } from '../../../../shared/components/InputPasswo
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
+import { setLastOpenedVaultId } from '../../../../shared/utils/lastOpenedVaultStorage'
 import { logger } from '../../../../shared/utils/logger'
 import { useVaultOpenedRedirect } from '../../../app/hooks/useVaultOpenedRedirect'
 import { WelcomeCardHeader } from '../components/WelcomeCardHeader'
@@ -47,6 +48,8 @@ export const UnlockVault = () => {
       setIsLoading(true)
 
       await refetchVault(params.vaultId, { password: values.password })
+
+      setLastOpenedVaultId(params.vaultId)
 
       setIsLoading(false)
 

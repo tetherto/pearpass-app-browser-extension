@@ -15,6 +15,7 @@ import { InputPearPass } from '../../../../shared/components/InputPearPass'
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
+import { setLastOpenedVaultId } from '../../../../shared/utils/lastOpenedVaultStorage'
 import { logger } from '../../../../shared/utils/logger'
 import { WelcomeCardHeader } from '../components/WelcomeCardHeader'
 
@@ -54,12 +55,14 @@ export const CreateNewVault = () => {
       { type: 'GET_PLATFORM_INFO' },
       async (platform) => {
         try {
-          await createVault({
+          const createdVault = await createVault({
             name: values.name,
             password: values.password
           })
 
           await addDevice(`${platform.os} ${platform.arch}`)
+
+          setLastOpenedVaultId(createdVault?.id)
 
           setIsLoading(false)
           navigate('vault', { state: { recordType: 'all' } })

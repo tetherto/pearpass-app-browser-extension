@@ -9,6 +9,10 @@ import { AUTH_ERROR_PATTERNS } from '../../../../shared/constants/auth'
 import { NAVIGATION_ROUTES } from '../../../../shared/constants/navigation'
 import { useRouter } from '../../../../shared/context/RouterContext'
 import { secureChannelMessages } from '../../../../shared/services/messageBridge'
+import {
+  getLastOpenedVaultId,
+  setLastOpenedVaultId
+} from '../../../../shared/utils/lastOpenedVaultStorage'
 import { logger } from '../../../../shared/utils/logger'
 import { sortByName } from '../../../../shared/utils/sortByName'
 
@@ -49,29 +53,36 @@ export const EnterMasterPassword = () => {
         await initVaults({ password })
 
         const vaults = await refetchVaults()
-        const firstVault = sortByName(vaults)[0] as
-          | { id: string; name: string }
-          | undefined
+        const sortedVaults = sortByName(vaults) as Array<{
+          id: string
+          name: string
+        }>
 
-        if (!firstVault) {
+        const storedVaultId = getLastOpenedVaultId()
+        const targetVault =
+          sortedVaults.find((vault) => vault.id === storedVaultId) ??
+          sortedVaults[0]
+
+        if (!targetVault) {
           navigate(currentPage, {
             params: { state: NAVIGATION_ROUTES.VAULTS }
           })
           return
         }
 
-        const protectedVault = await isVaultProtected(firstVault.id)
+        const protectedVault = await isVaultProtected(targetVault.id)
         if (protectedVault) {
           navigate(currentPage, {
             params: {
               state: NAVIGATION_ROUTES.VAULT_PASSWORD,
-              vaultId: firstVault.id
+              vaultId: targetVault.id
             }
           })
           return
         }
 
-        await refetchVault(firstVault.id)
+        await refetchVault(targetVault.id)
+        setLastOpenedVaultId(targetVault.id)
         navigateAfterVaultOpened()
       } catch (submitError) {
         const status = await refreshMasterPasswordStatus()

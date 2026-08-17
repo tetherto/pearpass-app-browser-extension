@@ -9,6 +9,7 @@ import { CardWelcome } from '../../../../shared/components/CardWelcome'
 import { Vault } from '../../../../shared/components/Vault'
 import { useLoadingContext } from '../../../../shared/context/LoadingContext'
 import { useRouter } from '../../../../shared/context/RouterContext'
+import { setLastOpenedVaultId } from '../../../../shared/utils/lastOpenedVaultStorage'
 import { logger } from '../../../../shared/utils/logger'
 import { sortByName } from '../../../../shared/utils/sortByName'
 import { useVaultOpenedRedirect } from '../../../app/hooks/useVaultOpenedRedirect'
@@ -43,6 +44,8 @@ export const SelectOrLoadVault = () => {
       }
 
       await refetch(vaultId)
+
+      setLastOpenedVaultId(vaultId)
 
       setIsLoading(false)
 

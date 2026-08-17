@@ -19,6 +19,7 @@ import {
 
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useRouter } from '../../context/RouterContext'
+import { setLastOpenedVaultId } from '../../utils/lastOpenedVaultStorage'
 import { logger } from '../../utils/logger'
 
 export type CreateOrEditVaultModalContentProps = {
@@ -121,15 +122,16 @@ export const CreateOrEditVaultModalContent = ({
       setIsLoading(true)
       setSubmitError(null)
 
-      await createVault({
+      const createdVault = (await createVault({
         name: trimmed
-      })
+      })) as Vault | undefined
 
       chrome.runtime.sendMessage(
         { type: 'GET_PLATFORM_INFO' },
         async (platform: { os: string; arch: string }) => {
           try {
             await addDevice(`${platform.os} ${platform.arch}`)
+            setLastOpenedVaultId(createdVault?.id)
             onSuccess?.()
             navigate('vault', {
               params: {},

@@ -14,6 +14,7 @@ import { useGlobalLoading } from '../../../shared/context/LoadingContext'
 import { useModal } from '../../../shared/context/ModalContext'
 import { useRouter } from '../../../shared/context/RouterContext'
 import { VaultPasswordFormModalContent } from '../../../shared/containers/VaultPasswordFormModalContent'
+import { setLastOpenedVaultId } from '../../../shared/utils/lastOpenedVaultStorage'
 import { logger } from '../../../shared/utils/logger'
 import { PASSKEY_VERIFICATION_OPTIONS } from '../../../shared/constants/storage'
 import { getPasskeyVerificationPreference } from '../../../shared/utils/passkeyVerificationPreference'
@@ -67,6 +68,7 @@ export const PasskeyContainer = ({
               try {
                 setIsVaultChanging(true)
                 await refetchVault(vault.id, { password })
+                setLastOpenedVaultId(vault.id)
                 closeModal()
                 await Promise.all([refetchUserData(), refetchVaults()])
                 onVaultChange?.()
@@ -83,6 +85,7 @@ export const PasskeyContainer = ({
 
       setIsVaultChanging(true)
       await refetchVault(vault.id)
+      setLastOpenedVaultId(vault.id)
       await Promise.all([refetchUserData(), refetchVaults()])
       onVaultChange?.()
     } catch (error) {

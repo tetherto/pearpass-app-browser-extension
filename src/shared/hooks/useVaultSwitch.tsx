@@ -7,6 +7,7 @@ import { VaultPasswordFormModalContent } from '../containers/VaultPasswordFormMo
 import { useLoadingContext } from '../context/LoadingContext'
 import { useModal } from '../context/ModalContext'
 import { useToast } from '../context/ToastContext'
+import { setLastOpenedVaultId } from '../utils/lastOpenedVaultStorage'
 import { logger } from '../utils/logger'
 
 /**
@@ -48,6 +49,7 @@ export function useVaultSwitch() {
                 setIsLoading(true)
                 try {
                   await refetchVault(vault.id, { password })
+                  setLastOpenedVaultId(vault.id)
                   closeModal()
                   await onSuccess()
                 } catch (error) {
@@ -62,6 +64,7 @@ export function useVaultSwitch() {
         }
 
         await refetchVault(vault.id)
+        setLastOpenedVaultId(vault.id)
         await onSuccess()
       } catch (error) {
         logger.error('useVaultSwitch', 'Error switching to vault:', error)
