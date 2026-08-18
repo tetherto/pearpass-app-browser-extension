@@ -149,6 +149,56 @@ describe('SecureChannelClient', () => {
     })
   })
 
+  it('beginHandshake tells the desktop which browser is calling', async () => {
+    const client = new SecureChannelClient()
+
+    await secureChannel.pinIdentity({
+      fingerprint: 'ff00aa11',
+      ed25519PublicKey: Buffer.from('desktop-edpk').toString('base64'),
+      x25519PublicKey: 'xpk'
+    })
+
+    mockSendRequest.mockImplementation(async (command) => {
+      if (command === 'nmBeginHandshake') {
+        return {
+          hostEphemeralPubB64: Buffer.from('host').toString('base64'),
+          signatureB64: Buffer.from('sig').toString('base64'),
+          sessionId: 'session-1'
+        }
+      }
+      throw new Error('NotImplemented')
+    })
+
+    await client.beginHandshake()
+
+    // The desktop may be paired with several browsers and cannot sign the
+    // right transcript unless we identify ourselves
+    const [, params] = mockSendRequest.mock.calls.find(
+      ([name]) => name === 'nmBeginHandshake'
+    )
+    expect(params.extEphemeralPubB64).toEqual(expect.any(String))
+    expect(params.clientEd25519PublicKeyB64).toEqual(expect.any(String))
+  })
+
+  it('beginHandshake does not open a desktop session when not paired', async () => {
+    const client = new SecureChannelClient()
+
+    mockSendRequest.mockImplementation(async () => {
+      throw new Error('NotImplemented')
+    })
+
+    const result = await client.beginHandshake()
+
+    expect(result).toEqual({
+      ok: false,
+      error: SESSION_ERROR_PATTERNS.NOT_PAIRED
+    })
+    expect(mockSendRequest).not.toHaveBeenCalledWith(
+      'nmBeginHandshake',
+      expect.anything()
+    )
+  })
+
   it('beginHandshake returns SignatureInvalid but does not clear pairing', async () => {
     const client = new SecureChannelClient()
 

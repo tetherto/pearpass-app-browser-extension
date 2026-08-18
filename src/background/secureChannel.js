@@ -444,6 +444,15 @@ export class SecureChannelClient {
    */
   async beginHandshake() {
     try {
+      // Check pairing before anything else: an unpaired extension has no
+      // client identity to load and no reason to open a session on the desktop
+      const pinnedIdentity = await this.getPinnedIdentity()
+      if (!pinnedIdentity) {
+        // Trigger pairing modal when not paired
+        await this.clearSession(SESSION_ERROR_PATTERNS.NOT_PAIRED)
+        return { ok: false, error: SESSION_ERROR_PATTERNS.NOT_PAIRED }
+      }
+
       // Generate ephemeral keypair (X25519-compatible)
       const extensionEphemeralKeyPair = generateX25519KeyPair()
       const extensionEphemeralPublicKeyB64 = base64Encode(
@@ -453,28 +462,23 @@ export class SecureChannelClient {
       // Hold ephemeral in instance for finish
       this._ephemeralKeyPair = extensionEphemeralKeyPair
 
+      // Load client identity up front: the desktop can be paired with several
+      // browsers, so it needs to know which one is calling to sign the right
+      // transcript. The same key goes into the transcript we verify below.
+      const clientIdentity = await getOrCreateClientIdentity()
+
       // Request host handshake
       const handshakeResponse = await nativeMessaging.sendRequest(
         'nmBeginHandshake',
         {
-          extEphemeralPubB64: extensionEphemeralPublicKeyB64
+          extEphemeralPubB64: extensionEphemeralPublicKeyB64,
+          clientEd25519PublicKeyB64: base64Encode(clientIdentity.publicKey)
         }
       )
-
-      // Load pinned identity to verify signature
-      const pinnedIdentity = await this.getPinnedIdentity()
-      if (!pinnedIdentity) {
-        // Trigger pairing modal when not paired
-        await this.clearSession(SESSION_ERROR_PATTERNS.NOT_PAIRED)
-        return { ok: false, error: SESSION_ERROR_PATTERNS.NOT_PAIRED }
-      }
 
       const hostEphemeralPublicKeyBytes = base64Decode(
         handshakeResponse.hostEphemeralPubB64
       )
-
-      // Load client identity to include in transcript
-      const clientIdentity = await getOrCreateClientIdentity()
 
       // Verify signature over transcript = host_eph_pk || ext_eph_pk || client_ed25519_pk
       // Binds the handshake to the specific extension identity that was registered during pairing
