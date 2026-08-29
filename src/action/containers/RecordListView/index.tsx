@@ -41,6 +41,8 @@ type ActiveContextMenu = {
 
 const sectionLabel = (key: string, fallback: string): string => {
   switch (key) {
+    case 'recommended':
+      return t`Recommended`
     case 'favorites':
       return t`Favorites`
     case 'all':
