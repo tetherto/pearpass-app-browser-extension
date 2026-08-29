@@ -31,7 +31,8 @@ export const MESSAGE_TYPES = Object.freeze({
   GET_AUTO_LOCK_SETTINGS: 'GET_AUTO_LOCK_SETTINGS',
   SET_AUTO_LOCK_ENABLED: 'SET_AUTO_LOCK_ENABLED',
   SET_AUTO_LOCK_TIMEOUT: 'SET_AUTO_LOCK_TIMEOUT',
-  RESET_TIMER: 'RESET_TIMER'
+  RESET_TIMER: 'RESET_TIMER',
+  SET_CLIPBOARD_CLEAR_TIMEOUT: 'SET_CLIPBOARD_CLEAR_TIMEOUT'
 })
 
 /**
@@ -272,6 +273,16 @@ export const secureChannelMessages = {
 
   async resetTimer() {
     return messageBridge.sendMessage(MESSAGE_TYPES.RESET_TIMER)
+  },
+
+  async setClipboardClearTimeout(clipboardClearTimeoutMs) {
+    return messageBridge.sendMessage(
+      MESSAGE_TYPES.SET_CLIPBOARD_CLEAR_TIMEOUT,
+
+      {
+        clipboardClearTimeoutMs
+      }
+    )
   }
 }
 

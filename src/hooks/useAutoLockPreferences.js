@@ -66,6 +66,7 @@ export const AutoLockProvider = ({ children }) => {
   }, [])
 
   const setAutoLockEnabled = useCallback((autoLockEnabled) => {
+    setIsAutoLockEnabledState(autoLockEnabled)
     chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.SET_AUTO_LOCK_ENABLED,
       autoLockEnabled
@@ -73,6 +74,7 @@ export const AutoLockProvider = ({ children }) => {
   }, [])
 
   const setTimeoutMs = useCallback((ms) => {
+    setTimeoutMsState(ms)
     chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.SET_AUTO_LOCK_TIMEOUT,
       autoLockTimeoutMs: ms

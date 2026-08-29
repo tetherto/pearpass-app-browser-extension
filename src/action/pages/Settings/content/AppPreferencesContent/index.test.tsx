@@ -119,7 +119,13 @@ jest.mock('@tetherto/pearpass-lib-constants', () => ({
     SECONDS_30: { label: '30 seconds', value: 30_000 },
     MINUTES_1: { label: '1 minute', value: 60_000 },
     NEVER: { label: 'Never', value: null }
-  }
+  },
+  CLIPBOARD_CLEAR_TIMEOUT_OPTIONS: {
+    MINUTES_1: { label: '1 minute', value: 60_000 },
+    MINUTES_5: { label: '5 minutes', value: 300_000 },
+    NEVER: { label: 'Never', value: null }
+  },
+  DEFAULT_CLIPBOARD_CLEAR_TIMEOUT: 60_000
 }))
 
 const mockSetAutofill = jest.fn(async () => undefined)
@@ -142,10 +148,12 @@ jest.mock('@lingui/react', () => ({
 }))
 
 const mockSetTimeoutMs = jest.fn()
+const mockSetClipboardClearTimeoutMs = jest.fn()
 const mockSetAllowHttp = jest.fn()
 const mockHandleCopyChange = jest.fn()
 
 let mockTimeoutMs: number | null = 30_000
+let mockClipboardClearTimeoutMs: number | null = 60_000
 let mockIsAllowHttpEnabled = false
 let mockIsCopyEnabled = true
 
@@ -154,6 +162,14 @@ jest.mock('../../../../../hooks/useAutoLockPreferences', () => ({
   useAutoLockPreferences: () => ({
     timeoutMs: mockTimeoutMs,
     setTimeoutMs: mockSetTimeoutMs
+  })
+}))
+
+jest.mock('../../../../../hooks/useClipboardClearPreferences', () => ({
+  __esModule: true,
+  useClipboardClearPreferences: () => ({
+    clipboardClearTimeoutMs: mockClipboardClearTimeoutMs,
+    setClipboardClearTimeoutMs: mockSetClipboardClearTimeoutMs
   })
 }))
 
@@ -183,12 +199,14 @@ import { AppPreferencesContent } from './index'
 describe('AppPreferencesContent', () => {
   beforeEach(() => {
     mockSetTimeoutMs.mockClear()
+    mockSetClipboardClearTimeoutMs.mockClear()
     mockSetAllowHttp.mockClear()
     mockHandleCopyChange.mockClear()
     mockSetAutofill.mockClear()
     mockGetAutofill.mockClear()
     mockGetAutofill.mockResolvedValue(true)
     mockTimeoutMs = 30_000
+    mockClipboardClearTimeoutMs = 60_000
     mockIsAllowHttpEnabled = false
     mockIsCopyEnabled = true
     localStorage.clear()
@@ -205,11 +223,14 @@ describe('AppPreferencesContent', () => {
     expect(screen.getByText('Security Awareness')).toBeInTheDocument()
   })
 
-  it('renders only in-scope fields (no Clear Clipboard, no Unlock Method)', () => {
+  it('renders all expected fields (no Unlock Method)', () => {
     render(<AppPreferencesContent />)
 
     expect(screen.getByTestId('settings-autofill-toggle')).toBeInTheDocument()
     expect(screen.getByTestId('settings-allow-http-toggle')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('settings-clipboard-clear-select')
+    ).toBeInTheDocument()
     expect(screen.getByTestId('settings-auto-lock-select')).toBeInTheDocument()
     expect(
       screen.getByTestId('settings-copy-to-clipboard-toggle')
@@ -219,7 +240,6 @@ describe('AppPreferencesContent', () => {
       screen.getByTestId('settings-passkey-validation')
     ).toBeInTheDocument()
 
-    expect(screen.queryByText('Clear Clipboard')).not.toBeInTheDocument()
     expect(screen.queryByText('Unlock Method')).not.toBeInTheDocument()
     expect(screen.queryByText('Master Password')).not.toBeInTheDocument()
     expect(screen.queryByText('PIN Code')).not.toBeInTheDocument()
@@ -285,5 +305,14 @@ describe('AppPreferencesContent', () => {
     fireEvent.click(screen.getByTestId('settings-auto-lock-option-minutes_1'))
 
     expect(mockSetTimeoutMs).toHaveBeenCalledWith(60_000)
+  })
+
+  it('opens the clipboard clear dropdown and calls setClipboardClearTimeoutMs on selection', () => {
+    render(<AppPreferencesContent />)
+
+    fireEvent.click(screen.getByTestId('settings-clipboard-clear-select'))
+    fireEvent.click(screen.getByTestId('settings-clipboard-clear-option-never'))
+
+    expect(mockSetClipboardClearTimeoutMs).toHaveBeenCalledWith(null)
   })
 })

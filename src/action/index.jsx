@@ -7,6 +7,7 @@ import { VaultProvider } from '@tetherto/pearpass-lib-vault'
 import { createRoot } from 'react-dom/client'
 
 import { AutoLockProvider } from '../hooks/useAutoLockPreferences'
+import { ClipboardClearProvider } from '../hooks/useClipboardClearPreferences'
 import { messages } from '../locales/en/messages.mjs'
 import { createClient } from '../shared/client'
 import { AppWithBlockingState } from '../shared/containers/AppWithBlockingState'
@@ -48,11 +49,13 @@ createRoot(document.getElementById('root')).render(
             <I18nProvider i18n={i18n}>
               <RouterProvider>
                 <AutoLockProvider>
-                  <ModalProvider>
-                    <AppHeaderContextProvider>
-                      <AppWithBlockingState />
-                    </AppHeaderContextProvider>
-                  </ModalProvider>
+                  <ClipboardClearProvider>
+                    <ModalProvider>
+                      <AppHeaderContextProvider>
+                        <AppWithBlockingState />
+                      </AppHeaderContextProvider>
+                    </ModalProvider>
+                  </ClipboardClearProvider>
                 </AutoLockProvider>
               </RouterProvider>
             </I18nProvider>
