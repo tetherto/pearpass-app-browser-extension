@@ -14,6 +14,7 @@ import {
   Add,
   Devices,
   Edit,
+  ImportOutlined,
   LockOutlined,
   MoreVert,
   PersonAdd,
@@ -30,6 +31,7 @@ import type { ReactNode } from 'react'
 import { AddDeviceModalContent } from '../../../../../shared/containers/AddDeviceModalContent'
 import { CreateOrEditVaultModalContent } from '../../../../../shared/containers/CreateOrEditVaultModalContent'
 import { DeleteVaultModalContent } from '../../../../../shared/containers/DeleteVaultModalContent'
+import { ImportItemOrVaultModalContent } from '../../../../../shared/containers/ImportItemOrVaultModalContent'
 import { PairedDevicesModalContent } from '../../../../../shared/containers/PairedDevicesModalContent'
 import { useModal } from '../../../../../shared/context/ModalContext'
 import { sortByName } from '../../../../../shared/utils/sortByName'
@@ -83,6 +85,10 @@ export const YourVaultsContent = () => {
       />
     )
   }, [closeModal, setModal])
+
+  const openImportModal = useCallback(() => {
+    setModal(<ImportItemOrVaultModalContent />)
+  }, [setModal])
 
   const openEditModal = useCallback(
     (v: Vault) => {
@@ -264,7 +270,7 @@ export const YourVaultsContent = () => {
               />
             </div>
           ))}
-          <div className="px-[4px] py-[4px]">
+          <div className="flex flex-row items-center gap-[4px] px-[4px] py-[4px]">
             <Button
               variant="tertiary"
               size="small"
@@ -273,6 +279,15 @@ export const YourVaultsContent = () => {
               onClick={openCreateModal}
             >
               {t`Create New Vault`}
+            </Button>
+            <Button
+              variant="tertiary"
+              size="small"
+              data-testid="settings-your-vaults-import"
+              iconBefore={<ImportOutlined color={theme.colors.colorPrimary} />}
+              onClick={openImportModal}
+            >
+              {t`Import Vault`}
             </Button>
           </div>
         </div>
